@@ -35,7 +35,8 @@ return [
         'totp_window' => 1,  // steps either side of current accepted (1 = ±30s clock drift)
         'verification_ttl_seconds' => 600, // how long a verified 2FA state is trusted for token users
         'recovery_codes_count' => 8,
-        'require_password_on_manage' => true,
+        'require_password_on_manage' => true,  // gates disable + regenerate recovery codes
+        'require_password_on_enable' => false, // enabling 2FA is security-positive; no password needed
     ],
     'tokens' => [
         'default_abilities' => ['*'],
