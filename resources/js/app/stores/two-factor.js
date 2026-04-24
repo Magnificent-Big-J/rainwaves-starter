@@ -32,6 +32,7 @@ export const useTwoFactorStore = defineStore('twoFactorAuth', {
             otpauthUrl: null,
             qrCodeDataUrl: null,
             recoveryCodes: [],
+            emailPending: false,
         },
         loading: false,
     }),
@@ -57,19 +58,43 @@ export const useTwoFactorStore = defineStore('twoFactorAuth', {
                 this.loading = false;
             }
         },
+        async verifyEmailSetup(code) {
+            this.loading = true;
+
+            try {
+                await csrfCookie();
+
+                await api(`${SESSION_BASE}/2fa/verify-otp`, {
+                    method: 'POST',
+                    body: { code },
+                    headers: {
+                        'X-XSRF-TOKEN': getXsrfToken(),
+                    },
+                });
+
+                this.setup.emailPending = false;
+                await this.getStatus();
+            } finally {
+                this.loading = false;
+            }
+        },
         async resendLoginCode(password = '') {
             this.loading = true;
 
             try {
                 await csrfCookie();
 
-                return await api(`${SESSION_BASE}/2fa/email`, {
+                const result = await api(`${SESSION_BASE}/2fa/email`, {
                     method: 'POST',
                     body: password ? { password } : {},
                     headers: {
                         'X-XSRF-TOKEN': getXsrfToken(),
                     },
                 });
+
+                this.setup.emailPending = true;
+
+                return result;
             } finally {
                 this.loading = false;
             }
@@ -194,6 +219,7 @@ export const useTwoFactorStore = defineStore('twoFactorAuth', {
                     otpauthUrl: null,
                     qrCodeDataUrl: null,
                     recoveryCodes: [],
+                    emailPending: false,
                 };
 
                 await this.getStatus().catch(() => null);

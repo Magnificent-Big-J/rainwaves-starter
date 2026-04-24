@@ -98,10 +98,14 @@
 
                 <TwoFactorSetupPanel
                     :enabled="Boolean(twoFactor.status?.enabled)"
+                    :channel="twoFactor.status?.channel ?? null"
                     :loading="twoFactor.loading"
                     :secret="twoFactor.setup.secret"
                     :qr-code-data-url="twoFactor.setup.qrCodeDataUrl"
                     :code="totpCode"
+                    :email-pending="twoFactor.setup.emailPending"
+                    :email-code="emailCode"
+                    :user-email="session.user?.email ?? ''"
                     :message="twoFaMsg"
                     :message-type="twoFaMsgType"
                     @start="startTotpSetup"
@@ -109,7 +113,10 @@
                     @disable="showDisableConfirm = true"
                     @verify="verifyTotp"
                     @cancel="cancelTotpSetup"
+                    @verify-email="verifyEmailSetup"
+                    @cancel-email="cancelEmailSetup"
                     @update:code="totpCode = $event"
+                    @update:email-code="emailCode = $event"
                 />
 
                 <AppSectionCard
@@ -195,6 +202,7 @@ const twoFaMsgType = ref('success');
 const twoFaMsg = ref('');
 const twoFaPassword = ref('');
 const totpCode = ref('');
+const emailCode = ref('');
 const showDisableConfirm = ref(false);
 
 const syncProfileForm = () => {
@@ -250,6 +258,21 @@ const cancelTotpSetup = () => {
     totpCode.value = '';
 };
 
+const cancelEmailSetup = () => {
+    twoFactor.setup.emailPending = false;
+    emailCode.value = '';
+};
+
+const verifyEmailSetup = async () => {
+    try {
+        await twoFactor.verifyEmailSetup(emailCode.value);
+        emailCode.value = '';
+        setTwoFaMsg('success', 'Email OTP enabled. You will be asked for a code at each login.');
+    } catch (error) {
+        setTwoFaMsg('error', error?.data?.message || 'Invalid code — try again.');
+    }
+};
+
 const cancelDisableTwoFactor = () => {
     showDisableConfirm.value = false;
     twoFaPassword.value = '';
@@ -276,9 +299,9 @@ const verifyTotp = async () => {
 };
 
 const sendEmailCode = async () => {
+    twoFaMsg.value = '';
     try {
         await twoFactor.resendLoginCode('');
-        setTwoFaMsg('success', 'Verification code sent to your email.');
     } catch (error) {
         setTwoFaMsg('error', error?.data?.message || 'Unable to send code.');
     }
