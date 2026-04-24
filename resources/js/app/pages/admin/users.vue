@@ -21,28 +21,34 @@
                 </template>
             </AppPageHeader>
 
+            <AppFilterBar>
+                <AppTextField
+                    v-model="filters.search"
+                    label="Search users"
+                    prepend-inner-icon="mdi-magnify"
+                    class="admin-users__search"
+                    @update:model-value="onSearch"
+                />
+                <AppSelect
+                    v-model="filters.role"
+                    :items="[{ title: 'All roles', value: '' }, ...store.options.roles.map(r => ({ title: r, value: r }))]"
+                    label="Filter by role"
+                    class="admin-users__role-filter"
+                    @update:model-value="onRoleFilter"
+                />
+            </AppFilterBar>
+
             <AppDataTable
                 title="All users"
                 :columns="columns"
                 :rows="store.rows"
                 :meta="store.meta"
                 :loading="store.loading"
-                searchable
                 empty-title="No users found"
                 empty-text="Seed starter accounts or create the first admin user from this table."
-                @search="onSearch"
                 @page-change="onPage"
                 @row-click="openEdit"
             >
-                <template #toolbar>
-                    <AppSelect
-                        v-model="filters.role"
-                        :items="[{ title: 'All roles', value: '' }, ...store.options.roles.map(r => ({ title: r, value: r }))]"
-                        label="Filter by role"
-                        class="admin-users__role-filter"
-                        @update:model-value="onRoleFilter"
-                    />
-                </template>
 
                 <template #row="{ row }">
                     <td>
@@ -82,19 +88,26 @@
             </AppDataTable>
         </div>
 
-        <v-dialog v-model="dialog.open" max-width="520" persistent>
-            <v-card class="dialog-card">
-                <v-card-title class="dialog-card__title">
-                    {{ dialog.mode === 'create' ? 'New user' : 'Edit user' }}
-                </v-card-title>
+        <AppModal
+            v-model="dialog.open"
+            :title="dialog.mode === 'create' ? 'New user' : 'Edit user'"
+            subtitle="Create and update starter accounts with reusable form primitives."
+            persistent
+        >
+            <div class="dialog-form">
+                <template v-if="store.loading && dialog.mode === 'edit' && !dialog.form.name">
+                    <AppSkeleton height="2.8rem" />
+                    <AppSkeleton height="2.8rem" />
+                    <AppSkeleton height="2.8rem" />
+                </template>
 
-                <v-card-text class="dialog-form">
+                <template v-else>
                     <FormStatusAlert :message="dialog.message" :type="dialog.messageType" />
 
                     <v-form @submit.prevent="submitDialog">
                         <v-row dense>
                             <v-col cols="12">
-                                <v-text-field
+                                <AppTextField
                                     v-model="dialog.form.name"
                                     label="Name"
                                     :error-messages="dialog.errors.name"
@@ -102,7 +115,7 @@
                                 />
                             </v-col>
                             <v-col cols="12">
-                                <v-text-field
+                                <AppTextField
                                     v-model="dialog.form.email"
                                     label="Email"
                                     type="email"
@@ -111,7 +124,7 @@
                                 />
                             </v-col>
                             <v-col cols="12">
-                                <v-text-field
+                                <AppTextField
                                     v-model="dialog.form.password"
                                     label="Password"
                                     type="password"
@@ -121,7 +134,7 @@
                                 />
                             </v-col>
                             <v-col v-if="dialog.mode === 'create'" cols="12">
-                                <v-text-field
+                                <AppTextField
                                     v-model="dialog.form.password_confirmation"
                                     label="Confirm password"
                                     type="password"
@@ -140,21 +153,21 @@
                                 />
                             </v-col>
                         </v-row>
-
-                        <div class="dialog-actions">
-                            <v-btn variant="text" @click="closeDialog">Cancel</v-btn>
-                            <v-btn
-                                type="submit"
-                                color="primary"
-                                :loading="store.loading"
-                            >
-                                {{ dialog.mode === 'create' ? 'Create user' : 'Save changes' }}
-                            </v-btn>
-                        </div>
                     </v-form>
-                </v-card-text>
-            </v-card>
-        </v-dialog>
+                </template>
+            </div>
+
+            <template #actions>
+                <v-btn variant="text" @click="closeDialog">Cancel</v-btn>
+                <v-btn
+                    color="primary"
+                    :loading="store.loading"
+                    @click="submitDialog"
+                >
+                    {{ dialog.mode === 'create' ? 'Create user' : 'Save changes' }}
+                </v-btn>
+            </template>
+        </AppModal>
 
         <ConfirmDialog
             v-model="confirmSeed.open"
@@ -181,6 +194,10 @@
 <script setup>
 import { onMounted, reactive } from 'vue';
 
+import AppFilterBar from '../../components/AppFilterBar.vue';
+import AppModal from '../../components/AppModal.vue';
+import AppSkeleton from '../../components/AppSkeleton.vue';
+import AppTextField from '../../components/AppTextField.vue';
 import { useAdminUsersStore } from '../../stores/admin-users';
 
 const store = useAdminUsersStore();
@@ -307,6 +324,10 @@ onMounted(load);
     min-width: 220px;
 }
 
+.admin-users__search {
+    min-width: min(360px, 100%);
+}
+
 .user-cell {
     display: flex;
     align-items: center;
@@ -343,26 +364,8 @@ onMounted(load);
     font-size: 0.85rem;
 }
 
-.dialog-card {
-    background: rgba(255, 253, 248, 0.98);
-    border: 1px solid rgba(17, 34, 51, 0.08);
-}
-
-.dialog-card__title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    padding-bottom: 0.5rem;
-}
-
 .dialog-form {
     display: grid;
     gap: 0.5rem;
-}
-
-.dialog-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
 }
 </style>

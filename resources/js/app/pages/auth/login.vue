@@ -8,7 +8,7 @@
         <FormStatusAlert :message="formMessage" :type="formMessageType" />
 
         <v-form class="auth-form" @submit.prevent="submit">
-            <v-text-field
+            <AppTextField
                 v-model="form.email"
                 label="Email"
                 type="email"
@@ -16,7 +16,7 @@
                 required
             />
 
-            <v-text-field
+            <AppTextField
                 v-model="form.password"
                 label="Password"
                 type="password"
@@ -48,6 +48,7 @@
 import { reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
+import AppTextField from '../../components/AppTextField.vue';
 import { useSessionStore } from '../../stores/session';
 
 const router = useRouter();

@@ -126,8 +126,52 @@
                         />
                     </AppSectionCard>
                 </v-col>
+
+                <v-col cols="12" md="6">
+                    <AppSectionCard title="File input" subtitle="Shared upload field wrapper for billing, imports, and content tools.">
+                        <AppFileInput
+                            v-model="demoFile"
+                            label="Attach example file"
+                            hint="Demonstrates the shared file-field API."
+                            accept=".pdf,.png,.jpg"
+                        />
+                    </AppSectionCard>
+                </v-col>
+
+                <v-col cols="12" md="6">
+                    <AppSectionCard title="Modal and drawer" subtitle="Interaction primitives for forms, detail views, and secondary flows.">
+                        <div class="foundation-actions">
+                            <v-btn color="primary" @click="demoModal = true">Open modal</v-btn>
+                            <v-btn variant="outlined" @click="demoDrawer = true">Open drawer</v-btn>
+                        </div>
+                    </AppSectionCard>
+                </v-col>
+
+                <v-col cols="12">
+                    <AppSectionCard title="Timeline pattern" subtitle="Starter-ready structure for activity feeds, payment events, and rollout history.">
+                        <AppTimeline :items="timelineItems" />
+                    </AppSectionCard>
+                </v-col>
             </v-row>
         </div>
+
+        <AppModal v-model="demoModal" title="Starter modal" subtitle="Use for focused create/edit flows.">
+            <div class="foundation-modal">
+                <AppTextField label="Example field" placeholder="Shared text input" />
+                <AppTextarea label="Example notes" placeholder="Shared textarea for longer content" />
+            </div>
+
+            <template #actions>
+                <v-btn variant="text" @click="demoModal = false">Close</v-btn>
+                <v-btn color="primary" @click="demoModal = false">Confirm</v-btn>
+            </template>
+        </AppModal>
+
+        <AppDrawer v-model="demoDrawer" title="Starter drawer" subtitle="Use for side-panel detail views and quick tools.">
+            <AppSkeleton height="2.4rem" />
+            <AppSkeleton height="2.4rem" />
+            <AppSkeleton height="7rem" />
+        </AppDrawer>
     </div>
 </template>
 
@@ -141,6 +185,8 @@
 </route>
 
 <script setup>
+import { ref } from 'vue';
+
 const items = [
     {
         title: 'Page scaffolding',
@@ -173,6 +219,32 @@ const velocitySeries = [
 const coverageLabels = ['Forms', 'Data', 'Widgets', 'Dialogs'];
 const coverageSeries = [34, 28, 22, 16];
 const coverageColors = ['#006a4a', '#b45309', '#0369a1', '#9f1239'];
+const demoModal = ref(false);
+const demoDrawer = ref(false);
+const demoFile = ref(null);
+const timelineItems = [
+    {
+        id: 1,
+        title: 'Commercial UI kit baseline',
+        time: 'Current',
+        text: 'Shared headers, badges, chart widgets, notification surfaces, and form wrappers are now part of the starter itself.',
+        type: 'success',
+    },
+    {
+        id: 2,
+        title: 'Interaction layer expansion',
+        time: 'Next',
+        text: 'Dialogs, drawers, filter bars, file fields, and timelines give module teams a faster starting point without rewriting shell behavior.',
+        type: 'info',
+    },
+    {
+        id: 3,
+        title: 'Module extraction pass',
+        time: 'After',
+        text: 'Billing, dashboard, and admin screens will keep donating stable patterns back into the shared kit.',
+        type: 'warning',
+    },
+];
 </script>
 
 <style scoped>
@@ -203,6 +275,12 @@ const coverageColors = ['#006a4a', '#b45309', '#0369a1', '#9f1239'];
     display: flex;
     gap: 0.65rem;
     flex-wrap: wrap;
+}
+
+.foundation-actions,
+.foundation-modal {
+    display: grid;
+    gap: 0.75rem;
 }
 
 @media (max-width: 960px) {

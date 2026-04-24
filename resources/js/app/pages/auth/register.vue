@@ -25,7 +25,7 @@
             <FormStatusAlert :message="formMessage" :type="formMessageType" />
 
             <v-form class="auth-form" @submit.prevent="submit">
-                <v-text-field
+                <AppTextField
                     v-model="form.name"
                     label="Full name"
                     :error-messages="errors.name"
@@ -33,7 +33,7 @@
                     required
                 />
 
-                <v-text-field
+                <AppTextField
                     v-model="form.email"
                     label="Email address"
                     type="email"
@@ -42,7 +42,7 @@
                     required
                 />
 
-                <v-text-field
+                <AppTextField
                     v-model="form.password"
                     label="Password"
                     type="password"
@@ -51,7 +51,7 @@
                     required
                 />
 
-                <v-text-field
+                <AppTextField
                     v-model="form.password_confirmation"
                     label="Confirm password"
                     type="password"
@@ -85,6 +85,7 @@ import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import AuthCard from '../../components/AuthCard.vue';
+import AppTextField from '../../components/AppTextField.vue';
 import FormActions from '../../components/FormActions.vue';
 import FormStatusAlert from '../../components/FormStatusAlert.vue';
 import { api } from '../../utils/api';
