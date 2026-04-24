@@ -8,7 +8,16 @@
     "require": {
         "php": "^8.3",
         "laravel/framework": "^13.0",
-        "laravel/tinker": "^3.0"
+        "laravel/horizon": "^5.46",
+        "laravel/sanctum": "^4.3",
+        "laravel/tinker": "^3.0",
+        "league/flysystem-aws-s3-v3": "^3.32",
+        "predis/predis": "^3.4",
+        "rainwaves/lara-auth-suite": "^2.0",
+        "rainwaves/payfast-payment": "^1.7",
+        "spatie/laravel-activitylog": "^5.0",
+        "spatie/laravel-medialibrary": "^11.21",
+        "spatie/laravel-permission": "^7.3"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

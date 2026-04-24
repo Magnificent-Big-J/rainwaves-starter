@@ -31,6 +31,7 @@ export const useTwoFactorStore = defineStore('twoFactorAuth', {
             secret: null,
             otpauthUrl: null,
             qrCodeDataUrl: null,
+            recoveryCodes: [],
         },
         loading: false,
     }),
@@ -56,7 +57,7 @@ export const useTwoFactorStore = defineStore('twoFactorAuth', {
                 this.loading = false;
             }
         },
-        async resendLoginCode() {
+        async resendLoginCode(password = '') {
             this.loading = true;
 
             try {
@@ -64,7 +65,7 @@ export const useTwoFactorStore = defineStore('twoFactorAuth', {
 
                 return await api(`${SESSION_BASE}/2fa/email`, {
                     method: 'POST',
-                    body: {},
+                    body: password ? { password } : {},
                     headers: {
                         'X-XSRF-TOKEN': getXsrfToken(),
                     },
@@ -100,19 +101,23 @@ export const useTwoFactorStore = defineStore('twoFactorAuth', {
                 });
 
                 let secret = extractSecret(response);
+                let otpauthUrl = response?.uri || null;
 
-                if (!secret) {
+                if (!secret || !otpauthUrl) {
                     const status = await this.getStatus().catch(() => null);
-                    secret = extractSecret(status);
+                    secret = secret || extractSecret(status);
                 }
 
-                const issuer = import.meta.env.VITE_APP_NAME || 'Rainwaves Starter';
-                const otpauthUrl = buildOtpAuthUri({ secret, account, issuer });
+                if (!otpauthUrl) {
+                    const issuer = import.meta.env.VITE_APP_NAME || 'Rainwaves Starter';
+                    otpauthUrl = buildOtpAuthUri({ secret, account, issuer });
+                }
+
                 const qrCodeDataUrl = otpauthUrl
                     ? await QRCode.toDataURL(otpauthUrl, { width: 220, margin: 1 })
                     : null;
 
-                this.setup = { secret, otpauthUrl, qrCodeDataUrl };
+                this.setup = { secret, otpauthUrl, qrCodeDataUrl, recoveryCodes: [] };
 
                 return response;
             } finally {
@@ -125,13 +130,47 @@ export const useTwoFactorStore = defineStore('twoFactorAuth', {
             try {
                 await csrfCookie();
 
-                return await api(`${SESSION_BASE}/2fa/totp/verify`, {
+                const response = await api(`${SESSION_BASE}/2fa/totp/verify`, {
                     method: 'POST',
                     body: { code },
                     headers: {
                         'X-XSRF-TOKEN': getXsrfToken(),
                     },
                 });
+
+                if (response?.user) {
+                    const session = useSessionStore();
+                    session.setPendingTwoFactor(false);
+                    session.setUser(response.user);
+                }
+
+                this.setup.recoveryCodes = response?.recovery_codes || [];
+                await this.getStatus().catch(() => null);
+
+                return response;
+            } finally {
+                this.loading = false;
+            }
+        },
+        async verifyRecoveryCode(code) {
+            this.loading = true;
+
+            try {
+                await csrfCookie();
+
+                const response = await api(`${SESSION_BASE}/2fa/recovery/verify`, {
+                    method: 'POST',
+                    body: { code },
+                    headers: {
+                        'X-XSRF-TOKEN': getXsrfToken(),
+                    },
+                });
+
+                const session = useSessionStore();
+                session.setPendingTwoFactor(false);
+                session.setUser(response?.user || null);
+
+                return response;
             } finally {
                 this.loading = false;
             }
@@ -154,7 +193,31 @@ export const useTwoFactorStore = defineStore('twoFactorAuth', {
                     secret: null,
                     otpauthUrl: null,
                     qrCodeDataUrl: null,
+                    recoveryCodes: [],
                 };
+
+                await this.getStatus().catch(() => null);
+            } finally {
+                this.loading = false;
+            }
+        },
+        async regenerateRecoveryCodes(password) {
+            this.loading = true;
+
+            try {
+                await csrfCookie();
+
+                const response = await api(`${SESSION_BASE}/2fa/recovery/regenerate`, {
+                    method: 'POST',
+                    body: password ? { password } : undefined,
+                    headers: {
+                        'X-XSRF-TOKEN': getXsrfToken(),
+                    },
+                });
+
+                this.setup.recoveryCodes = response?.recovery_codes || [];
+
+                return response;
             } finally {
                 this.loading = false;
             }

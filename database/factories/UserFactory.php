@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -41,5 +42,44 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    public function owner(): static
+    {
+        return $this
+            ->state(fn () => [
+                'name' => 'Starter Owner',
+                'email' => 'owner@rainwaves.test',
+                'email_verified_at' => Carbon::now(),
+            ])
+            ->afterCreating(function (User $user): void {
+                $user->syncRoles(['super-admin']);
+            });
+    }
+
+    public function ops(): static
+    {
+        return $this
+            ->state(fn () => [
+                'name' => 'Starter Ops',
+                'email' => 'ops@rainwaves.test',
+                'email_verified_at' => Carbon::now(),
+            ])
+            ->afterCreating(function (User $user): void {
+                $user->syncRoles(['admin']);
+            });
+    }
+
+    public function customer(): static
+    {
+        return $this
+            ->state(fn () => [
+                'name' => 'Starter Customer',
+                'email' => 'customer@rainwaves.test',
+                'email_verified_at' => Carbon::now(),
+            ])
+            ->afterCreating(function (User $user): void {
+                $user->syncRoles(['customer']);
+            });
     }
 }

@@ -40,7 +40,7 @@
 import { ref } from 'vue';
 
 import { api } from '../../utils/api';
-import { AUTH_BASE } from '../../stores/auth-shared';
+import { PASSWORD_BASE } from '../../stores/auth-shared';
 
 const email = ref('');
 const message = ref('');
@@ -52,7 +52,7 @@ const submit = async () => {
     message.value = '';
 
     try {
-        await api(`${AUTH_BASE}/forgot-password`, {
+        await api(`${PASSWORD_BASE}/forgot`, {
             method: 'POST',
             body: {
                 email: email.value,

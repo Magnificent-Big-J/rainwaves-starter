@@ -46,11 +46,11 @@
 </route>
 
 <script setup>
-import { reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { api } from '../../utils/api';
-import { AUTH_BASE } from '../../stores/auth-shared';
+import { PASSWORD_BASE } from '../../stores/auth-shared';
 
 const router = useRouter();
 const submitting = ref(false);
@@ -64,12 +64,19 @@ const form = reactive({
     password_confirmation: '',
 });
 
+onMounted(() => {
+    const params = new URLSearchParams(window.location.search);
+
+    form.email = params.get('email') || '';
+    form.token = params.get('token') || '';
+});
+
 const submit = async () => {
     submitting.value = true;
     message.value = '';
 
     try {
-        await api(`${AUTH_BASE}/reset-password`, {
+        await api(`${PASSWORD_BASE}/reset`, {
             method: 'POST',
             body: form,
         });

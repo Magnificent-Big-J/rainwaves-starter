@@ -1,7 +1,8 @@
 import { api } from '../utils/api';
 
-export const AUTH_BASE = import.meta.env.VITE_AUTH_BASE || '/api/v1/auth';
+export const AUTH_BASE = import.meta.env.VITE_AUTH_BASE || '/auth';
 export const SESSION_BASE = `${AUTH_BASE}/session`;
+export const PASSWORD_BASE = `${AUTH_BASE}/password`;
 
 const PENDING_TWO_FACTOR_STORAGE_KEY = 'rw-starter.pending-2fa';
 
@@ -12,7 +13,7 @@ export const getXsrfToken = () => {
 };
 
 export const csrfCookie = () => {
-    return api('/sanctum/csrf-cookie', {
+    return api(`${SESSION_BASE}/csrf-cookie`, {
         credentials: 'include',
     });
 };

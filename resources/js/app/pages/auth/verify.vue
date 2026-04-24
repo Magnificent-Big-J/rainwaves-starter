@@ -10,7 +10,7 @@
         <v-form class="auth-form" @submit.prevent="submit">
             <v-text-field
                 v-model="code"
-                label="Verification code"
+                :label="codeLabel"
                 autocomplete="one-time-code"
                 required
             />
@@ -24,12 +24,23 @@
         </v-form>
 
         <v-btn
+            v-if="session.pendingTwoFactorChannel === 'email'"
             variant="text"
             color="primary"
             :loading="twoFactor.loading"
             @click="resend"
         >
             Resend email code
+        </v-btn>
+
+        <v-btn
+            v-if="session.pendingTwoFactorChannel === 'totp'"
+            variant="text"
+            color="primary"
+            :loading="twoFactor.loading"
+            @click="submitRecovery"
+        >
+            Use recovery code instead
         </v-btn>
     </AuthCard>
 </template>
@@ -67,15 +78,38 @@ const subtitle = computed(() => {
     return 'Enter the one-time code sent through your configured channel.';
 });
 
+const codeLabel = computed(() => {
+    return session.pendingTwoFactorChannel === 'totp'
+        ? 'Authenticator or recovery code'
+        : 'Verification code';
+});
+
 const submit = async () => {
     message.value = '';
 
     try {
-        await twoFactor.verifyLoginCode(code.value);
+        if (session.pendingTwoFactorChannel === 'totp') {
+            await twoFactor.verifyTotp(code.value);
+        } else {
+            await twoFactor.verifyLoginCode(code.value);
+        }
+
         await router.push('/foundation');
     } catch (error) {
         messageType.value = 'error';
         message.value = error?.data?.message || 'Verification failed.';
+    }
+};
+
+const submitRecovery = async () => {
+    message.value = '';
+
+    try {
+        await twoFactor.verifyRecoveryCode(code.value);
+        await router.push('/foundation');
+    } catch (error) {
+        messageType.value = 'error';
+        message.value = error?.data?.message || 'Recovery code verification failed.';
     }
 };
 
