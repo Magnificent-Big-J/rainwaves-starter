@@ -1,58 +1,142 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Rainwaves Starter
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Secure Laravel 13 + Vue starter template for Rainwaves apps, with auth, roles, media, and PayFast integration.
 
-## About Laravel
+## Purpose
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+This repository is the clean internal baseline for new Rainwaves applications.
+It exists to replace the older template-driven starter with a stack we own end to end.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Core direction:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Laravel 13 backend
+- Vue 3 SPA frontend
+- Vuetify UI baseline
+- Pinia state management
+- Sail-first local development
+- auth, authorization, auditability, media, and PayFast treated as core concerns
 
-## Learning Laravel
+Security is the primary constraint.
+If scope needs to shrink, visual ambition and optional tooling are cut before auth, permissions, payments, or auditability.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Current Status
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Implemented so far:
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+- fresh Laravel 13 scaffold
+- Sail with MySQL, Redis, Mailpit, and MinIO
+- Vue 3 + Vue Router + Pinia + Vuetify SPA shell
+- MinIO bucket bootstrap for local public image access
+- Node 20.19.0 pinned for the frontend toolchain
 
-## Agentic Development
+Not implemented yet:
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+- `rainwaves/lara-auth-suite`
+- `rainwaves/payfast-payment`
+- permissions/admin baseline
+- profile/media flows
+- production deployment docs
+
+## Local Requirements
+
+- PHP `8.4+`
+- Composer `2.x`
+- Docker / Docker Compose
+- Node `20.19.0+`
+
+This repository includes [.node-version](/home/eclaims/htdocs/rainwaves-starter/.node-version:1) with the pinned Node version.
+
+On this machine, Node 20 was installed user-locally under `/home/eclaims/.local`.
+For local frontend commands in the current shell:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+export PATH=/home/eclaims/.local/bin:$PATH
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Local Setup
 
-## Contributing
+1. Install backend dependencies:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+composer install
+```
 
-## Code of Conduct
+2. Create the local env file if needed:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-## Security Vulnerabilities
+3. Install frontend dependencies with Node 20:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+export PATH=/home/eclaims/.local/bin:$PATH
+npm install
+```
 
-## License
+4. Start Sail:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+./vendor/bin/sail up -d
+```
+
+5. Run migrations inside Sail:
+
+```bash
+./vendor/bin/sail artisan migrate
+```
+
+6. Start the frontend dev server with Node 20:
+
+```bash
+export PATH=/home/eclaims/.local/bin:$PATH
+npm run dev
+```
+
+## Key Local Services
+
+- app: `http://localhost`
+- Vite: `http://localhost:5173`
+- Mailpit UI: `http://localhost:8025`
+- MinIO API: `http://localhost:9000`
+- MinIO console: `http://localhost:8900`
+
+## MinIO Notes
+
+Local media is configured to use the S3 disk by default.
+
+The Sail stack includes a `minio-create-bucket` sidecar that:
+
+- creates the configured bucket
+- enables anonymous download on that bucket
+- applies permissive local CORS
+
+This is intentional for local image retrieval and frontend media testing.
+Do not carry those anonymous-read assumptions into production infrastructure.
+
+## Verification
+
+Backend checks:
+
+```bash
+php artisan route:list
+php artisan test
+```
+
+Frontend build check:
+
+```bash
+export PATH=/home/eclaims/.local/bin:$PATH
+npm run build
+```
+
+## Working Agreement
+
+Implementation is being done in small committed phases.
+The current rule is:
+
+- finish a coherent slice
+- verify it
+- commit it
+- move to the next phase
