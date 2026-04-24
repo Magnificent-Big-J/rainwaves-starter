@@ -1,24 +1,19 @@
 <template>
-    <v-card class="section-card">
+    <div class="section-card">
         <div v-if="title || subtitle || $slots.header || $slots.actions" class="section-card__header">
-            <div>
-                <v-card-title v-if="title" class="section-card__title">
-                    {{ title }}
-                </v-card-title>
-                <v-card-subtitle v-if="subtitle" class="section-card__sub">
-                    {{ subtitle }}
-                </v-card-subtitle>
+            <div class="section-card__head-copy">
+                <h3 v-if="title" class="section-card__title">{{ title }}</h3>
+                <p v-if="subtitle" class="section-card__sub">{{ subtitle }}</p>
                 <slot name="header" />
             </div>
-
-            <div v-if="$slots.actions" class="section-card__header-actions">
+            <div v-if="$slots.actions" class="section-card__actions">
                 <slot name="actions" />
             </div>
         </div>
-        <v-card-text>
+        <div class="section-card__body">
             <slot />
-        </v-card-text>
-    </v-card>
+        </div>
+    </div>
 </template>
 
 <script setup>
@@ -30,8 +25,10 @@ defineProps({
 
 <style scoped>
 .section-card {
-    background: rgba(255, 253, 248, 0.9);
-    border: 1px solid rgba(17, 34, 51, 0.08);
+    background: var(--rw-surface);
+    border: 1px solid var(--rw-border);
+    border-radius: 1rem;
+    box-shadow: var(--rw-shadow-xs);
 }
 
 .section-card__header {
@@ -39,23 +36,36 @@ defineProps({
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
-    padding: 1rem 1rem 0;
+    padding: 1.25rem 1.5rem 0;
+}
+
+.section-card__head-copy {
+    min-width: 0;
 }
 
 .section-card__title {
-    font-size: 1rem;
+    margin: 0;
+    font-size: 0.95rem;
     font-weight: 700;
-    padding-bottom: 0;
+    color: var(--rw-ink);
+    letter-spacing: -0.01em;
 }
 
 .section-card__sub {
-    padding-top: 0.25rem;
-    font-size: 0.875rem;
+    margin: 0.3rem 0 0;
+    font-size: 0.82rem;
+    color: var(--rw-muted);
+    line-height: 1.5;
 }
 
-.section-card__header-actions {
-    gap: 0.5rem;
+.section-card__actions {
     display: flex;
     flex-wrap: wrap;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.section-card__body {
+    padding: 1.25rem 1.5rem 1.5rem;
 }
 </style>
