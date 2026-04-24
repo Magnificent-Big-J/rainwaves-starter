@@ -82,6 +82,12 @@
                             :items="['PayFast', 'Sanctum', 'Horizon', 'Media Library']"
                             model-value="PayFast"
                         />
+                        <AppAddressAutocomplete
+                            v-model="demoAddress"
+                            v-model:query-value="demoAddressQuery"
+                            label="Starter address autocomplete"
+                            country="za"
+                        />
                         <AppFileInput label="Starter file input" hint="Shared upload field surface" />
                     </div>
 
@@ -161,6 +167,7 @@ const formComponents = [
     'AppFileInput',
     'FormActions',
     'FormStatusAlert',
+    'AppAddressAutocomplete',
 ];
 
 const layoutComponents = [
@@ -267,6 +274,8 @@ const events = [
 
 const demoModal = ref(false);
 const demoDrawer = ref(false);
+const demoAddress = ref(null);
+const demoAddressQuery = ref('');
 </script>
 
 <style scoped>
