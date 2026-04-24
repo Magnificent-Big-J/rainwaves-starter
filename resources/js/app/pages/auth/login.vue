@@ -20,6 +20,7 @@
                 v-model="form.password"
                 label="Password"
                 type="password"
+                password-toggle
                 autocomplete="current-password"
                 required
             />

@@ -17,7 +17,11 @@ router.beforeEach(async (to) => {
     }
 
     if (to.meta.guestOnly && session.isAuthenticated) {
-        return '/foundation';
+        return '/dashboard';
+    }
+
+    if (to.path === '/' && session.isAuthenticated) {
+        return '/dashboard';
     }
 
     if (to.path !== '/auth/verify' && session.pendingTwoFactorRequired) {

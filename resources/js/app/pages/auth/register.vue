@@ -46,6 +46,7 @@
                     v-model="form.password"
                     label="Password"
                     type="password"
+                    password-toggle
                     :error-messages="errors.password"
                     autocomplete="new-password"
                     required
@@ -55,6 +56,7 @@
                     v-model="form.password_confirmation"
                     label="Confirm password"
                     type="password"
+                    password-toggle
                     autocomplete="new-password"
                     required
                 />

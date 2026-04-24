@@ -119,7 +119,7 @@ const route = useRoute();
 const mobileOpen = ref(false);
 
 const mainNav = [
-    { label: 'Dashboard', to: '/',             icon: 'mdi-view-dashboard-outline' },
+    { label: 'Dashboard', to: '/dashboard',    icon: 'mdi-view-dashboard-outline' },
     { label: 'Profile',   to: '/auth/profile', icon: 'mdi-account-circle-outline' },
 ];
 
@@ -168,7 +168,7 @@ const NavItem = defineComponent({
     setup(props, { emit }) {
         const route = useRoute();
         const isActive = computed(() => {
-            if (props.item.to === '/') return route.path === '/';
+            if (props.item.to === '/dashboard') return route.path === '/dashboard';
             return route.path.startsWith(props.item.to);
         });
 

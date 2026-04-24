@@ -93,6 +93,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/dashboard': RouteRecordInfo<
+      '/dashboard',
+      '/dashboard',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/foundation': RouteRecordInfo<
       '/foundation',
       '/foundation',
@@ -164,6 +171,12 @@ declare module 'vue-router/auto-routes' {
     'resources/js/app/pages/auth/verify.vue': {
       routes:
         | '/auth/verify'
+      views:
+        | never
+    }
+    'resources/js/app/pages/dashboard.vue': {
+      routes:
+        | '/dashboard'
       views:
         | never
     }
