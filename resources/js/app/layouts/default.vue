@@ -502,6 +502,7 @@ const NavItem = defineComponent({
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    min-width: 0;
 }
 
 /* Guest bar ─────────────────────────────────────────── */
@@ -609,6 +610,57 @@ const NavItem = defineComponent({
 
     .app-body {
         max-width: calc(100vw - var(--rw-sidebar));
+    }
+}
+
+@media (max-width: 959px) {
+    .topbar {
+        padding: 0 1rem;
+    }
+}
+
+@media (max-width: 720px) {
+    .topbar {
+        gap: 0.65rem;
+    }
+
+    .topbar__page {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .guest-bar {
+        height: auto;
+        min-height: var(--rw-topbar);
+        padding: 0.85rem 1rem;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .guest-nav {
+        width: 100%;
+        margin-left: 0;
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar__footer {
+        padding: 0.75rem 0.625rem;
+    }
+
+    .user-card__email {
+        display: none;
+    }
+
+    .topbar {
+        padding: 0 0.75rem;
+    }
+
+    .guest-bar {
+        padding-inline: 0.75rem;
     }
 }
 </style>

@@ -431,10 +431,20 @@ const demoAvatar = ref(null);
 }
 
 @media (max-width: 960px) {
+    .catalog-page {
+        padding: 1.75rem 1rem 3rem;
+    }
+
     .catalog-stats,
     .catalog-grid,
     .catalog-playground {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .catalog-page {
+        padding-inline: 0.75rem;
     }
 }
 </style>

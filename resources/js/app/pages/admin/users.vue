@@ -412,8 +412,18 @@ onMounted(load);
 }
 
 @media (max-width: 960px) {
+    .admin-users-page {
+        padding: 1.75rem 1rem 3rem;
+    }
+
     .admin-users__stats {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-users-page {
+        padding-inline: 0.75rem;
     }
 }
 </style>

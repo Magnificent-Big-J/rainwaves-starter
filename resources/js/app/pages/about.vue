@@ -346,4 +346,32 @@ const stack = [
     margin-left: auto;
     text-align: right;
 }
+
+@media (max-width: 720px) {
+    .about {
+        padding: 3rem 1rem 4rem;
+        gap: 3.5rem;
+    }
+
+    .about-hero__title br {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .about {
+        padding-inline: 0.75rem;
+    }
+
+    .cta-primary,
+    .cta-ghost {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .about-features,
+    .stack-grid {
+        grid-template-columns: 1fr;
+    }
+}
 </style>

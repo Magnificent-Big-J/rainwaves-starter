@@ -409,9 +409,23 @@ onMounted(async () => {
 }
 
 @media (max-width: 960px) {
+    .profile-page {
+        padding: 1.75rem 1rem 3rem;
+    }
+
     .profile-stats,
     .profile-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-page {
+        padding-inline: 0.75rem;
+    }
+
+    .twofa-confirm-actions {
+        flex-wrap: wrap;
     }
 }
 

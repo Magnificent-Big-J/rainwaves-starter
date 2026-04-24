@@ -286,12 +286,20 @@ const timelineItems = [
 }
 
 @media (max-width: 960px) {
+    .foundation-page {
+        padding: 1.75rem 1rem 3rem;
+    }
+
     .foundation-stats {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
 @media (max-width: 600px) {
+    .foundation-page {
+        padding-inline: 0.75rem;
+    }
+
     .foundation-stats {
         grid-template-columns: 1fr;
     }

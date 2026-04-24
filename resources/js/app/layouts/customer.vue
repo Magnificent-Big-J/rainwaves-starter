@@ -222,6 +222,7 @@ watch(
     .customer-topbar {
         grid-template-columns: 1fr;
         justify-items: start;
+        padding: 0.9rem 1rem;
     }
 
     .customer-nav {
@@ -235,8 +236,26 @@ watch(
 }
 
 @media (max-width: 640px) {
+    .customer-main {
+        padding: 1.5rem 0.9rem 3rem;
+    }
+
     .customer-profile__meta {
         display: none;
+    }
+
+    .customer-actions {
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 420px) {
+    .customer-topbar {
+        padding-inline: 0.75rem;
+    }
+
+    .customer-nav {
+        width: 100%;
     }
 }
 </style>

@@ -437,8 +437,18 @@ const paymentEvents = [
 }
 
 @media (max-width: 860px) {
+    .dashboard {
+        padding: 1.75rem 1rem 3rem;
+    }
+
     .dashboard__commerce {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard {
+        padding-inline: 0.75rem;
     }
 }
 </style>

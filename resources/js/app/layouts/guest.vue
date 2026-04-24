@@ -186,4 +186,32 @@
     letter-spacing: 0.04em;
     border-top: 1px solid rgba(0, 135, 95, 0.08);
 }
+
+@media (max-width: 720px) {
+    .guest-header {
+        padding: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .guest-links {
+        width: 100%;
+        margin-left: 0;
+        flex-wrap: wrap;
+    }
+
+    .guest-footer {
+        padding: 1.25rem 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .guest-links__item,
+    .guest-links__cta {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+}
 </style>

@@ -155,4 +155,14 @@
     color: rgba(255, 255, 255, 0.22);
     letter-spacing: 0.04em;
 }
+
+@media (max-width: 640px) {
+    .auth-shell__body {
+        padding: 1.25rem 0.9rem 2rem;
+    }
+
+    .auth-header {
+        margin-bottom: 1.5rem;
+    }
+}
 </style>
