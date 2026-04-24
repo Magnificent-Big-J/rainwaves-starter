@@ -163,3 +163,9 @@ The current rule is:
 - verify it
 - commit it
 - move to the next phase
+
+## Execution Notes
+
+The current release-and-integration execution checklist lives at:
+
+- [docs/release-and-integration-checklist.md](/home/eclaims/htdocs/rainwaves-starter/docs/release-and-integration-checklist.md:1)
