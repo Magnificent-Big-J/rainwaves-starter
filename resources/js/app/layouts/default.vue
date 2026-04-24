@@ -101,7 +101,9 @@
                 </div>
             </RouterLink>
             <v-spacer />
-            <v-btn variant="text" rounded="xl" to="/auth/login">Sign in</v-btn>
+            <v-btn variant="text" rounded="xl" to="/about">About</v-btn>
+            <v-btn variant="text" rounded="xl" to="/auth/register">Register</v-btn>
+            <v-btn color="primary" variant="tonal" rounded="xl" to="/auth/login">Sign in</v-btn>
         </v-app-bar>
 
         <v-main class="app-main">

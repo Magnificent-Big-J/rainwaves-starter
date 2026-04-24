@@ -5,7 +5,7 @@
         subtitle="Use your account credentials to start a secure session."
         :busy="session.loading"
     >
-        <FormStatusAlert :message="formMessage" />
+        <FormStatusAlert :message="formMessage" :type="formMessageType" />
 
         <v-form class="auth-form" @submit.prevent="submit">
             <v-text-field
@@ -46,11 +46,12 @@
 
 <script setup>
 import { reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 import { useSessionStore } from '../../stores/session';
 
 const router = useRouter();
+const route = useRoute();
 const session = useSessionStore();
 
 const form = reactive({
@@ -58,10 +59,16 @@ const form = reactive({
     password: '',
 });
 
-const formMessage = ref('');
+const formMessage = ref(
+    route.query.registered === '1'
+        ? 'Account created. Sign in to continue.'
+        : ''
+);
+const formMessageType = ref(route.query.registered === '1' ? 'success' : 'error');
 
 const submit = async () => {
     formMessage.value = '';
+    formMessageType.value = 'error';
 
     try {
         const response = await session.login(form);
