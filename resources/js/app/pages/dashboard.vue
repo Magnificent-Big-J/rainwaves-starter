@@ -11,6 +11,12 @@
             </template>
         </AppPageHeader>
 
+        <AppBanner
+            title="Admin surface baseline"
+            message="This page now follows the same starter-first language as the component catalog: stat rows, sectional cards, domain widgets, and clear module entry points."
+            type="success"
+        />
+
         <div class="stat-row">
             <AppStatCard
                 v-for="stat in stats"
@@ -25,10 +31,7 @@
         </div>
 
         <div class="dashboard__body">
-            <section class="modules-section">
-                <h2 class="section-title">Platform modules</h2>
-                <p class="section-sub">Every module is live and wired. Start with what you need.</p>
-
+            <AppSectionCard title="Platform modules" subtitle="Every major starter surface is discoverable from the dashboard.">
                 <div class="module-grid">
                     <RouterLink
                         v-for="mod in modules"
@@ -48,7 +51,7 @@
                         <p class="module-card__text">{{ mod.text }}</p>
                     </RouterLink>
                 </div>
-            </section>
+            </AppSectionCard>
 
             <aside class="dashboard__aside">
                 <AppSectionCard title="Signed in as">
@@ -131,6 +134,7 @@ import AppPageHeader from '../components/AppPageHeader.vue';
 import AppSectionCard from '../components/AppSectionCard.vue';
 import AppStatCard from '../components/AppStatCard.vue';
 import AppStatusBadge from '../components/AppStatusBadge.vue';
+import AppBanner from '../components/AppBanner.vue';
 import PaymentEventList from '../components/PaymentEventList.vue';
 import PaymentStatusCard from '../components/PaymentStatusCard.vue';
 import SubscriptionStatusCard from '../components/SubscriptionStatusCard.vue';
@@ -186,10 +190,17 @@ const modules = [
     },
     {
         to: '/foundation',
-        title: 'Component foundation',
-        text: 'Review the shared starter UI kit, widgets, feedback system, and interaction patterns.',
+        title: 'Starter foundation',
+        text: 'Review the broader starter baseline, page chrome, widgets, interaction patterns, and rollout guidance.',
         icon: 'mdi-toy-brick-outline',
         color: '#0369a1',
+    },
+    {
+        to: '/components',
+        title: 'Component catalog',
+        text: 'Open the live inventory of shared inputs, cards, feedback surfaces, and domain primitives.',
+        icon: 'mdi-shape-outline',
+        color: '#7c3aed',
     },
 ];
 

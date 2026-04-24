@@ -48,6 +48,19 @@
             type="info"
         />
 
+        <AppSectionCard
+            title="Catalog coverage"
+            subtitle="This page indexes the full shared inventory, but only part of it is demonstrated live below."
+        >
+            <div class="catalog-coverage">
+                <AppStatusBadge status="active" :label="`${liveDemoComponents.length} live demos`" />
+                <AppStatusBadge status="processing" :label="`${componentCount - liveDemoComponents.length} listed only`" />
+            </div>
+            <p class="catalog-coverage__copy">
+                Some pieces are best demonstrated on their home pages instead of in a synthetic playground, especially admin table flows, media upload, and profile security panels.
+            </p>
+        </AppSectionCard>
+
         <div class="catalog-grid">
             <AppSectionCard
                 v-for="group in groups"
@@ -243,6 +256,27 @@ const componentCount = computed(() =>
     groups.reduce((total, group) => total + group.items.length, 0)
 );
 
+const liveDemoComponents = [
+    'AppPageHeader',
+    'AppStatusBadge',
+    'AppStatCard',
+    'AppBanner',
+    'AppSectionCard',
+    'AppTextField',
+    'AppTextarea',
+    'AppSelect',
+    'AppAutocomplete',
+    'AppAddressAutocomplete',
+    'AppFileInput',
+    'AppAlert',
+    'AppEmptyState',
+    'AppModal',
+    'AppDrawer',
+    'AppSkeleton',
+    'AppLineChart',
+    'PaymentEventList',
+];
+
 const chartCategories = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 const chartSeries = [
     { name: 'Adoption', data: [5, 9, 14, 19, 24] },
@@ -295,6 +329,19 @@ const demoAddressQuery = ref('');
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
+}
+
+.catalog-coverage {
+    display: flex;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.85rem;
+}
+
+.catalog-coverage__copy {
+    margin: 0;
+    color: var(--rw-dim);
+    line-height: 1.7;
 }
 
 .catalog-badges {

@@ -21,71 +21,103 @@
                 </template>
             </AppPageHeader>
 
-            <AppFilterBar>
-                <AppTextField
-                    v-model="filters.search"
-                    label="Search users"
-                    prepend-inner-icon="mdi-magnify"
-                    class="admin-users__search"
-                    @update:model-value="onSearch"
-                />
-                <AppSelect
-                    v-model="filters.role"
-                    :items="[{ title: 'All roles', value: '' }, ...store.options.roles.map(r => ({ title: r, value: r }))]"
-                    label="Filter by role"
-                    class="admin-users__role-filter"
-                    @update:model-value="onRoleFilter"
-                />
-            </AppFilterBar>
+            <AppBanner
+                title="Starter account baseline"
+                message="This page now follows the component-catalog style too: stat cards, sectional surfaces, shared form controls, and reusable table patterns instead of one-off admin markup."
+                type="info"
+            />
 
-            <AppDataTable
-                title="All users"
-                :columns="columns"
-                :rows="store.rows"
-                :meta="store.meta"
-                :loading="store.loading"
-                empty-title="No users found"
-                empty-text="Seed starter accounts or create the first admin user from this table."
-                @page-change="onPage"
-                @row-click="openEdit"
-            >
+            <div class="admin-users__stats">
+                <AppStatCard
+                    label="Total users"
+                    :value="String(store.meta.total)"
+                    helper="Seeded and custom accounts"
+                    icon="mdi-account-group-outline"
+                    status="active"
+                />
+                <AppStatCard
+                    label="Starter roles"
+                    :value="String(store.options.roles.length)"
+                    helper="Assignable authorization groups"
+                    icon="mdi-shield-account-outline"
+                    status="processing"
+                />
+                <AppStatCard
+                    label="Search state"
+                    :value="filters.search ? 'Filtered' : 'All users'"
+                    helper="Live filter bar is active"
+                    icon="mdi-filter-variant"
+                    status="active"
+                />
+            </div>
 
-                <template #row="{ row }">
-                    <td>
-                        <div class="user-cell">
-                            <v-avatar size="34" color="primary" variant="tonal">
-                                <span class="user-cell__initials">{{ initials(row.name) }}</span>
-                            </v-avatar>
-                            <div>
-                                <div class="user-cell__name">{{ row.name }}</div>
-                                <div class="user-cell__email">{{ row.email }}</div>
+            <AppSectionCard title="User directory" subtitle="Filter starter accounts and update role assignments from the reusable admin table surface.">
+                <AppFilterBar>
+                    <AppTextField
+                        v-model="filters.search"
+                        label="Search users"
+                        prepend-inner-icon="mdi-magnify"
+                        class="admin-users__search"
+                        @update:model-value="onSearch"
+                    />
+                    <AppSelect
+                        v-model="filters.role"
+                        :items="[{ title: 'All roles', value: '' }, ...store.options.roles.map(r => ({ title: r, value: r }))]"
+                        label="Filter by role"
+                        class="admin-users__role-filter"
+                        @update:model-value="onRoleFilter"
+                    />
+                </AppFilterBar>
+
+                <AppDataTable
+                    title="All users"
+                    :columns="columns"
+                    :rows="store.rows"
+                    :meta="store.meta"
+                    :loading="store.loading"
+                    empty-title="No users found"
+                    empty-text="Seed starter accounts or create the first admin user from this table."
+                    @page-change="onPage"
+                    @row-click="openEdit"
+                >
+
+                    <template #row="{ row }">
+                        <td>
+                            <div class="user-cell">
+                                <v-avatar size="34" color="primary" variant="tonal">
+                                    <span class="user-cell__initials">{{ initials(row.name) }}</span>
+                                </v-avatar>
+                                <div>
+                                    <div class="user-cell__name">{{ row.name }}</div>
+                                    <div class="user-cell__email">{{ row.email }}</div>
+                                </div>
                             </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="role-chips">
-                            <AppStatusBadge
-                                v-for="role in row.roles"
-                                :key="role"
-                                :status="role"
-                                :label="role"
+                        </td>
+                        <td>
+                            <div class="role-chips">
+                                <AppStatusBadge
+                                    v-for="role in row.roles"
+                                    :key="role"
+                                    :status="role"
+                                    :label="role"
+                                />
+                                <span v-if="!row.roles?.length" class="text-muted">—</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-muted text-sm">{{ formatDate(row.created_at) }}</span>
+                        </td>
+                        <td>
+                            <v-btn
+                                icon="mdi-pencil-outline"
+                                size="small"
+                                variant="text"
+                                @click.stop="openEdit(row)"
                             />
-                            <span v-if="!row.roles?.length" class="text-muted">—</span>
-                        </div>
-                    </td>
-                    <td>
-                        <span class="text-muted text-sm">{{ formatDate(row.created_at) }}</span>
-                    </td>
-                    <td>
-                        <v-btn
-                            icon="mdi-pencil-outline"
-                            size="small"
-                            variant="text"
-                            @click.stop="openEdit(row)"
-                        />
-                    </td>
-                </template>
-            </AppDataTable>
+                        </td>
+                    </template>
+                </AppDataTable>
+            </AppSectionCard>
         </div>
 
         <AppModal
@@ -197,6 +229,9 @@ import { onMounted, reactive } from 'vue';
 
 import AppFilterBar from '../../components/AppFilterBar.vue';
 import AppModal from '../../components/AppModal.vue';
+import AppBanner from '../../components/AppBanner.vue';
+import AppSectionCard from '../../components/AppSectionCard.vue';
+import AppStatCard from '../../components/AppStatCard.vue';
 import AppSkeleton from '../../components/AppSkeleton.vue';
 import AppTextField from '../../components/AppTextField.vue';
 import { useAdminUsersStore } from '../../stores/admin-users';
@@ -321,6 +356,12 @@ onMounted(load);
     gap: 1.5rem;
 }
 
+.admin-users__stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.9rem;
+}
+
 .admin-users__role-filter {
     min-width: 220px;
 }
@@ -368,5 +409,11 @@ onMounted(load);
 .dialog-form {
     display: grid;
     gap: 0.5rem;
+}
+
+@media (max-width: 960px) {
+    .admin-users__stats {
+        grid-template-columns: 1fr;
+    }
 }
 </style>
