@@ -1,9 +1,44 @@
 <template>
     <div class="foundation-page">
         <div class="foundation-page__wrap">
-            <div>
-                <p class="foundation-page__eyebrow">Current foundation</p>
-                <h1 class="foundation-page__title">Starter scaffold status</h1>
+            <AppPageHeader
+                eyebrow="Commercial kit"
+                title="Starter UI system"
+                subtitle="The starter now carries a real shared component layer for pages, forms, data states, pagination, statuses, charts, and widgets."
+            >
+                <template #metrics>
+                    <AppStatusBadge status="active" label="Phase 1 live" />
+                    <AppStatusBadge status="processing" label="Widget build-out" />
+                </template>
+            </AppPageHeader>
+
+            <div class="foundation-stats">
+                <AppStatCard
+                    label="Shared components"
+                    value="10"
+                    helper="First commercial batch landed"
+                    icon="mdi-toy-brick-plus-outline"
+                />
+                <AppStatCard
+                    label="Chart widgets"
+                    value="2"
+                    helper="Line and donut chart wrappers"
+                    icon="mdi-chart-donut"
+                    status="active"
+                />
+                <AppStatCard
+                    label="Form wrappers"
+                    value="2"
+                    helper="Autocomplete and select primitives"
+                    icon="mdi-form-select"
+                />
+                <AppStatCard
+                    label="Ready modules"
+                    value="3"
+                    helper="Admin, profile, billing-ready surface"
+                    icon="mdi-view-grid-outline"
+                    status="processing"
+                />
             </div>
 
             <v-row class="mt-2" dense>
@@ -13,10 +48,57 @@
                     cols="12"
                     md="6"
                 >
-                    <v-card class="foundation-card">
-                        <v-card-title>{{ item.title }}</v-card-title>
-                        <v-card-text>{{ item.body }}</v-card-text>
-                    </v-card>
+                    <AppSectionCard :title="item.title" :subtitle="item.subtitle">
+                        <p class="foundation-copy">{{ item.body }}</p>
+                    </AppSectionCard>
+                </v-col>
+
+                <v-col cols="12" lg="8">
+                    <AppLineChart
+                        title="Starter delivery velocity"
+                        subtitle="Representative dashboard widget wrapper for analytics, billing, and admin modules."
+                        :categories="velocityCategories"
+                        :series="velocitySeries"
+                    />
+                </v-col>
+
+                <v-col cols="12" lg="4">
+                    <AppDonutChart
+                        title="Component coverage"
+                        subtitle="Where the current batch is focused."
+                        :labels="coverageLabels"
+                        :series="coverageSeries"
+                        :colors="coverageColors"
+                    />
+                </v-col>
+
+                <v-col cols="12">
+                    <AppSectionCard
+                        title="Upcoming groups"
+                        subtitle="The next batches expand the UI system into dialogs, dashboard widgets, billing cards, and richer form inputs."
+                    >
+                        <div class="foundation-badges">
+                            <AppStatusBadge status="draft" label="AppTextField" />
+                            <AppStatusBadge status="draft" label="AppTextarea" />
+                            <AppStatusBadge status="draft" label="AppFilterBar" />
+                            <AppStatusBadge status="draft" label="AppTimeline" />
+                            <AppStatusBadge status="draft" label="Payment widgets" />
+                        </div>
+                    </AppSectionCard>
+                </v-col>
+
+                <v-col cols="12">
+                    <AppSectionCard title="Empty-state pattern" subtitle="Reusable default for table, page, and card empty states.">
+                        <AppEmptyState
+                            title="No widgets configured"
+                            text="Use this pattern when a module has no seeded records, no filters matched, or a user has not created their first item yet."
+                        >
+                            <template #actions>
+                                <v-btn color="primary" prepend-icon="mdi-plus">Create item</v-btn>
+                                <v-btn variant="text">Read docs</v-btn>
+                            </template>
+                        </AppEmptyState>
+                    </AppSectionCard>
                 </v-col>
             </v-row>
         </div>
@@ -35,26 +117,36 @@
 <script setup>
 const items = [
     {
-        title: 'Backend',
-        body: 'Laravel 13 scaffolded with Sail added for the Docker-first local stack.',
+        title: 'Page scaffolding',
+        subtitle: 'Headers, cards, and empty states',
+        body: 'AppPageHeader, AppSectionCard, and AppEmptyState give every module a consistent editorial structure instead of ad hoc page chrome.',
     },
     {
-        title: 'Frontend',
-        body: 'Vue 3, file-based Vue Router, Pinia, and Vuetify are wired into a clean SPA entrypoint.',
+        title: 'Form primitives',
+        subtitle: 'Starter-level select and autocomplete',
+        body: 'AppSelect and AppAutocomplete sit on top of Vuetify but keep the starter API stable while we grow advanced field behavior and defaults.',
     },
     {
-        title: 'Layouts',
-        body: 'Pages choose layouts through route metadata and the app resolves them centrally.',
+        title: 'Data display',
+        subtitle: 'Status, pagination, and table support',
+        body: 'AppStatusBadge and AppPaginationBar let admin, billing, and reporting screens share the same presentation logic for state and paginated lists.',
     },
     {
-        title: 'Reusable primitives',
-        body: 'AuthCard, BusyOverlay, FormStatusAlert, FormActions, and AppToastHost are now the starter’s first shared UI primitives.',
-    },
-    {
-        title: 'Next',
-        body: 'Integrate lara-auth-suite itself, publish config/migrations, and complete real auth/package wiring.',
+        title: 'Widgets',
+        subtitle: 'Dashboard-ready charts and stat cards',
+        body: 'AppStatCard, AppLineChart, and AppDonutChart are the first real dashboard widgets, ready to be reused for admin, revenue, and system-health surfaces.',
     },
 ];
+
+const velocityCategories = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const velocitySeries = [
+    { name: 'Components', data: [2, 4, 5, 8, 10, 12, 15] },
+    { name: 'Modules adopting kit', data: [1, 1, 2, 2, 3, 3, 4] },
+];
+
+const coverageLabels = ['Forms', 'Data', 'Widgets', 'Dialogs'];
+const coverageSeries = [34, 28, 22, 16];
+const coverageColors = ['#006a4a', '#b45309', '#0369a1', '#9f1239'];
 </script>
 
 <style scoped>
@@ -65,25 +157,37 @@ const items = [
 .foundation-page__wrap {
     max-width: 1180px;
     margin: 0 auto;
+    display: grid;
+    gap: 1.5rem;
 }
 
-.foundation-page__eyebrow {
+.foundation-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.9rem;
+}
+
+.foundation-copy {
     margin: 0;
-    color: var(--starter-accent);
-    text-transform: uppercase;
-    letter-spacing: 0.16em;
-    font-size: 0.8rem;
-    font-weight: 700;
+    color: rgba(17, 34, 51, 0.75);
+    line-height: 1.7;
 }
 
-.foundation-page__title {
-    margin: 0.75rem 0 0;
-    font-size: clamp(2.2rem, 4vw, 3.6rem);
+.foundation-badges {
+    display: flex;
+    gap: 0.65rem;
+    flex-wrap: wrap;
 }
 
-.foundation-card {
-    height: 100%;
-    background: rgba(255, 253, 248, 0.9);
-    border: 1px solid rgba(17, 34, 51, 0.08);
+@media (max-width: 960px) {
+    .foundation-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .foundation-stats {
+        grid-template-columns: 1fr;
+    }
 }
 </style>

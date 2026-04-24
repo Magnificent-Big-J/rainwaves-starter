@@ -1,19 +1,25 @@
 <template>
     <div class="admin-users-page">
         <div class="page-wrap">
-            <div class="page-header">
-                <div>
-                    <p class="page-eyebrow">Administration</p>
-                    <h1 class="page-title">Users</h1>
-                </div>
-                <v-btn
-                    color="primary"
-                    prepend-icon="mdi-account-plus"
-                    @click="openCreate"
-                >
-                    New user
-                </v-btn>
-            </div>
+            <AppPageHeader
+                eyebrow="Administration"
+                title="Users"
+                subtitle="Manage starter accounts, assign roles, and shape access before application-specific modules are added."
+            >
+                <template #metrics>
+                    <AppStatusBadge status="active" :label="`${store.meta.total} seeded users`" />
+                </template>
+
+                <template #actions>
+                    <v-btn
+                        color="primary"
+                        prepend-icon="mdi-account-plus"
+                        @click="openCreate"
+                    >
+                        New user
+                    </v-btn>
+                </template>
+            </AppPageHeader>
 
             <AppDataTable
                 title="All users"
@@ -22,17 +28,17 @@
                 :meta="store.meta"
                 :loading="store.loading"
                 searchable
+                empty-title="No users found"
+                empty-text="Seed starter accounts or create the first admin user from this table."
                 @search="onSearch"
                 @page-change="onPage"
                 @row-click="openEdit"
             >
                 <template #toolbar>
-                    <v-select
+                    <AppSelect
                         v-model="filters.role"
                         :items="[{ title: 'All roles', value: '' }, ...store.options.roles.map(r => ({ title: r, value: r }))]"
-                        density="compact"
-                        variant="outlined"
-                        hide-details
+                        label="Filter by role"
                         class="admin-users__role-filter"
                         @update:model-value="onRoleFilter"
                     />
@@ -52,15 +58,12 @@
                     </td>
                     <td>
                         <div class="role-chips">
-                            <v-chip
+                            <AppStatusBadge
                                 v-for="role in row.roles"
                                 :key="role"
-                                size="x-small"
-                                color="primary"
-                                variant="tonal"
-                            >
-                                {{ role }}
-                            </v-chip>
+                                :status="role"
+                                :label="role"
+                            />
                             <span v-if="!row.roles?.length" class="text-muted">—</span>
                         </div>
                     </td>
@@ -126,14 +129,14 @@
                                 />
                             </v-col>
                             <v-col cols="12">
-                                <v-combobox
+                                <AppAutocomplete
                                     v-model="dialog.form.roles"
                                     :items="store.options.roles"
+                                    :error-messages="dialog.errors.roles"
                                     label="Roles"
                                     multiple
                                     chips
                                     closable-chips
-                                    :error-messages="dialog.errors.roles"
                                 />
                             </v-col>
                         </v-row>
@@ -152,6 +155,16 @@
                 </v-card-text>
             </v-card>
         </v-dialog>
+
+        <ConfirmDialog
+            v-model="confirmSeed.open"
+            title="Use seeded starter accounts?"
+            text="The starter already includes seeded owner, ops, and customer accounts. Use the Users table to edit them, or continue to create custom accounts for your app."
+            confirm-label="Continue"
+            cancel-label="Dismiss"
+            @confirm="confirmSeed.open = false"
+            @cancel="confirmSeed.open = false"
+        />
     </div>
 </template>
 
@@ -166,10 +179,8 @@
 </route>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive } from 'vue';
 
-import AppDataTable from '../../components/AppDataTable.vue';
-import FormStatusAlert from '../../components/FormStatusAlert.vue';
 import { useAdminUsersStore } from '../../stores/admin-users';
 
 const store = useAdminUsersStore();
@@ -191,6 +202,10 @@ const dialog = reactive({
     errors: {},
     message: '',
     messageType: 'error',
+});
+
+const confirmSeed = reactive({
+    open: false,
 });
 
 const load = () =>
@@ -224,6 +239,8 @@ const formatDate = (iso) =>
     iso ? new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
 
 const openCreate = () => {
+    confirmSeed.open = store.meta.total > 0;
+
     Object.assign(dialog, {
         open: true,
         mode: 'create',
@@ -286,29 +303,8 @@ onMounted(load);
     gap: 1.5rem;
 }
 
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-}
-
-.page-eyebrow {
-    margin: 0 0 0.3rem;
-    text-transform: uppercase;
-    letter-spacing: 0.16em;
-    color: var(--starter-accent);
-    font-size: 0.8rem;
-    font-weight: 700;
-}
-
-.page-title {
-    margin: 0;
-    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
-}
-
 .admin-users__role-filter {
-    max-width: 180px;
+    min-width: 220px;
 }
 
 .user-cell {

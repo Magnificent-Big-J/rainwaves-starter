@@ -39,7 +39,11 @@
                 </tr>
                 <tr v-else-if="!rows.length">
                     <td :colspan="columns.length" class="data-table__empty">
-                        {{ emptyText }}
+                        <AppEmptyState
+                            :title="emptyTitle"
+                            :text="emptyText"
+                            icon="mdi-database-search-outline"
+                        />
                     </td>
                 </tr>
                 <tr
@@ -54,16 +58,10 @@
         </v-table>
 
         <div v-if="meta && meta.last_page > 1" class="data-table__pagination">
-            <v-pagination
-                :model-value="meta.current_page"
-                :length="meta.last_page"
-                density="compact"
-                rounded="xl"
-                @update:model-value="$emit('page-change', $event)"
+            <AppPaginationBar
+                :meta="meta"
+                @update:page="$emit('page-change', $event)"
             />
-            <span class="data-table__count">
-                {{ meta.total }} total
-            </span>
         </div>
     </div>
 </template>
@@ -78,6 +76,7 @@ defineProps({
     meta: { type: Object, default: null },
     loading: { type: Boolean, default: false },
     searchable: { type: Boolean, default: false },
+    emptyTitle: { type: String, default: 'No records found' },
     emptyText: { type: String, default: 'No records found.' },
 });
 
@@ -131,10 +130,7 @@ const onSearch = (val) => {
 }
 
 .data-table__empty {
-    padding: 2.5rem !important;
-    text-align: center;
-    color: var(--starter-muted);
-    font-size: 0.9rem;
+    padding: 0 !important;
 }
 
 .data-table__row {
@@ -147,15 +143,7 @@ const onSearch = (val) => {
 }
 
 .data-table__pagination {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.75rem 1.25rem;
+    padding: 0.9rem 1.25rem;
     border-top: 1px solid rgba(17, 34, 51, 0.06);
-}
-
-.data-table__count {
-    font-size: 0.875rem;
-    color: var(--starter-muted);
 }
 </style>
