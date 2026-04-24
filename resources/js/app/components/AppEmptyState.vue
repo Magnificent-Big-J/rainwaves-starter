@@ -35,20 +35,21 @@ defineProps({
     align-items: center;
     justify-content: center;
     border-radius: 1rem;
-    background: rgba(0, 106, 74, 0.08);
-    color: var(--starter-accent, #006a4a);
+    background: var(--rw-50);
+    color: var(--rw-600);
 }
 
 .empty-state__title {
     margin: 0;
     font-size: 1.05rem;
     font-weight: 700;
+    color: var(--rw-ink);
 }
 
 .empty-state__text {
     margin: 0;
     max-width: 44ch;
-    color: var(--starter-muted, rgba(17, 34, 51, 0.7));
+    color: var(--rw-muted);
     line-height: 1.6;
 }
 

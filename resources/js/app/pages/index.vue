@@ -51,8 +51,7 @@
             </section>
 
             <aside class="dashboard__aside">
-                <section class="info-card">
-                    <h3 class="info-card__title">Signed in as</h3>
+                <AppSectionCard title="Signed in as">
                     <div class="identity">
                         <span class="identity__avatar">{{ userInitials }}</span>
                         <div class="identity__info">
@@ -69,17 +68,16 @@
                         />
                         <span v-if="!session.user?.roles?.length" class="role-none">No roles assigned</span>
                     </div>
-                </section>
+                </AppSectionCard>
 
-                <section class="info-card">
-                    <h3 class="info-card__title">Stack</h3>
+                <AppSectionCard title="Stack">
                     <ul class="stack-list">
                         <li v-for="item in stackItems" :key="item.name" class="stack-list__item">
                             <span class="stack-list__name">{{ item.name }}</span>
                             <span class="stack-list__ver">{{ item.ver }}</span>
                         </li>
                     </ul>
-                </section>
+                </AppSectionCard>
             </aside>
         </div>
 
@@ -127,6 +125,13 @@
 <script setup>
 import { computed } from 'vue';
 
+import AppPageHeader from '../components/AppPageHeader.vue';
+import AppSectionCard from '../components/AppSectionCard.vue';
+import AppStatCard from '../components/AppStatCard.vue';
+import AppStatusBadge from '../components/AppStatusBadge.vue';
+import PaymentEventList from '../components/PaymentEventList.vue';
+import PaymentStatusCard from '../components/PaymentStatusCard.vue';
+import SubscriptionStatusCard from '../components/SubscriptionStatusCard.vue';
 import { useSessionStore } from '../stores/session';
 
 const session = useSessionStore();
@@ -314,24 +319,6 @@ const paymentEvents = [
     font-size: 0.8rem;
     color: var(--rw-muted);
     line-height: 1.5;
-}
-
-.info-card {
-    padding: 1.1rem 1.25rem;
-    background: var(--rw-surface);
-    border: 1px solid var(--rw-border);
-    border-radius: 1rem;
-    box-shadow: var(--rw-shadow-xs);
-    margin-bottom: 0.875rem;
-}
-
-.info-card__title {
-    margin: 0 0 0.875rem;
-    font-size: 0.78rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--rw-dim);
 }
 
 .identity {

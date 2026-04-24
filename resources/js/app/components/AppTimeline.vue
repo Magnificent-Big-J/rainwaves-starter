@@ -50,7 +50,7 @@ defineProps({
 
 .timeline__content {
     padding-left: 0.9rem;
-    border-left: 1px solid rgba(17, 34, 51, 0.08);
+    border-left: 1px solid var(--rw-border);
 }
 
 .timeline__meta {
@@ -58,15 +58,16 @@ defineProps({
     justify-content: space-between;
     gap: 1rem;
     font-size: 0.86rem;
+    color: var(--rw-ink-2);
 }
 
 .timeline__meta span {
-    color: var(--starter-muted);
+    color: var(--rw-muted);
 }
 
 .timeline__text {
     margin: 0.35rem 0 0;
     line-height: 1.6;
-    color: rgba(17, 34, 51, 0.75);
+    color: var(--rw-muted);
 }
 </style>

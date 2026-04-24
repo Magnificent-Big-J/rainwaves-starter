@@ -64,7 +64,7 @@ defineProps({
 .subscription-card__meta {
     margin-top: 0.25rem;
     font-size: 0.82rem;
-    color: var(--starter-muted);
+    color: var(--rw-muted);
 }
 
 .subscription-card__stats {

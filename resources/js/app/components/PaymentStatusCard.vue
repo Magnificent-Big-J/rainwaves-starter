@@ -68,7 +68,7 @@ defineProps({
 .payment-card__meta {
     margin-top: 0.25rem;
     font-size: 0.82rem;
-    color: var(--starter-muted);
+    color: var(--rw-muted);
 }
 
 .payment-card__grid {
@@ -86,7 +86,7 @@ defineProps({
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--starter-muted);
+    color: var(--rw-muted);
 }
 
 .payment-card__item strong {

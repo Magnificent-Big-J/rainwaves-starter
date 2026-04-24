@@ -97,7 +97,7 @@ defineEmits(['start', 'email', 'disable', 'verify', 'cancel', 'update:code']);
     width: 180px;
     height: 180px;
     border-radius: 1rem;
-    border: 1px solid rgba(17, 34, 51, 0.08);
+    border: 1px solid var(--rw-border);
 }
 
 .twofa-panel__copy {
@@ -108,14 +108,19 @@ defineEmits(['start', 'email', 'disable', 'verify', 'cancel', 'update:code']);
 .twofa-panel__copy p {
     margin: 0;
     line-height: 1.6;
-    color: var(--starter-muted);
+    color: var(--rw-muted);
 }
 
 .twofa-panel__secret {
     display: inline-flex;
     padding: 0.75rem 0.9rem;
-    background: rgba(17, 34, 51, 0.06);
-    border-radius: 0.9rem;
+    background: var(--rw-surface-2);
+    border: 1px solid var(--rw-border);
+    border-radius: 0.75rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+    color: var(--rw-ink-2);
+    word-break: break-all;
 }
 
 .twofa-panel__verify {

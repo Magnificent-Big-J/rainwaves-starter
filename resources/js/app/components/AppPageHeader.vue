@@ -41,25 +41,27 @@ defineProps({
 
 .page-header__eyebrow {
     margin: 0;
-    color: var(--starter-accent, #006a4a);
+    color: var(--rw-600);
     text-transform: uppercase;
     letter-spacing: 0.16em;
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     font-weight: 700;
 }
 
 .page-header__title {
-    margin: 0.65rem 0 0;
+    margin: 0.5rem 0 0;
     font-size: clamp(2rem, 4vw, 3.25rem);
     line-height: 1;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.03em;
+    color: var(--rw-ink);
+    font-weight: 800;
 }
 
 .page-header__subtitle {
-    margin: 0.85rem 0 0;
+    margin: 0.75rem 0 0;
     max-width: 60ch;
-    color: var(--starter-muted, rgba(17, 34, 51, 0.7));
-    font-size: 0.98rem;
+    color: var(--rw-muted);
+    font-size: 0.95rem;
     line-height: 1.65;
 }
 

@@ -36,10 +36,10 @@ defineProps({
     display: grid;
     gap: 0.8rem;
     padding: 1.15rem 1.2rem;
-    background: rgba(255, 253, 248, 0.96);
+    background: var(--rw-surface);
     border-radius: 1.1rem;
-    border: 1px solid rgba(17, 34, 51, 0.08);
-    box-shadow: 0 10px 30px rgba(17, 34, 51, 0.04);
+    border: 1px solid var(--rw-border);
+    box-shadow: var(--rw-shadow-xs);
 }
 
 .stat-card__top {
@@ -68,11 +68,11 @@ defineProps({
 .stat-card__label {
     font-size: 0.86rem;
     font-weight: 700;
-    color: rgba(17, 34, 51, 0.84);
+    color: var(--rw-ink-2);
 }
 
 .stat-card__helper {
     font-size: 0.8rem;
-    color: var(--starter-muted, rgba(17, 34, 51, 0.7));
+    color: var(--rw-muted);
 }
 </style>

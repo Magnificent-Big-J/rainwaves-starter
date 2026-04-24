@@ -54,7 +54,7 @@ defineEmits(['regenerate']);
 
 .recovery-panel__copy {
     margin: 0;
-    color: var(--starter-muted);
+    color: var(--rw-muted);
     line-height: 1.6;
     max-width: 44ch;
 }
@@ -68,11 +68,14 @@ defineEmits(['regenerate']);
 .recovery-panel__code {
     display: inline-flex;
     align-items: center;
-    min-height: 2.7rem;
-    padding: 0.75rem 0.85rem;
-    border-radius: 0.9rem;
-    background: rgba(17, 34, 51, 0.06);
-    border: 1px solid rgba(17, 34, 51, 0.08);
-    font-size: 0.88rem;
+    justify-content: center;
+    min-height: 2.5rem;
+    padding: 0.6rem 0.85rem;
+    border-radius: 0.625rem;
+    background: var(--rw-surface-2);
+    border: 1px solid var(--rw-border);
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+    color: var(--rw-ink-2);
 }
 </style>
