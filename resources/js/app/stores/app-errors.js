@@ -1,10 +1,9 @@
 import { defineStore } from 'pinia';
+import { useNotificationsStore } from './notifications';
 
 export const useAppErrorsStore = defineStore('appErrors', {
     state: () => ({
         active: null,
-        lastFingerprint: '',
-        lastShownAt: 0,
     }),
     actions: {
         show(payload) {
@@ -14,23 +13,18 @@ export const useAppErrorsStore = defineStore('appErrors', {
                 return;
             }
 
-            const color = payload?.color || 'error';
-            const timeout = Number(payload?.timeout || 5000);
-            const fingerprint = `${color}:${message}`;
-            const now = Date.now();
-
-            if (this.lastFingerprint === fingerprint && now - this.lastShownAt < 1000) {
-                return;
-            }
-
-            this.lastFingerprint = fingerprint;
-            this.lastShownAt = now;
-            this.active = {
-                id: now,
+            const notifications = useNotificationsStore();
+            const active = {
+                id: Date.now(),
+                title: payload?.title || 'Something went wrong',
                 message,
-                color,
-                timeout,
+                color: payload?.color || 'error',
+                type: payload?.type || 'error',
+                timeout: Number(payload?.timeout || 5000),
             };
+
+            this.active = active;
+            notifications.notify(active);
         },
         clear() {
             this.active = null;

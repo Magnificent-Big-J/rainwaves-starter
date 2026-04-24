@@ -9,6 +9,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
+import AppToastHost from './components/AppToastHost.vue';
 
 const layouts = import.meta.glob('./layouts/*.vue', {
     eager: true,

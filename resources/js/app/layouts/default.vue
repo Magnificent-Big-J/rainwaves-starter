@@ -78,7 +78,7 @@
                         <span v-if="pageTitle" class="topbar__page">{{ pageTitle }}</span>
                     </div>
                     <div class="topbar__actions">
-                        <AppToastHost />
+                        <AppNotificationPanel />
                     </div>
                 </header>
 
@@ -105,13 +105,15 @@
 </template>
 
 <script setup>
-import { computed, defineComponent, h, ref } from 'vue';
+import { computed, defineComponent, h, ref, watch } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 
-import AppToastHost from '../components/AppToastHost.vue';
+import AppNotificationPanel from '../components/AppNotificationPanel.vue';
 import { useSessionStore } from '../stores/session';
+import { useNotificationsStore } from '../stores/notifications';
 
 const session = useSessionStore();
+const notifications = useNotificationsStore();
 const router = useRouter();
 const route = useRoute();
 const mobileOpen = ref(false);
@@ -144,6 +146,20 @@ const logout = async () => {
     await session.logout();
     router.push('/auth/login');
 };
+
+watch(
+    () => session.user?.roles,
+    (roles) => {
+        const context = roles?.some((role) => ['super-admin', 'admin'].includes(role))
+            ? 'admin'
+            : session.isAuthenticated
+                ? 'user'
+                : 'guest';
+
+        notifications.ensureSeeded(context);
+    },
+    { immediate: true, deep: true }
+);
 
 // ── Inline NavItem to keep this file self-contained ──
 const NavItem = defineComponent({

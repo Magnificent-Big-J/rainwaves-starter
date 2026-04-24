@@ -12,6 +12,12 @@
                 </template>
             </AppPageHeader>
 
+            <AppBanner
+                title="Notification system now included"
+                message="The starter now has toast notifications, inline banners, alerts, and a topbar notification center pattern ready for system, billing, and security events."
+                type="info"
+            />
+
             <div class="foundation-stats">
                 <AppStatCard
                     label="Shared components"
@@ -98,6 +104,26 @@
                                 <v-btn variant="text">Read docs</v-btn>
                             </template>
                         </AppEmptyState>
+                    </AppSectionCard>
+                </v-col>
+
+                <v-col cols="12" md="6">
+                    <AppSectionCard title="Inline alert" subtitle="Use for form, page, or panel feedback.">
+                        <AppAlert
+                            title="Payments still need real merchant credentials"
+                            message="The billing baseline is scaffolded, but sandbox or production merchant details must be configured before live checkout testing."
+                            type="warning"
+                        />
+                    </AppSectionCard>
+                </v-col>
+
+                <v-col cols="12" md="6">
+                    <AppSectionCard title="Section banner" subtitle="Use for module-wide system messaging.">
+                        <AppBanner
+                            title="Starter review note"
+                            message="Commercial starter work should keep extracting stable primitives from real modules rather than building a detached component zoo."
+                            type="success"
+                        />
                     </AppSectionCard>
                 </v-col>
             </v-row>
