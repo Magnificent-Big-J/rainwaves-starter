@@ -119,16 +119,6 @@
 
                     <FormStatusAlert :message="twoFaMsg" :type="twoFaMsgType" />
 
-                    <v-text-field
-                        v-model="twoFaPassword"
-                        label="Current password"
-                        type="password"
-                        autocomplete="current-password"
-                        hint="Required to change 2FA settings."
-                        persistent-hint
-                        class="twofa-password-field"
-                    />
-
                     <!-- Setup not in progress -->
                     <template v-if="!twoFactor.setup.secret">
                         <div class="twofa-actions">
@@ -140,16 +130,50 @@
                                 <v-icon size="17" color="var(--rw-600)">mdi-email-outline</v-icon>
                                 Send email OTP
                             </button>
-                            <button
-                                v-if="twoFactor.status?.enabled"
-                                class="twofa-btn twofa-btn--danger"
-                                :disabled="twoFactor.loading"
-                                @click="disableTwoFactor"
-                            >
-                                <v-icon size="17">mdi-shield-remove-outline</v-icon>
-                                Disable 2FA
-                            </button>
                         </div>
+
+                        <!-- Disable confirmation — shown only when user requests it -->
+                        <template v-if="twoFactor.status?.enabled">
+                            <div v-if="!showDisableConfirm" class="twofa-disable-row">
+                                <button
+                                    class="twofa-btn twofa-btn--danger"
+                                    :disabled="twoFactor.loading"
+                                    @click="showDisableConfirm = true"
+                                >
+                                    <v-icon size="17">mdi-shield-remove-outline</v-icon>
+                                    Disable 2FA
+                                </button>
+                            </div>
+                            <div v-else class="twofa-disable-confirm">
+                                <v-text-field
+                                    v-model="twoFaPassword"
+                                    label="Confirm your password"
+                                    type="password"
+                                    autocomplete="current-password"
+                                    hint="Required to disable two-factor authentication."
+                                    persistent-hint
+                                    autofocus
+                                />
+                                <div class="twofa-confirm-actions">
+                                    <v-btn
+                                        color="error"
+                                        variant="tonal"
+                                        size="small"
+                                        :loading="twoFactor.loading"
+                                        @click="disableTwoFactor"
+                                    >
+                                        Confirm disable
+                                    </v-btn>
+                                    <button
+                                        type="button"
+                                        class="totp-cancel"
+                                        @click="showDisableConfirm = false; twoFaPassword = ''"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
                     </template>
 
                     <!-- TOTP setup in progress -->
@@ -278,6 +302,7 @@ const twoFaMsgType = ref('success');
 const twoFaMsg = ref('');
 const twoFaPassword = ref('');
 const totpCode = ref('');
+const showDisableConfirm = ref(false);
 
 const syncProfileForm = () => {
     profileForm.name = session.user?.name || '';
@@ -329,7 +354,7 @@ const setTwoFaMsg = (type, msg) => {
 
 const startTotpSetup = async () => {
     try {
-        await twoFactor.enableTotp(twoFaPassword.value, session.user?.email || '');
+        await twoFactor.enableTotp('', session.user?.email || '');
         setTwoFaMsg('success', 'Scan the QR code then enter the 6-digit code to complete setup.');
     } catch (error) {
         setTwoFaMsg('error', error?.data?.message || 'Unable to start authenticator setup.');
@@ -349,7 +374,7 @@ const verifyTotp = async () => {
 
 const sendEmailCode = async () => {
     try {
-        await twoFactor.resendLoginCode(twoFaPassword.value);
+        await twoFactor.resendLoginCode('');
         setTwoFaMsg('success', 'Verification code sent to your email.');
     } catch (error) {
         setTwoFaMsg('error', error?.data?.message || 'Unable to send code.');
@@ -369,6 +394,8 @@ const disableTwoFactor = async () => {
     try {
         await twoFactor.disable(twoFaPassword.value);
         await twoFactor.getStatus();
+        twoFaPassword.value = '';
+        showDisableConfirm.value = false;
         setTwoFaMsg('success', 'Two-factor authentication disabled.');
     } catch (error) {
         setTwoFaMsg('error', error?.data?.message || 'Unable to disable 2FA.');
@@ -522,11 +549,6 @@ onMounted(async () => {
     border: 1px solid var(--rw-border);
 }
 
-/* ── 2FA password field ────────────────────────────── */
-.twofa-password-field {
-    margin-bottom: 0.25rem;
-}
-
 /* ── 2FA action buttons ────────────────────────────── */
 .twofa-actions {
     display: flex;
@@ -570,6 +592,26 @@ onMounted(async () => {
 .twofa-btn--danger:hover:not(:disabled) {
     background: rgba(185, 28, 28, 0.08);
     border-color: rgba(185, 28, 28, 0.3);
+}
+
+.twofa-disable-row {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--rw-border);
+}
+
+.twofa-disable-confirm {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--rw-border);
+    display: grid;
+    gap: 0.75rem;
+}
+
+.twofa-confirm-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 .twofa-btn--sm {
