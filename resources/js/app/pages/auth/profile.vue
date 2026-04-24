@@ -162,7 +162,7 @@
 <route lang="json">
 {
     "meta": {
-        "layout": "default",
+        "layout": "contextual",
         "title": "Profile",
         "requiresAuth": true
     }

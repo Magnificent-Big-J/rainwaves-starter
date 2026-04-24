@@ -116,33 +116,43 @@ export const useNotificationsStore = defineStore('notifications', {
             this.items = [
                 {
                     id: 1,
-                    title: 'Starter seeded accounts ready',
-                    message: 'Owner, ops, and customer accounts are available for local testing.',
+                    title: context === 'customer'
+                        ? 'Your customer account is ready'
+                        : 'Starter seeded accounts ready',
+                    message: context === 'customer'
+                        ? 'Your account area can surface orders, subscriptions, invoices, and profile controls from this shell.'
+                        : 'Owner, ops, and customer accounts are available for local testing.',
                     type: 'success',
                     color: 'success',
                     icon: iconMap.success,
-                    category: 'system',
+                    category: context === 'customer' ? 'account' : 'system',
                     timeLabel: 'Today',
                     readAt: null,
-                    actionLabel: 'Review users',
+                    actionLabel: context === 'customer' ? 'Open profile' : 'Review users',
                 },
                 {
                     id: 2,
-                    title: 'PayFast sandbox setup',
-                    message: 'Configure merchant keys before testing checkout and ITN handling.',
+                    title: context === 'customer'
+                        ? 'Subscription billing active'
+                        : 'PayFast sandbox setup',
+                    message: context === 'customer'
+                        ? 'Use the customer shell to surface invoices, renewals, upgrades, and billing-history notifications.'
+                        : 'Configure merchant keys before testing checkout and ITN handling.',
                     type: 'warning',
                     color: 'warning',
                     icon: iconMap.warning,
                     category: 'billing',
                     timeLabel: 'Today',
                     readAt: null,
-                    actionLabel: 'Open billing docs',
+                    actionLabel: context === 'customer' ? 'View billing' : 'Open billing docs',
                 },
                 {
                     id: 3,
                     title: 'Two-factor protection enabled',
                     message: context === 'admin'
                         ? 'Admin starter flows should verify TOTP, email OTP, and recovery-code handling.'
+                        : context === 'customer'
+                            ? 'Customer account flows should keep profile, notifications, and security actions inside the customer shell.'
                         : 'Remember to verify the 2FA flows before shipping a new product baseline.',
                     type: 'info',
                     color: 'info',
@@ -150,7 +160,7 @@ export const useNotificationsStore = defineStore('notifications', {
                     category: 'security',
                     timeLabel: 'Earlier',
                     readAt: context === 'guest' ? new Date().toISOString() : null,
-                    actionLabel: 'View security',
+                    actionLabel: context === 'customer' ? 'Manage security' : 'View security',
                 },
             ];
         },

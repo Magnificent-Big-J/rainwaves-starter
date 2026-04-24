@@ -148,17 +148,11 @@ const logout = async () => {
 };
 
 watch(
-    () => session.user?.roles,
-    (roles) => {
-        const context = roles?.some((role) => ['super-admin', 'admin'].includes(role))
-            ? 'admin'
-            : session.isAuthenticated
-                ? 'user'
-                : 'guest';
-
-        notifications.ensureSeeded(context);
+    () => session.activeSurface,
+    (surface) => {
+        notifications.ensureSeeded(surface === 'admin' ? 'admin' : 'guest');
     },
-    { immediate: true, deep: true }
+    { immediate: true }
 );
 
 // ── Inline NavItem to keep this file self-contained ──

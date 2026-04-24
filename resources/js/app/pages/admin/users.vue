@@ -186,7 +186,8 @@
     "meta": {
         "layout": "default",
         "title": "Users",
-        "requiresAuth": true
+        "requiresAuth": true,
+        "adminOnly": true
     }
 }
 </route>

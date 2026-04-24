@@ -17,15 +17,19 @@ router.beforeEach(async (to) => {
     }
 
     if (to.meta.guestOnly && session.isAuthenticated) {
-        return '/dashboard';
+        return session.homeRoute;
     }
 
     if (to.path === '/' && session.isAuthenticated) {
-        return '/dashboard';
+        return session.homeRoute;
     }
 
     if (to.path !== '/auth/verify' && session.pendingTwoFactorRequired) {
         return '/auth/verify';
+    }
+
+    if (to.meta.adminOnly && session.activeSurface !== 'admin') {
+        return session.homeRoute;
     }
 });
 

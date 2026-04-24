@@ -26,6 +26,18 @@ export const useSessionStore = defineStore('sessionAuth', {
     },
     getters: {
         isAuthenticated: (state) => Boolean(state.user),
+        isAdminSurface: (state) =>
+            state.user?.roles?.some((role) => ['super-admin', 'admin'].includes(role)) ?? false,
+        activeSurface() {
+            if (!this.isAuthenticated) {
+                return 'guest';
+            }
+
+            return this.isAdminSurface ? 'admin' : 'customer';
+        },
+        homeRoute() {
+            return this.isAdminSurface ? '/dashboard' : '/customer/home';
+        },
     },
     actions: {
         setPendingTwoFactor(required, channel = null) {

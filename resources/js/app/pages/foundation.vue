@@ -179,7 +179,9 @@
 {
     "meta": {
         "layout": "default",
-        "title": "Foundation"
+        "title": "Foundation",
+        "requiresAuth": true,
+        "adminOnly": true
     }
 }
 </route>

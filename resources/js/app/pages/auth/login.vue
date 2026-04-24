@@ -81,7 +81,7 @@ const submit = async () => {
             return;
         }
 
-        await router.push('/foundation');
+        await router.push(session.homeRoute);
     } catch (error) {
         formMessage.value = error?.data?.message || 'Unable to sign in with those credentials.';
     }

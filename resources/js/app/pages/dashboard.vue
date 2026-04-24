@@ -118,7 +118,8 @@
     "meta": {
         "layout": "default",
         "title": "Dashboard",
-        "requiresAuth": true
+        "requiresAuth": true,
+        "adminOnly": true
     }
 }
 </route>

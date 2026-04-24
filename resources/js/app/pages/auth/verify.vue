@@ -94,7 +94,7 @@ const submit = async () => {
             await twoFactor.verifyLoginCode(code.value);
         }
 
-        await router.push('/foundation');
+        await router.push(session.homeRoute);
     } catch (error) {
         messageType.value = 'error';
         message.value = error?.data?.message || 'Verification failed.';
@@ -106,7 +106,7 @@ const submitRecovery = async () => {
 
     try {
         await twoFactor.verifyRecoveryCode(code.value);
-        await router.push('/foundation');
+        await router.push(session.homeRoute);
     } catch (error) {
         messageType.value = 'error';
         message.value = error?.data?.message || 'Recovery code verification failed.';

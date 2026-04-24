@@ -93,6 +93,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/customer/home': RouteRecordInfo<
+      '/customer/home',
+      '/customer/home',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/dashboard': RouteRecordInfo<
       '/dashboard',
       '/dashboard',
@@ -171,6 +178,12 @@ declare module 'vue-router/auto-routes' {
     'resources/js/app/pages/auth/verify.vue': {
       routes:
         | '/auth/verify'
+      views:
+        | never
+    }
+    'resources/js/app/pages/customer/home.vue': {
+      routes:
+        | '/customer/home'
       views:
         | never
     }
