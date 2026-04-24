@@ -11,6 +11,12 @@
             </template>
         </AppPageHeader>
 
+        <AppBanner
+            title="Customer surface baseline"
+            message="This shell now follows the same sectional rhythm as the admin pages while staying lighter and more customer-facing in tone."
+            type="info"
+        />
+
         <div class="customer-home__hero">
             <AppSectionCard title="Welcome back" subtitle="Use this shell for storefront accounts, member portals, and subscription products.">
                 <p class="customer-home__copy">
@@ -77,6 +83,7 @@
 
 <script setup>
 import AppPageHeader from '../../components/AppPageHeader.vue';
+import AppBanner from '../../components/AppBanner.vue';
 import AppSectionCard from '../../components/AppSectionCard.vue';
 import AppStatCard from '../../components/AppStatCard.vue';
 import AppStatusBadge from '../../components/AppStatusBadge.vue';

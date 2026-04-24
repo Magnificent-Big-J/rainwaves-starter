@@ -142,6 +142,6 @@ const remove = () => {
 .media-uploader__hint {
     margin: 0;
     font-size: 0.8rem;
-    color: var(--starter-muted);
+    color: var(--rw-muted);
 }
 </style>

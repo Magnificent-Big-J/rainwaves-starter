@@ -389,7 +389,7 @@ onMounted(load);
 
 .user-cell__email {
     font-size: 0.8rem;
-    color: var(--starter-muted);
+    color: var(--rw-muted);
 }
 
 .role-chips {
@@ -399,7 +399,7 @@ onMounted(load);
 }
 
 .text-muted {
-    color: var(--starter-muted);
+    color: var(--rw-muted);
 }
 
 .text-sm {

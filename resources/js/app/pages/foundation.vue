@@ -13,8 +13,8 @@
             </AppPageHeader>
 
             <AppBanner
-                title="Notification system now included"
-                message="The starter now has toast notifications, inline banners, alerts, and a topbar notification center pattern ready for system, billing, and security events."
+                title="Starter showcase baseline"
+                message="This page now uses the same direct section/grid composition as the rest of the admin surface instead of leaning on a separate Vuetify page layout."
                 type="info"
             />
 
@@ -47,112 +47,96 @@
                 />
             </div>
 
-            <v-row class="mt-2" dense>
-                <v-col
+            <div class="foundation-grid foundation-grid--cards">
+                <AppSectionCard
                     v-for="item in items"
                     :key="item.title"
-                    cols="12"
-                    md="6"
+                    :title="item.title"
+                    :subtitle="item.subtitle"
                 >
-                    <AppSectionCard :title="item.title" :subtitle="item.subtitle">
-                        <p class="foundation-copy">{{ item.body }}</p>
-                    </AppSectionCard>
-                </v-col>
+                    <p class="foundation-copy">{{ item.body }}</p>
+                </AppSectionCard>
+            </div>
 
-                <v-col cols="12" lg="8">
-                    <AppLineChart
-                        title="Starter delivery velocity"
-                        subtitle="Representative dashboard widget wrapper for analytics, billing, and admin modules."
-                        :categories="velocityCategories"
-                        :series="velocitySeries"
+            <div class="foundation-grid foundation-grid--charts">
+                <AppLineChart
+                    title="Starter delivery velocity"
+                    subtitle="Representative dashboard widget wrapper for analytics, billing, and admin modules."
+                    :categories="velocityCategories"
+                    :series="velocitySeries"
+                />
+
+                <AppDonutChart
+                    title="Component coverage"
+                    subtitle="Where the current batch is focused."
+                    :labels="coverageLabels"
+                    :series="coverageSeries"
+                    :colors="coverageColors"
+                />
+            </div>
+
+            <AppSectionCard
+                title="Upcoming groups"
+                subtitle="The next batches expand the UI system into dialogs, dashboard widgets, billing cards, and richer form inputs."
+            >
+                <div class="foundation-badges">
+                    <AppStatusBadge status="draft" label="AppTextField" />
+                    <AppStatusBadge status="draft" label="AppTextarea" />
+                    <AppStatusBadge status="draft" label="AppFilterBar" />
+                    <AppStatusBadge status="draft" label="AppTimeline" />
+                    <AppStatusBadge status="draft" label="Payment widgets" />
+                </div>
+            </AppSectionCard>
+
+            <AppSectionCard title="Empty-state pattern" subtitle="Reusable default for table, page, and card empty states.">
+                <AppEmptyState
+                    title="No widgets configured"
+                    text="Use this pattern when a module has no seeded records, no filters matched, or a user has not created their first item yet."
+                >
+                    <template #actions>
+                        <v-btn color="primary" prepend-icon="mdi-plus">Create item</v-btn>
+                        <v-btn variant="text">Read docs</v-btn>
+                    </template>
+                </AppEmptyState>
+            </AppSectionCard>
+
+            <div class="foundation-grid foundation-grid--support">
+                <AppSectionCard title="Inline alert" subtitle="Use for form, page, or panel feedback.">
+                    <AppAlert
+                        title="Payments still need real merchant credentials"
+                        message="The billing baseline is scaffolded, but sandbox or production merchant details must be configured before live checkout testing."
+                        type="warning"
                     />
-                </v-col>
+                </AppSectionCard>
 
-                <v-col cols="12" lg="4">
-                    <AppDonutChart
-                        title="Component coverage"
-                        subtitle="Where the current batch is focused."
-                        :labels="coverageLabels"
-                        :series="coverageSeries"
-                        :colors="coverageColors"
+                <AppSectionCard title="Section banner" subtitle="Use for module-wide system messaging.">
+                    <AppBanner
+                        title="Starter review note"
+                        message="Commercial starter work should keep extracting stable primitives from real modules rather than building a detached component zoo."
+                        type="success"
                     />
-                </v-col>
+                </AppSectionCard>
 
-                <v-col cols="12">
-                    <AppSectionCard
-                        title="Upcoming groups"
-                        subtitle="The next batches expand the UI system into dialogs, dashboard widgets, billing cards, and richer form inputs."
-                    >
-                        <div class="foundation-badges">
-                            <AppStatusBadge status="draft" label="AppTextField" />
-                            <AppStatusBadge status="draft" label="AppTextarea" />
-                            <AppStatusBadge status="draft" label="AppFilterBar" />
-                            <AppStatusBadge status="draft" label="AppTimeline" />
-                            <AppStatusBadge status="draft" label="Payment widgets" />
-                        </div>
-                    </AppSectionCard>
-                </v-col>
+                <AppSectionCard title="File input" subtitle="Shared upload field wrapper for billing, imports, and content tools.">
+                    <AppFileInput
+                        v-model="demoFile"
+                        label="Attach example file"
+                        hint="Demonstrates the shared file-field API."
+                        accept=".pdf,.png,.jpg"
+                    />
+                </AppSectionCard>
 
-                <v-col cols="12">
-                    <AppSectionCard title="Empty-state pattern" subtitle="Reusable default for table, page, and card empty states.">
-                        <AppEmptyState
-                            title="No widgets configured"
-                            text="Use this pattern when a module has no seeded records, no filters matched, or a user has not created their first item yet."
-                        >
-                            <template #actions>
-                                <v-btn color="primary" prepend-icon="mdi-plus">Create item</v-btn>
-                                <v-btn variant="text">Read docs</v-btn>
-                            </template>
-                        </AppEmptyState>
-                    </AppSectionCard>
-                </v-col>
+                <AppSectionCard title="Modal and drawer" subtitle="Interaction primitives for forms, detail views, and secondary flows.">
+                    <div class="foundation-actions">
+                        <v-btn color="primary" @click="demoModal = true">Open modal</v-btn>
+                        <v-btn variant="outlined" @click="demoDrawer = true">Open drawer</v-btn>
+                    </div>
+                </AppSectionCard>
+            </div>
 
-                <v-col cols="12" md="6">
-                    <AppSectionCard title="Inline alert" subtitle="Use for form, page, or panel feedback.">
-                        <AppAlert
-                            title="Payments still need real merchant credentials"
-                            message="The billing baseline is scaffolded, but sandbox or production merchant details must be configured before live checkout testing."
-                            type="warning"
-                        />
-                    </AppSectionCard>
-                </v-col>
-
-                <v-col cols="12" md="6">
-                    <AppSectionCard title="Section banner" subtitle="Use for module-wide system messaging.">
-                        <AppBanner
-                            title="Starter review note"
-                            message="Commercial starter work should keep extracting stable primitives from real modules rather than building a detached component zoo."
-                            type="success"
-                        />
-                    </AppSectionCard>
-                </v-col>
-
-                <v-col cols="12" md="6">
-                    <AppSectionCard title="File input" subtitle="Shared upload field wrapper for billing, imports, and content tools.">
-                        <AppFileInput
-                            v-model="demoFile"
-                            label="Attach example file"
-                            hint="Demonstrates the shared file-field API."
-                            accept=".pdf,.png,.jpg"
-                        />
-                    </AppSectionCard>
-                </v-col>
-
-                <v-col cols="12" md="6">
-                    <AppSectionCard title="Modal and drawer" subtitle="Interaction primitives for forms, detail views, and secondary flows.">
-                        <div class="foundation-actions">
-                            <v-btn color="primary" @click="demoModal = true">Open modal</v-btn>
-                            <v-btn variant="outlined" @click="demoDrawer = true">Open drawer</v-btn>
-                        </div>
-                    </AppSectionCard>
-                </v-col>
-
-                <v-col cols="12">
-                    <AppSectionCard title="Timeline pattern" subtitle="Starter-ready structure for activity feeds, payment events, and rollout history.">
-                        <AppTimeline :items="timelineItems" />
-                    </AppSectionCard>
-                </v-col>
-            </v-row>
+            <AppSectionCard title="Timeline pattern" subtitle="Starter-ready structure for activity feeds, payment events, and rollout history.">
+                <AppTimeline :items="timelineItems" />
+            </AppSectionCard>
         </div>
 
         <AppModal v-model="demoModal" title="Starter modal" subtitle="Use for focused create/edit flows.">
@@ -267,6 +251,20 @@ const timelineItems = [
     gap: 0.9rem;
 }
 
+.foundation-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.foundation-grid--cards,
+.foundation-grid--support {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.foundation-grid--charts {
+    grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+}
+
 .foundation-copy {
     margin: 0;
     color: rgba(17, 34, 51, 0.75);
@@ -292,6 +290,12 @@ const timelineItems = [
 
     .foundation-stats {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .foundation-grid--cards,
+    .foundation-grid--support,
+    .foundation-grid--charts {
+        grid-template-columns: 1fr;
     }
 }
 

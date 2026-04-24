@@ -61,7 +61,7 @@ defineProps({
 }
 
 .starter-brand__meta {
-    color: var(--starter-muted);
+    color: var(--rw-muted);
     font-size: 0.875rem;
 }
 </style>

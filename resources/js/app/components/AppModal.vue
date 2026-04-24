@@ -59,7 +59,7 @@ defineEmits(['update:modelValue']);
 
 .app-modal__subtitle {
     margin: 0.35rem 0 0;
-    color: var(--starter-muted);
+    color: var(--rw-muted);
     font-size: 0.86rem;
 }
 

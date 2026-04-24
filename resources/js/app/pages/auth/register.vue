@@ -170,7 +170,7 @@ const submit = async () => {
 .reg-closed__text {
     margin: 0;
     font-size: 0.9rem;
-    color: var(--starter-muted);
+    color: var(--rw-muted);
     line-height: 1.5;
 }
 </style>

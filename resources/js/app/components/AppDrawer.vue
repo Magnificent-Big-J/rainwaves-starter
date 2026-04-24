@@ -54,7 +54,7 @@ defineEmits(['update:modelValue']);
 .app-drawer__subtitle {
     margin: 0.3rem 0 0;
     font-size: 0.85rem;
-    color: var(--starter-muted);
+    color: var(--rw-muted);
 }
 
 .app-drawer__body {

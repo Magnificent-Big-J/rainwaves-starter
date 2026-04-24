@@ -86,7 +86,7 @@ const selectItem = (item) => {
 .notification-panel__header p {
     margin: 0.2rem 0 0;
     font-size: 0.8rem;
-    color: var(--starter-muted);
+    color: var(--rw-muted);
 }
 
 .notification-panel__actions {

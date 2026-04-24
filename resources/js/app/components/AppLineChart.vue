@@ -98,7 +98,7 @@ const chartOptions = computed(() => ({
 
 .chart-card__subtitle {
     margin: 0.35rem 0 0;
-    color: var(--starter-muted, rgba(17, 34, 51, 0.7));
+    color: var(--rw-muted);
     font-size: 0.85rem;
 }
 </style>
