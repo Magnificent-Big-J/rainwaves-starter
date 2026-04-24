@@ -28,6 +28,7 @@ Implemented so far:
 - Vue 3 + file-based Vue Router + Pinia + Vuetify SPA shell
 - layout-aware page structure with route metadata
 - auto-imported local Vue components
+- reusable auth foundation components and stores
 - MinIO bucket bootstrap for local public image access
 - Node 20.19.0 pinned for the frontend toolchain
 
@@ -38,6 +39,26 @@ Not implemented yet:
 - permissions/admin baseline
 - profile/media flows
 - production deployment docs
+
+## Reusable Starter Primitives
+
+The reusable component layer is being implemented as part of the starter itself, not postponed until the end.
+
+Current primitives:
+
+- `AppHeader`
+- `AppToastHost`
+- `AuthCard`
+- `BusyOverlay`
+- `FormActions`
+- `FormStatusAlert`
+
+Current auth/client stores:
+
+- `app-errors`
+- `auth-shared`
+- `session`
+- `two-factor`
 
 ## Local Requirements
 

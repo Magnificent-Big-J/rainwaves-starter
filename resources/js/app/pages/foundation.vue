@@ -47,8 +47,12 @@ const items = [
         body: 'Pages choose layouts through route metadata and the app resolves them centrally.',
     },
     {
+        title: 'Reusable primitives',
+        body: 'AuthCard, BusyOverlay, FormStatusAlert, FormActions, and AppToastHost are now the starter’s first shared UI primitives.',
+    },
+    {
         title: 'Next',
-        body: 'Move into environment defaults, auth package integration, and starter route structure.',
+        body: 'Integrate lara-auth-suite itself, publish config/migrations, and complete real auth/package wiring.',
     },
 ];
 </script>

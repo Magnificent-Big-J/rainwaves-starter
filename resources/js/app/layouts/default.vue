@@ -14,6 +14,8 @@
 const navItems = [
     { label: 'Home', to: '/' },
     { label: 'Foundation', to: '/foundation' },
+    { label: 'Auth', to: '/auth/login' },
+    { label: 'Profile', to: '/auth/profile' },
 ];
 </script>
 

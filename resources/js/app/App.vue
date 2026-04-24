@@ -2,6 +2,8 @@
     <component :is="activeLayout">
         <RouterView />
     </component>
+
+    <AppToastHost />
 </template>
 
 <script setup>

@@ -37,6 +37,41 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/auth/forgot-password': RouteRecordInfo<
+      '/auth/forgot-password',
+      '/auth/forgot-password',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/auth/login': RouteRecordInfo<
+      '/auth/login',
+      '/auth/login',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/auth/profile': RouteRecordInfo<
+      '/auth/profile',
+      '/auth/profile',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/auth/reset-password': RouteRecordInfo<
+      '/auth/reset-password',
+      '/auth/reset-password',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/auth/verify': RouteRecordInfo<
+      '/auth/verify',
+      '/auth/verify',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/foundation': RouteRecordInfo<
       '/foundation',
       '/foundation',
@@ -60,6 +95,36 @@ declare module 'vue-router/auto-routes' {
     'resources/js/app/pages/index.vue': {
       routes:
         | '/'
+      views:
+        | never
+    }
+    'resources/js/app/pages/auth/forgot-password.vue': {
+      routes:
+        | '/auth/forgot-password'
+      views:
+        | never
+    }
+    'resources/js/app/pages/auth/login.vue': {
+      routes:
+        | '/auth/login'
+      views:
+        | never
+    }
+    'resources/js/app/pages/auth/profile.vue': {
+      routes:
+        | '/auth/profile'
+      views:
+        | never
+    }
+    'resources/js/app/pages/auth/reset-password.vue': {
+      routes:
+        | '/auth/reset-password'
+      views:
+        | never
+    }
+    'resources/js/app/pages/auth/verify.vue': {
+      routes:
+        | '/auth/verify'
       views:
         | never
     }
