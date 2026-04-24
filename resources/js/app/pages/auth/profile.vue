@@ -119,6 +119,16 @@
 
                     <FormStatusAlert :message="twoFaMsg" :type="twoFaMsgType" />
 
+                    <v-text-field
+                        v-model="twoFaPassword"
+                        label="Current password"
+                        type="password"
+                        autocomplete="current-password"
+                        hint="Required to change 2FA settings."
+                        persistent-hint
+                        class="twofa-password-field"
+                    />
+
                     <!-- Setup not in progress -->
                     <template v-if="!twoFactor.setup.secret">
                         <div class="twofa-actions">
@@ -266,6 +276,7 @@ const passwordMsgType = ref('success');
 
 const twoFaMsgType = ref('success');
 const twoFaMsg = ref('');
+const twoFaPassword = ref('');
 const totpCode = ref('');
 
 const syncProfileForm = () => {
@@ -318,7 +329,7 @@ const setTwoFaMsg = (type, msg) => {
 
 const startTotpSetup = async () => {
     try {
-        await twoFactor.enableTotp('', session.user?.email || '');
+        await twoFactor.enableTotp(twoFaPassword.value, session.user?.email || '');
         setTwoFaMsg('success', 'Scan the QR code then enter the 6-digit code to complete setup.');
     } catch (error) {
         setTwoFaMsg('error', error?.data?.message || 'Unable to start authenticator setup.');
@@ -338,7 +349,7 @@ const verifyTotp = async () => {
 
 const sendEmailCode = async () => {
     try {
-        await twoFactor.resendLoginCode('');
+        await twoFactor.resendLoginCode(twoFaPassword.value);
         setTwoFaMsg('success', 'Verification code sent to your email.');
     } catch (error) {
         setTwoFaMsg('error', error?.data?.message || 'Unable to send code.');
@@ -347,7 +358,7 @@ const sendEmailCode = async () => {
 
 const regenerateCodes = async () => {
     try {
-        await twoFactor.regenerateRecoveryCodes('');
+        await twoFactor.regenerateRecoveryCodes(twoFaPassword.value);
         setTwoFaMsg('success', 'Recovery codes regenerated.');
     } catch (error) {
         setTwoFaMsg('error', error?.data?.message || 'Unable to regenerate codes.');
@@ -356,7 +367,7 @@ const regenerateCodes = async () => {
 
 const disableTwoFactor = async () => {
     try {
-        await twoFactor.disable('');
+        await twoFactor.disable(twoFaPassword.value);
         await twoFactor.getStatus();
         setTwoFaMsg('success', 'Two-factor authentication disabled.');
     } catch (error) {
@@ -509,6 +520,11 @@ onMounted(async () => {
     background: var(--rw-surface-2);
     color: var(--rw-muted);
     border: 1px solid var(--rw-border);
+}
+
+/* ── 2FA password field ────────────────────────────── */
+.twofa-password-field {
+    margin-bottom: 0.25rem;
 }
 
 /* ── 2FA action buttons ────────────────────────────── */
