@@ -138,24 +138,28 @@ User model uses `HasRoles` from `spatie/laravel-permission`. Guard: `web`.
 
 ## Design system
 
-Theme: `rainwavesStarter` in `plugins/vuetify.js`
+Vuetify theme: `rw` in `plugins/vuetify.js`. Primary green `#006a4a`, background `#f2efe8`.
 
-CSS custom properties (in `resources/css/app.css`):
-- `--starter-ink` — body text
-- `--starter-muted` — secondary text
-- `--starter-surface` / `--starter-surface-strong` — backgrounds
-- `--starter-accent` — primary green (#006a52)
-- `--starter-accent-soft` — muted green tint
-- `--starter-highlight` — amber (#d38b00)
+CSS custom properties (in `resources/css/app.css`) — prefix `--rw-*`:
+- `--rw-ink` / `--rw-ink-2` — primary/secondary body text
+- `--rw-muted` / `--rw-dim` — muted and dimmer text
+- `--rw-surface` / `--rw-surface-2` — card and elevated backgrounds
+- `--rw-border` — default border colour
+- `--rw-600` / `--rw-700` etc. — green scale
+- `--rw-amber` — amber accent (#b45309)
+- `--rw-shadow-xs` / `--rw-shadow` — shadow levels
+- `--rw-sidebar-width` / `--rw-sidebar-collapsed` — layout dimensions
 
-Font: Instrument Sans with Segoe UI fallback.
+Legacy aliases `--starter-*` remain for backward compat but point to `--rw-*` values.
 
-Cards default to `elevation: 0`, `rounded: xl`. Buttons default to `rounded: xl`.
+Font: **Plus Jakarta Sans** (Google Fonts) with system-ui fallback.
+
+Cards default to `elevation: 0`, `rounded: xl`. Buttons `rounded: lg`, `fontWeight: 600`.
 
 ## Layouts
 
-- `default.vue` — authenticated shell with collapsible sidebar nav, breadcrumb, user avatar/logout footer. Guest users see a top nav bar instead of sidebar.
-- `auth.vue` — split-panel shell: marketing copy left, form right. Responsive (panel-only on mobile).
+- `default.vue` — authenticated shell with **custom CSS sidebar** (no `v-navigation-drawer`). CSS `transform` for mobile slide-in with backdrop overlay. Left-border green active indicator on nav items. Guest users (unauthenticated) see a slim top bar with About / Register / Sign in links instead of the sidebar.
+- `auth.vue` — dark `#011d12` background with three CSS geometric rings (`border-radius: 50%`) and a dot-grid overlay. Centered floating card, brand logo above, footer below. No split panel.
 
 ## Migrations
 
