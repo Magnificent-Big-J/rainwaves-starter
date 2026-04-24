@@ -25,7 +25,9 @@ Implemented so far:
 
 - fresh Laravel 13 scaffold
 - Sail with MySQL, Redis, Mailpit, and MinIO
-- Vue 3 + Vue Router + Pinia + Vuetify SPA shell
+- Vue 3 + file-based Vue Router + Pinia + Vuetify SPA shell
+- layout-aware page structure with route metadata
+- auto-imported local Vue components
 - MinIO bucket bootstrap for local public image access
 - Node 20.19.0 pinned for the frontend toolchain
 

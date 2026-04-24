@@ -42,6 +42,15 @@
     </div>
 </template>
 
+<route lang="json">
+{
+    "meta": {
+        "layout": "default",
+        "title": "Home"
+    }
+}
+</route>
+
 <style scoped>
 .home-page {
     padding: 2rem 1.25rem 4rem;

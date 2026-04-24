@@ -1,26 +1,23 @@
 <template>
-    <v-app>
-        <v-layout class="starter-shell">
-            <AppHeader :items="navItems" />
-
-            <v-main>
-                <router-view />
-            </v-main>
-        </v-layout>
-    </v-app>
+    <component :is="activeLayout">
+        <RouterView />
+    </component>
 </template>
 
 <script setup>
-import AppHeader from './components/AppHeader.vue';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 
-const navItems = [
-    { label: 'Home', to: '/' },
-    { label: 'Foundation', to: '/foundation' },
-];
+const layouts = import.meta.glob('./layouts/*.vue', {
+    eager: true,
+});
+
+const route = useRoute();
+
+const activeLayout = computed(() => {
+    const requested = route.meta.layout ?? 'default';
+    const fallback = layouts['./layouts/default.vue']?.default;
+
+    return layouts[`./layouts/${requested}.vue`]?.default ?? fallback;
+});
 </script>
-
-<style scoped>
-.starter-shell {
-    min-height: 100vh;
-}
-</style>

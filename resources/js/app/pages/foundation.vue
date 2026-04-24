@@ -23,6 +23,15 @@
     </div>
 </template>
 
+<route lang="json">
+{
+    "meta": {
+        "layout": "default",
+        "title": "Foundation"
+    }
+}
+</route>
+
 <script setup>
 const items = [
     {
@@ -31,15 +40,15 @@ const items = [
     },
     {
         title: 'Frontend',
-        body: 'Vue 3, Vue Router, Pinia, and Vuetify are wired into a clean SPA entrypoint.',
+        body: 'Vue 3, file-based Vue Router, Pinia, and Vuetify are wired into a clean SPA entrypoint.',
+    },
+    {
+        title: 'Layouts',
+        body: 'Pages choose layouts through route metadata and the app resolves them centrally.',
     },
     {
         title: 'Next',
         body: 'Move into environment defaults, auth package integration, and starter route structure.',
-    },
-    {
-        title: 'Constraint',
-        body: 'Local Node is still on 18.x, while the current Vite toolchain expects Node 20.19+.',
     },
 ];
 </script>
