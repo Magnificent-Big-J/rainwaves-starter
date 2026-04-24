@@ -125,6 +125,7 @@ const mainNav = [
 
 const adminNav = [
     { label: 'Users', to: '/admin/users', icon: 'mdi-account-group-outline' },
+    { label: 'Components', to: '/components', icon: 'mdi-toy-brick-outline' },
 ];
 
 const isAdmin = computed(() =>
