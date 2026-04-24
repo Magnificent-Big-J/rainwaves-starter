@@ -1,8 +1,47 @@
 <template>
     <div class="profile-page">
-        <div class="profile-header">
-            <p class="profile-eyebrow">Account</p>
-            <h1 class="profile-title">Profile &amp; security</h1>
+        <AppPageHeader
+            eyebrow="Account"
+            title="Profile & security"
+            subtitle="Manage your personal details, identity, password, and two-factor settings from the same starter-first page language used across the admin surface."
+        >
+            <template #metrics>
+                <AppStatusBadge
+                    :status="twoFactor.status?.enabled ? 'active' : 'inactive'"
+                    :label="twoFactor.status?.enabled ? '2FA enabled' : '2FA disabled'"
+                />
+                <AppStatusBadge status="processing" :label="`${session.user?.roles?.length || 0} roles`" />
+            </template>
+        </AppPageHeader>
+
+        <AppBanner
+            title="Account surface baseline"
+            message="Profile, password, identity, and two-factor management now sit in the same sectional composition as the catalog and dashboard instead of using a separate page style."
+            type="info"
+        />
+
+        <div class="profile-stats">
+            <AppStatCard
+                label="Roles"
+                :value="String(session.user?.roles?.length || 0)"
+                helper="Authorization groups on this account"
+                icon="mdi-shield-account-outline"
+                status="active"
+            />
+            <AppStatCard
+                label="Permissions"
+                :value="String(session.user?.permissions?.length || 0)"
+                helper="Embedded in the current auth payload"
+                icon="mdi-key-chain-variant"
+                status="processing"
+            />
+            <AppStatCard
+                label="Security"
+                :value="twoFactor.status?.enabled ? 'Protected' : 'Needs setup'"
+                helper="Authenticator app or email OTP"
+                icon="mdi-lock-check-outline"
+                :status="twoFactor.status?.enabled ? 'active' : 'warning'"
+            />
         </div>
 
         <div class="profile-grid">
@@ -40,6 +79,7 @@
                             v-model="passwordForm.current_password"
                             label="Current password"
                             type="password"
+                            password-toggle
                             :error-messages="passwordErrors.current_password"
                             autocomplete="current-password"
                         />
@@ -47,6 +87,7 @@
                             v-model="passwordForm.password"
                             label="New password"
                             type="password"
+                            password-toggle
                             :error-messages="passwordErrors.password"
                             autocomplete="new-password"
                         />
@@ -54,6 +95,7 @@
                             v-model="passwordForm.password_confirmation"
                             label="Confirm new password"
                             type="password"
+                            password-toggle
                             autocomplete="new-password"
                         />
                         <FormActions submit-label="Change password" :loading="profileStore.loading" />
@@ -129,6 +171,7 @@
                             v-model="twoFaPassword"
                             label="Confirm your password"
                             type="password"
+                            password-toggle
                             autocomplete="current-password"
                             hint="Required to disable two-factor authentication."
                             persistent-hint
@@ -172,7 +215,10 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
 
+import AppBanner from '../../components/AppBanner.vue';
+import AppPageHeader from '../../components/AppPageHeader.vue';
 import AppSectionCard from '../../components/AppSectionCard.vue';
+import AppStatCard from '../../components/AppStatCard.vue';
 import AppStatusBadge from '../../components/AppStatusBadge.vue';
 import AppTextField from '../../components/AppTextField.vue';
 import FormActions from '../../components/FormActions.vue';
@@ -337,34 +383,23 @@ onMounted(async () => {
 <style scoped>
 .profile-page {
     padding: 2.25rem 2rem 4rem;
-    max-width: 1100px;
+    max-width: 1180px;
     margin: 0 auto;
     display: grid;
-    gap: 2rem;
+    gap: 1.5rem;
 }
 
-.profile-eyebrow {
-    margin: 0 0 0.25rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: var(--rw-600);
-}
-
-.profile-title {
-    margin: 0;
-    font-size: clamp(1.8rem, 3.5vw, 2.75rem);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    color: var(--rw-ink);
-    line-height: 1;
+.profile-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.9rem;
 }
 
 .profile-grid {
     display: grid;
     gap: 1.25rem;
     align-items: start;
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 0.95fr);
 }
 
 .profile-col {
@@ -373,9 +408,10 @@ onMounted(async () => {
     align-items: start;
 }
 
-@media (min-width: 860px) {
+@media (max-width: 960px) {
+    .profile-stats,
     .profile-grid {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
     }
 }
 

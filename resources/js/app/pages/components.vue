@@ -138,6 +138,47 @@
             </div>
         </div>
 
+        <div class="catalog-grid">
+            <AppSectionCard title="Data table demo" subtitle="Shared table surface with pagination and starter-style row rendering.">
+                <AppDataTable
+                    title="Starter rows"
+                    :columns="demoColumns"
+                    :rows="demoRows"
+                    :meta="demoMeta"
+                >
+                    <template #row="{ row }">
+                        <td>{{ row.name }}</td>
+                        <td>{{ row.surface }}</td>
+                        <td>
+                            <AppStatusBadge :status="row.status" :label="row.label" />
+                        </td>
+                    </template>
+                </AppDataTable>
+            </AppSectionCard>
+
+            <AppSectionCard title="Media and security demos" subtitle="Domain-level starter pieces should be visible here too, not only on their feature pages.">
+                <div class="playground-stack">
+                    <MediaUploader
+                        v-model="demoAvatar"
+                        name="Starter Owner"
+                    />
+
+                    <TwoFactorSetupPanel
+                        :enabled="false"
+                        :loading="false"
+                        :secret="null"
+                        :qr-code-data-url="null"
+                        :code="''"
+                        :email-pending="false"
+                        :email-code="''"
+                        user-email="owner@rainwaves.test"
+                        message="Demo surface only. Live behavior remains on the profile page."
+                        message-type="info"
+                    />
+                </div>
+            </AppSectionCard>
+        </div>
+
         <AppModal v-model="demoModal" title="Catalog modal" subtitle="Shared dialog pattern in action.">
             <div class="playground-stack">
                 <AppTextField label="Name" />
@@ -281,6 +322,17 @@ const chartCategories = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 const chartSeries = [
     { name: 'Adoption', data: [5, 9, 14, 19, 24] },
 ];
+const demoColumns = [
+    { key: 'name', label: 'Component' },
+    { key: 'surface', label: 'Surface' },
+    { key: 'status', label: 'Status' },
+];
+const demoRows = [
+    { id: 1, name: 'AppDataTable', surface: 'Admin', status: 'active', label: 'In use' },
+    { id: 2, name: 'MediaUploader', surface: 'Profile', status: 'processing', label: 'Reusable' },
+    { id: 3, name: 'TwoFactorSetupPanel', surface: 'Security', status: 'active', label: 'Live' },
+];
+const demoMeta = { current_page: 1, last_page: 3, per_page: 3, total: 9 };
 
 const events = [
     {
@@ -310,6 +362,7 @@ const demoModal = ref(false);
 const demoDrawer = ref(false);
 const demoAddress = ref(null);
 const demoAddressQuery = ref('');
+const demoAvatar = ref(null);
 </script>
 
 <style scoped>
