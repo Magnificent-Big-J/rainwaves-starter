@@ -1,30 +1,27 @@
 <template>
     <div class="dashboard">
-
-        <div class="dashboard__header">
-            <div>
-                <p class="label">{{ greeting }}</p>
-                <h1 class="dashboard__name">{{ firstName }}<span class="dashboard__dot">.</span></h1>
-            </div>
-            <div class="dashboard__meta">
-                <span class="dashboard__date">{{ today }}</span>
-            </div>
-        </div>
+        <AppPageHeader
+            :eyebrow="greeting"
+            :title="`${firstName}.`"
+            subtitle="The starter dashboard now demonstrates reusable billing, activity, and security-ready surfaces as first-class starter assets."
+        >
+            <template #metrics>
+                <AppStatusBadge status="active" label="Starter ready" />
+                <AppStatusBadge status="processing" :label="today" />
+            </template>
+        </AppPageHeader>
 
         <div class="stat-row">
-            <div
+            <AppStatCard
                 v-for="stat in stats"
                 :key="stat.label"
-                class="stat-card"
-            >
-                <div class="stat-card__icon" :style="{ background: stat.bg }">
-                    <v-icon :color="stat.iconColor" size="18">{{ stat.icon }}</v-icon>
-                </div>
-                <div>
-                    <div class="stat-card__value">{{ stat.value }}</div>
-                    <div class="stat-card__label">{{ stat.label }}</div>
-                </div>
-            </div>
+                :label="stat.label"
+                :value="stat.value"
+                :helper="stat.helper"
+                :icon="stat.icon"
+                :icon-color="stat.iconColor"
+                :icon-background="stat.bg"
+            />
         </div>
 
         <div class="dashboard__body">
@@ -64,13 +61,12 @@
                         </div>
                     </div>
                     <div class="role-list">
-                        <span
+                        <AppStatusBadge
                             v-for="role in session.user?.roles"
                             :key="role"
-                            class="role-badge"
-                        >
-                            {{ role }}
-                        </span>
+                            :status="role"
+                            :label="role"
+                        />
                         <span v-if="!session.user?.roles?.length" class="role-none">No roles assigned</span>
                     </div>
                 </section>
@@ -87,6 +83,35 @@
             </aside>
         </div>
 
+        <div class="dashboard__commerce">
+            <PaymentStatusCard
+                title="One-time payment"
+                subtitle="Starter billing summary primitive"
+                amount="R 1,499.00"
+                reference="Order #RW-10027"
+                status="processing"
+                provider="PayFast"
+                customer="Starter Owner"
+                requested-at="Today, 10:40"
+                settled-at="Awaiting ITN"
+            />
+
+            <SubscriptionStatusCard
+                title="Recurring subscription"
+                subtitle="Starter subscription surface"
+                amount="R 299.00 / month"
+                plan="Growth plan"
+                status="active"
+                billing-date="01 May 2026"
+                cycles="0"
+            />
+        </div>
+
+        <PaymentEventList
+            title="Recent payment events"
+            subtitle="Use this list for ITN history, billing audit, and support tooling."
+            :events="paymentEvents"
+        />
     </div>
 </template>
 
@@ -131,10 +156,10 @@ const today = computed(() =>
 );
 
 const stats = [
-    { label: 'Active roles',       value: '4',    icon: 'mdi-shield-account-outline', bg: 'rgba(0,106,74,0.08)',  iconColor: 'var(--rw-600)' },
-    { label: 'Permissions seeded', value: '21',   icon: 'mdi-key-outline',             bg: 'rgba(180,83,9,0.08)',  iconColor: 'var(--rw-amber)' },
-    { label: 'Queue backend',      value: 'Redis', icon: 'mdi-database-outline',        bg: 'rgba(3,105,161,0.08)', iconColor: '#0369a1' },
-    { label: 'Storage backend',    value: 'MinIO', icon: 'mdi-cloud-outline',           bg: 'rgba(101,16,147,0.08)', iconColor: '#6510a3' },
+    { label: 'Active roles', value: '4', helper: 'Seeded platform roles', icon: 'mdi-shield-account-outline', bg: 'rgba(0,106,74,0.08)', iconColor: 'var(--rw-600)' },
+    { label: 'Permissions seeded', value: '21', helper: 'Authorization baseline', icon: 'mdi-key-outline', bg: 'rgba(180,83,9,0.08)', iconColor: 'var(--rw-amber)' },
+    { label: 'Queue backend', value: 'Redis', helper: 'Horizon-ready workload', icon: 'mdi-database-outline', bg: 'rgba(3,105,161,0.08)', iconColor: '#0369a1' },
+    { label: 'Storage backend', value: 'MinIO', helper: 'Media and uploads', icon: 'mdi-cloud-outline', bg: 'rgba(101,16,147,0.08)', iconColor: '#6510a3' },
 ];
 
 const modules = [
@@ -153,21 +178,45 @@ const modules = [
         color: 'var(--rw-amber)',
     },
     {
-        to: '/about',
-        title: 'About this starter',
-        text: 'Full breakdown of every module, dependency, and design decision.',
-        icon: 'mdi-layers-outline',
+        to: '/foundation',
+        title: 'Component foundation',
+        text: 'Review the shared starter UI kit, widgets, feedback system, and interaction patterns.',
+        icon: 'mdi-toy-brick-outline',
         color: '#0369a1',
     },
 ];
 
 const stackItems = [
-    { name: 'Laravel',         ver: '13' },
+    { name: 'Laravel', ver: '13' },
     { name: 'lara-auth-suite', ver: '2' },
     { name: 'payfast-payment', ver: '1' },
-    { name: 'Vue + Vuetify',   ver: '3' },
-    { name: 'Pinia',           ver: '2' },
-    { name: 'Horizon',         ver: '5' },
+    { name: 'Vue + Vuetify', ver: '3' },
+    { name: 'Pinia', ver: '2' },
+    { name: 'Horizon', ver: '5' },
+];
+
+const paymentEvents = [
+    {
+        id: 1,
+        title: 'Checkout initiated',
+        time: 'Today, 10:40',
+        text: 'One-time order RW-10027 was sent to PayFast for customer redirect.',
+        type: 'info',
+    },
+    {
+        id: 2,
+        title: 'ITN received',
+        time: 'Today, 10:43',
+        text: 'Provider callback validated the merchant signature and queued reconciliation.',
+        type: 'warning',
+    },
+    {
+        id: 3,
+        title: 'Payment completed',
+        time: 'Today, 10:45',
+        text: 'Payment settled successfully and the starter payment aggregate moved to paid.',
+        type: 'success',
+    },
 ];
 </script>
 
@@ -180,93 +229,24 @@ const stackItems = [
     gap: 2rem;
 }
 
-/* ── Header ────────────────────────────────────────── */
-.dashboard__header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 1rem;
-}
-
-.label {
-    margin: 0 0 0.2rem;
-    font-size: 0.78rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--rw-muted);
-}
-
-.dashboard__name {
-    margin: 0;
-    font-size: clamp(2rem, 4vw, 3.25rem);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    color: var(--rw-ink);
-    line-height: 1;
-}
-
-.dashboard__dot {
-    color: var(--rw-600);
-}
-
-.dashboard__date {
-    font-size: 0.8rem;
-    color: var(--rw-dim);
-    font-weight: 500;
-}
-
-/* ── Stats ─────────────────────────────────────────── */
 .stat-row {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 0.875rem;
 }
 
-.stat-card {
-    display: flex;
-    align-items: center;
-    gap: 0.875rem;
-    padding: 1rem 1.25rem;
-    background: var(--rw-surface);
-    border-radius: 1rem;
-    border: 1px solid var(--rw-border);
-    box-shadow: var(--rw-shadow-xs);
-}
-
-.stat-card__icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 0.625rem;
-    flex-shrink: 0;
-}
-
-.stat-card__value {
-    font-size: 1.2rem;
-    font-weight: 800;
-    color: var(--rw-ink);
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-}
-
-.stat-card__label {
-    font-size: 0.75rem;
-    color: var(--rw-muted);
-    font-weight: 500;
-    margin-top: 0.1rem;
-}
-
-/* ── Body ──────────────────────────────────────────── */
 .dashboard__body {
     display: grid;
     gap: 1.5rem;
     align-items: start;
 }
 
-/* Modules ──────────────────────────────────────────── */
+.dashboard__commerce {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .section-title {
     margin: 0 0 0.3rem;
     font-size: 1.05rem;
@@ -336,7 +316,6 @@ const stackItems = [
     line-height: 1.5;
 }
 
-/* Aside ────────────────────────────────────────────── */
 .info-card {
     padding: 1.1rem 1.25rem;
     background: var(--rw-surface);
@@ -406,17 +385,6 @@ const stackItems = [
     gap: 0.35rem;
 }
 
-.role-badge {
-    display: inline-flex;
-    padding: 0.2rem 0.625rem;
-    background: var(--rw-50);
-    color: var(--rw-700);
-    border-radius: 999px;
-    font-size: 0.72rem;
-    font-weight: 600;
-    border: 1px solid var(--rw-100);
-}
-
 .role-none {
     font-size: 0.78rem;
     color: var(--rw-dim);
@@ -452,7 +420,6 @@ const stackItems = [
     border: 1px solid var(--rw-border);
 }
 
-/* ── Responsive ────────────────────────────────────── */
 @media (min-width: 640px) {
     .stat-row {
         grid-template-columns: repeat(4, 1fr);
@@ -466,6 +433,12 @@ const stackItems = [
 
     .module-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 860px) {
+    .dashboard__commerce {
+        grid-template-columns: 1fr;
     }
 }
 </style>
