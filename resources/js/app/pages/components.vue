@@ -1,201 +1,203 @@
 <template>
     <div class="catalog-page">
-        <AppPageHeader
-            eyebrow="Commercial starter"
-            title="Component catalog"
-            subtitle="A live index of the shared Rainwaves starter components, grouped by purpose so teams can see what ships before they build new UI."
-        >
-            <template #metrics>
-                <AppStatusBadge status="active" :label="`${componentCount} components`" />
-                <AppStatusBadge status="processing" :label="`${groups.length} categories`" />
-            </template>
-        </AppPageHeader>
-
-        <div class="catalog-stats">
-            <AppStatCard
-                label="Form layer"
-                :value="String(formComponents.length)"
-                helper="Shared inputs, actions, and state helpers"
-                icon="mdi-form-select"
-                status="active"
-            />
-            <AppStatCard
-                label="Feedback layer"
-                :value="String(feedbackComponents.length)"
-                helper="Notifications, alerts, modal, drawer, loading states"
-                icon="mdi-bell-badge-outline"
-                status="processing"
-            />
-            <AppStatCard
-                label="Billing & security"
-                :value="String(domainComponents.length)"
-                helper="Starter-specific domain building blocks"
-                icon="mdi-shield-lock-outline"
-                status="active"
-            />
-            <AppStatCard
-                label="Data & widgets"
-                :value="String(dataComponents.length)"
-                helper="Tables, charts, cards, timelines, status surfaces"
-                icon="mdi-chart-box-outline"
-                status="active"
-            />
-        </div>
-
-        <AppBanner
-            title="Shared-first rule"
-            message="If a new screen needs one of these patterns, consume the shared component first. Only add a new component when the use case cannot be expressed cleanly by the existing catalog."
-            type="info"
-        />
-
-        <AppSectionCard
-            title="Catalog coverage"
-            subtitle="This page indexes the full shared inventory, but only part of it is demonstrated live below."
-        >
-            <div class="catalog-coverage">
-                <AppStatusBadge status="active" :label="`${liveDemoComponents.length} live demos`" />
-                <AppStatusBadge status="processing" :label="`${componentCount - liveDemoComponents.length} listed only`" />
-            </div>
-            <p class="catalog-coverage__copy">
-                Some pieces are best demonstrated on their home pages instead of in a synthetic playground, especially admin table flows, media upload, and profile security panels.
-            </p>
-        </AppSectionCard>
-
-        <div class="catalog-grid">
-            <AppSectionCard
-                v-for="group in groups"
-                :key="group.title"
-                :title="group.title"
-                :subtitle="group.subtitle"
+        <div class="page-wrap">
+            <AppPageHeader
+                eyebrow="Commercial starter"
+                title="Component catalog"
+                subtitle="A live index of the shared Rainwaves starter components, grouped by purpose so teams can see what ships before they build new UI."
             >
-                <div class="catalog-badges">
-                    <AppStatusBadge
-                        v-for="item in group.items"
-                        :key="item"
-                        status="draft"
-                        :label="item"
-                    />
+                <template #metrics>
+                    <AppStatusBadge status="active" :label="`${componentCount} components`" />
+                    <AppStatusBadge status="processing" :label="`${groups.length} categories`" />
+                </template>
+            </AppPageHeader>
+
+            <div class="catalog-stats">
+                <AppStatCard
+                    label="Form layer"
+                    :value="String(formComponents.length)"
+                    helper="Shared inputs, actions, and state helpers"
+                    icon="mdi-form-select"
+                    status="active"
+                />
+                <AppStatCard
+                    label="Feedback layer"
+                    :value="String(feedbackComponents.length)"
+                    helper="Notifications, alerts, modal, drawer, loading states"
+                    icon="mdi-bell-badge-outline"
+                    status="processing"
+                />
+                <AppStatCard
+                    label="Billing & security"
+                    :value="String(domainComponents.length)"
+                    helper="Starter-specific domain building blocks"
+                    icon="mdi-shield-lock-outline"
+                    status="active"
+                />
+                <AppStatCard
+                    label="Data & widgets"
+                    :value="String(dataComponents.length)"
+                    helper="Tables, charts, cards, timelines, status surfaces"
+                    icon="mdi-chart-box-outline"
+                    status="active"
+                />
+            </div>
+
+            <AppBanner
+                title="Shared-first rule"
+                message="If a new screen needs one of these patterns, consume the shared component first. Only add a new component when the use case cannot be expressed cleanly by the existing catalog."
+                type="info"
+            />
+
+            <AppSectionCard
+                title="Catalog coverage"
+                subtitle="This page indexes the full shared inventory, but only part of it is demonstrated live below."
+            >
+                <div class="catalog-coverage">
+                    <AppStatusBadge status="active" :label="`${liveDemoComponents.length} live demos`" />
+                    <AppStatusBadge status="processing" :label="`${componentCount - liveDemoComponents.length} listed only`" />
                 </div>
+                <p class="catalog-coverage__copy">
+                    Some pieces are best demonstrated on their home pages instead of in a synthetic playground, especially admin table flows, media upload, and profile security panels.
+                </p>
             </AppSectionCard>
-        </div>
 
-        <div class="catalog-playground">
-            <AppSectionCard title="Playground" subtitle="Representative live examples from the catalog.">
-                <div class="playground-grid">
-                    <div class="playground-stack">
-                        <AppTextField label="Starter text field" placeholder="Shared input wrapper" />
-                        <AppTextarea label="Starter textarea" placeholder="Long-form shared input" />
-                        <AppSelect
-                            label="Starter select"
-                            :items="['Admin', 'Staff', 'Customer']"
-                            model-value="Customer"
+            <div class="catalog-grid">
+                <AppSectionCard
+                    v-for="group in groups"
+                    :key="group.title"
+                    :title="group.title"
+                    :subtitle="group.subtitle"
+                >
+                    <div class="catalog-badges">
+                        <AppStatusBadge
+                            v-for="item in group.items"
+                            :key="item"
+                            status="draft"
+                            :label="item"
                         />
-                        <AppAutocomplete
-                            label="Starter autocomplete"
-                            :items="['PayFast', 'Sanctum', 'Horizon', 'Media Library']"
-                            model-value="PayFast"
-                        />
-                        <AppAddressAutocomplete
-                            v-model="demoAddress"
-                            v-model:query-value="demoAddressQuery"
-                            label="Starter address autocomplete"
-                            country="za"
-                        />
-                        <AppFileInput label="Starter file input" hint="Shared upload field surface" />
                     </div>
+                </AppSectionCard>
+            </div>
 
-                    <div class="playground-stack">
-                        <AppAlert
-                            title="Inline alert"
-                            message="Use this for section-level or form-level feedback."
-                            type="warning"
-                        />
-                        <AppEmptyState
-                            title="No component selected"
-                            text="Use the catalog to review what already exists before building a new primitive."
-                        />
-                        <div class="playground-actions">
-                            <v-btn color="primary" @click="demoModal = true">Open modal</v-btn>
-                            <v-btn variant="outlined" @click="demoDrawer = true">Open drawer</v-btn>
+            <div class="catalog-playground">
+                <AppSectionCard title="Playground" subtitle="Representative live examples from the catalog.">
+                    <div class="playground-grid">
+                        <div class="playground-stack">
+                            <AppTextField label="Starter text field" placeholder="Shared input wrapper" />
+                            <AppTextarea label="Starter textarea" placeholder="Long-form shared input" />
+                            <AppSelect
+                                label="Starter select"
+                                :items="['Admin', 'Staff', 'Customer']"
+                                model-value="Customer"
+                            />
+                            <AppAutocomplete
+                                label="Starter autocomplete"
+                                :items="['PayFast', 'Sanctum', 'Horizon', 'Media Library']"
+                                model-value="PayFast"
+                            />
+                            <AppAddressAutocomplete
+                                v-model="demoAddress"
+                                v-model:query-value="demoAddressQuery"
+                                label="Starter address autocomplete"
+                                country="za"
+                            />
+                            <AppFileInput label="Starter file input" hint="Shared upload field surface" />
+                        </div>
+
+                        <div class="playground-stack">
+                            <AppAlert
+                                title="Inline alert"
+                                message="Use this for section-level or form-level feedback."
+                                type="warning"
+                            />
+                            <AppEmptyState
+                                title="No component selected"
+                                text="Use the catalog to review what already exists before building a new primitive."
+                            />
+                            <div class="playground-actions">
+                                <v-btn color="primary" @click="demoModal = true">Open modal</v-btn>
+                                <v-btn variant="outlined" @click="demoDrawer = true">Open drawer</v-btn>
+                            </div>
                         </div>
                     </div>
+                </AppSectionCard>
+
+                <div class="playground-side">
+                    <AppLineChart
+                        title="Starter chart wrapper"
+                        subtitle="A shared widget surface for dashboards and reporting."
+                        :categories="chartCategories"
+                        :series="chartSeries"
+                    />
+
+                    <PaymentEventList
+                        title="Starter timeline surface"
+                        subtitle="Domain components stay visible in the same catalog."
+                        :events="events"
+                    />
                 </div>
-            </AppSectionCard>
-
-            <div class="playground-side">
-                <AppLineChart
-                    title="Starter chart wrapper"
-                    subtitle="A shared widget surface for dashboards and reporting."
-                    :categories="chartCategories"
-                    :series="chartSeries"
-                />
-
-                <PaymentEventList
-                    title="Starter timeline surface"
-                    subtitle="Domain components stay visible in the same catalog."
-                    :events="events"
-                />
             </div>
-        </div>
 
-        <div class="catalog-grid">
-            <AppSectionCard title="Data table demo" subtitle="Shared table surface with pagination and starter-style row rendering.">
-                <AppDataTable
-                    title="Starter rows"
-                    :columns="demoColumns"
-                    :rows="demoRows"
-                    :meta="demoMeta"
-                >
-                    <template #row="{ row }">
-                        <td>{{ row.name }}</td>
-                        <td>{{ row.surface }}</td>
-                        <td>
-                            <AppStatusBadge :status="row.status" :label="row.label" />
-                        </td>
-                    </template>
-                </AppDataTable>
-            </AppSectionCard>
+            <div class="catalog-grid">
+                <AppSectionCard title="Data table demo" subtitle="Shared table surface with pagination and starter-style row rendering.">
+                    <AppDataTable
+                        title="Starter rows"
+                        :columns="demoColumns"
+                        :rows="demoRows"
+                        :meta="demoMeta"
+                    >
+                        <template #row="{ row }">
+                            <td>{{ row.name }}</td>
+                            <td>{{ row.surface }}</td>
+                            <td>
+                                <AppStatusBadge :status="row.status" :label="row.label" />
+                            </td>
+                        </template>
+                    </AppDataTable>
+                </AppSectionCard>
 
-            <AppSectionCard title="Media and security demos" subtitle="Domain-level starter pieces should be visible here too, not only on their feature pages.">
+                <AppSectionCard title="Media and security demos" subtitle="Domain-level starter pieces should be visible here too, not only on their feature pages.">
+                    <div class="playground-stack">
+                        <MediaUploader
+                            v-model="demoAvatar"
+                            name="Starter Owner"
+                        />
+
+                        <TwoFactorSetupPanel
+                            :enabled="false"
+                            :loading="false"
+                            :secret="null"
+                            :qr-code-data-url="null"
+                            :code="''"
+                            :email-pending="false"
+                            :email-code="''"
+                            user-email="owner@rainwaves.test"
+                            message="Demo surface only. Live behavior remains on the profile page."
+                            message-type="info"
+                        />
+                    </div>
+                </AppSectionCard>
+            </div>
+
+            <AppModal v-model="demoModal" title="Catalog modal" subtitle="Shared dialog pattern in action.">
                 <div class="playground-stack">
-                    <MediaUploader
-                        v-model="demoAvatar"
-                        name="Starter Owner"
-                    />
-
-                    <TwoFactorSetupPanel
-                        :enabled="false"
-                        :loading="false"
-                        :secret="null"
-                        :qr-code-data-url="null"
-                        :code="''"
-                        :email-pending="false"
-                        :email-code="''"
-                        user-email="owner@rainwaves.test"
-                        message="Demo surface only. Live behavior remains on the profile page."
-                        message-type="info"
-                    />
+                    <AppTextField label="Name" />
+                    <AppTextarea label="Notes" />
                 </div>
-            </AppSectionCard>
+
+                <template #actions>
+                    <v-btn variant="text" @click="demoModal = false">Cancel</v-btn>
+                    <v-btn color="primary" @click="demoModal = false">Save</v-btn>
+                </template>
+            </AppModal>
+
+            <AppDrawer v-model="demoDrawer" title="Catalog drawer" subtitle="Quick side-panel pattern.">
+                <AppSkeleton height="2.4rem" />
+                <AppSkeleton height="2.4rem" />
+                <AppSkeleton height="7rem" />
+            </AppDrawer>
         </div>
-
-        <AppModal v-model="demoModal" title="Catalog modal" subtitle="Shared dialog pattern in action.">
-            <div class="playground-stack">
-                <AppTextField label="Name" />
-                <AppTextarea label="Notes" />
-            </div>
-
-            <template #actions>
-                <v-btn variant="text" @click="demoModal = false">Cancel</v-btn>
-                <v-btn color="primary" @click="demoModal = false">Save</v-btn>
-            </template>
-        </AppModal>
-
-        <AppDrawer v-model="demoDrawer" title="Catalog drawer" subtitle="Quick side-panel pattern.">
-            <AppSkeleton height="2.4rem" />
-            <AppSkeleton height="2.4rem" />
-            <AppSkeleton height="7rem" />
-        </AppDrawer>
     </div>
 </template>
 
@@ -368,6 +370,11 @@ const demoAvatar = ref(null);
 <style scoped>
 .catalog-page {
     padding: 2rem 1.25rem 4rem;
+}
+
+.page-wrap {
+    max-width: 1180px;
+    margin: 0 auto;
     display: grid;
     gap: 1.5rem;
 }
