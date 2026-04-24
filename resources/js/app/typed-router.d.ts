@@ -37,6 +37,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/about': RouteRecordInfo<
+      '/about',
+      '/about',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/admin/users': RouteRecordInfo<
       '/admin/users',
       '/admin/users',
@@ -61,6 +68,13 @@ declare module 'vue-router/auto-routes' {
     '/auth/profile': RouteRecordInfo<
       '/auth/profile',
       '/auth/profile',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/auth/register': RouteRecordInfo<
+      '/auth/register',
+      '/auth/register',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -105,6 +119,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'resources/js/app/pages/about.vue': {
+      routes:
+        | '/about'
+      views:
+        | never
+    }
     'resources/js/app/pages/admin/users.vue': {
       routes:
         | '/admin/users'
@@ -126,6 +146,12 @@ declare module 'vue-router/auto-routes' {
     'resources/js/app/pages/auth/profile.vue': {
       routes:
         | '/auth/profile'
+      views:
+        | never
+    }
+    'resources/js/app/pages/auth/register.vue': {
+      routes:
+        | '/auth/register'
       views:
         | never
     }

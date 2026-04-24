@@ -4,31 +4,51 @@ import { createVuetify } from 'vuetify';
 
 export const vuetify = createVuetify({
     theme: {
-        defaultTheme: 'rainwavesStarter',
+        defaultTheme: 'rw',
         themes: {
-            rainwavesStarter: {
+            rw: {
                 dark: false,
                 colors: {
-                    background: '#f7f3ea',
-                    surface: '#fffdf8',
-                    primary: '#006a52',
-                    secondary: '#d38b00',
-                    accent: '#0e8b6c',
-                    error: '#b42318',
-                    info: '#0b7285',
-                    success: '#157347',
-                    warning: '#b7791f',
+                    background: '#f2efe8',
+                    surface:    '#ffffff',
+                    primary:    '#006a4a',
+                    secondary:  '#b45309',
+                    accent:     '#00875f',
+                    error:      '#b91c1c',
+                    info:       '#0369a1',
+                    success:    '#15803d',
+                    warning:    '#b45309',
+                    'on-primary': '#ffffff',
                 },
             },
         },
     },
     defaults: {
         VBtn: {
-            rounded: 'xl',
+            rounded: 'lg',
+            fontWeight: '600',
         },
         VCard: {
             rounded: 'xl',
             elevation: 0,
+        },
+        VTextField: {
+            variant: 'outlined',
+            density: 'comfortable',
+            color: 'primary',
+        },
+        VSelect: {
+            variant: 'outlined',
+            density: 'comfortable',
+            color: 'primary',
+        },
+        VCombobox: {
+            variant: 'outlined',
+            density: 'comfortable',
+            color: 'primary',
+        },
+        VChip: {
+            rounded: 'md',
         },
     },
 });
