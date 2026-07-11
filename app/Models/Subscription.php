@@ -34,8 +34,8 @@ class Subscription extends Model
     protected function casts(): array
     {
         return [
-            'status'       => SubscriptionStatus::class,
-            'metadata'     => 'array',
+            'status' => SubscriptionStatus::class,
+            'metadata' => 'array',
             'billing_date' => 'date',
             'initiated_at' => 'datetime',
             'activated_at' => 'datetime',

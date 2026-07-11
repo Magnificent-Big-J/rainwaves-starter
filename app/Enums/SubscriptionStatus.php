@@ -4,37 +4,37 @@ namespace App\Enums;
 
 enum SubscriptionStatus: string
 {
-    case Initiated  = 'initiated';
+    case Initiated = 'initiated';
     case Processing = 'processing';
-    case Pending    = 'pending';
-    case Active     = 'active';
-    case Returned   = 'returned';
-    case Cancelled  = 'cancelled';
-    case Failed     = 'failed';
+    case Pending = 'pending';
+    case Active = 'active';
+    case Returned = 'returned';
+    case Cancelled = 'cancelled';
+    case Failed = 'failed';
 
     public function label(): string
     {
         return match ($this) {
-            self::Initiated  => 'Initiated',
+            self::Initiated => 'Initiated',
             self::Processing => 'Processing',
-            self::Pending    => 'Pending',
-            self::Active     => 'Active',
-            self::Returned   => 'Returned',
-            self::Cancelled  => 'Cancelled',
-            self::Failed     => 'Failed',
+            self::Pending => 'Pending',
+            self::Active => 'Active',
+            self::Returned => 'Returned',
+            self::Cancelled => 'Cancelled',
+            self::Failed => 'Failed',
         };
     }
 
     public function color(): string
     {
         return match ($this) {
-            self::Initiated  => 'info',
+            self::Initiated => 'info',
             self::Processing => 'warning',
-            self::Pending    => 'warning',
-            self::Active     => 'success',
-            self::Returned   => 'success',
-            self::Cancelled  => 'default',
-            self::Failed     => 'error',
+            self::Pending => 'warning',
+            self::Active => 'success',
+            self::Returned => 'success',
+            self::Cancelled => 'default',
+            self::Failed => 'error',
         };
     }
 

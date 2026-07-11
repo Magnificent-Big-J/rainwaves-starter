@@ -61,14 +61,43 @@ resources/js/app/
 - Auth package routes are registered automatically under the configured prefix (see `config/authx.php`)
 - `GET /api/v1/me` returns `AuthUserResource` (id, name, email, avatar_url, roles, permissions)
 
+## API response envelope
+
+Every `/api/*` response uses `App\Http\Responses\Envelope`:
+
+```json
+{ "success": true, "message": "", "data": ..., "meta": {}, "errors": {} }
+```
+
+- Controllers return `Envelope::success($data, $message, $meta, $status)` / `Envelope::error(...)` (no response macro — call the helper directly).
+- Paginators (or resource collections wrapping them) are unwrapped automatically; pagination lands in `meta.pagination` (`current_page`, `per_page`, `last_page`, `total`).
+- The exception handler (bootstrap/app.php) renders 401/403/404/409/422/429/500 envelopes for `api/*`; validation errors land in `errors` as a field map.
+- The SPA catch-all in `routes/web.php` excludes `api/*` so unknown API paths 404 with an envelope.
+
 ## API routes
 
-All under `auth:sanctum` middleware:
+Public:
+
+| Method | Endpoint | Notes |
+|---|---|---|
+| GET | `/api/v1/meta` | Mobile bootstrap: min app version, feature flags, sync resources, enum option sets (config/mobile.php) |
+| POST | `/api/v1/auth/login` | Mobile token login (throttle `mobile-auth`) |
+| POST | `/api/v1/auth/two-factor` | Complete pending 2FA challenge (throttle `mobile-auth`) |
+
+Under `auth:sanctum` + `idempotency` middleware:
 
 | Method | Endpoint | Controller |
 |---|---|---|
+| POST | `/api/v1/auth/logout` | MobileAuthController@logout (revokes current PAT) |
 | GET | `/api/v1/ping` | inline |
 | GET | `/api/v1/me` | inline (AuthUserResource) |
+| GET/POST | `/api/v1/devices` | DeviceController (list / upsert by uuid) |
+| DELETE | `/api/v1/devices/{uuid}` | DeviceController@destroy (revokes linked token) |
+| POST | `/api/v1/sync/operations` | SyncController@operations (batch ingest) |
+| GET | `/api/v1/sync/delta` | SyncController@delta (`?since=<iso8601>&resources=a,b`) |
+| GET | `/api/v1/notifications` | NotificationController@index (`meta.unread_count`, `?unread=1`) |
+| POST | `/api/v1/notifications/read-all` | NotificationController@markAllRead |
+| POST | `/api/v1/notifications/{id}/read` | NotificationController@markRead |
 | GET | `/api/v1/profile` | ProfileController@show |
 | PATCH | `/api/v1/profile` | ProfileController@update |
 | PUT | `/api/v1/profile/password` | ProfileController@updatePassword |
@@ -77,6 +106,32 @@ All under `auth:sanctum` middleware:
 | PATCH | `/api/v1/users/{user}` | UserAdminController@update |
 
 Admin routes are gated by `users.view` / `users.create` / `users.update` permissions.
+
+## Mobile auth (token flow)
+
+Web SPA keeps cookie/session auth (untouched). Mobile uses Sanctum PATs:
+
+- `POST /api/v1/auth/login` with `email`, `password`, `device {uuid, platform, model?, os_version?, app_version?}` → PAT named by device uuid with the `mobile` ability, plus user + device in `data`. One live token per device — re-login replaces the previous token.
+- If the user has 2FA, login returns `{two_factor_required, pending_auth_id, channel}`; complete with `POST /api/v1/auth/two-factor` (`pending_auth_id`, `code`, optional `channel`: `email` | `totp` | `recovery`). Device payload is stashed server-side against the pending id.
+- `MobileAuthService` (bound to `MobileAuthServiceInterface`) reuses lara-auth-suite services (`AuthService`, `ITwoFactorAuth`, `PendingAuthManager`) — token issue/device link is the only app-owned logic.
+- Devices table links `personal_access_token_id`; deleting a device revokes its token.
+
+## Idempotency
+
+`idempotency` middleware (alias in bootstrap/app.php) engages on mutating requests carrying an `Idempotency-Key` header: first non-5xx response is cached 24h and replayed verbatim (`Idempotency-Replay: true`); same key with a different payload → 409; concurrent same-key requests are serialised by an atomic lock. Keys are scoped per user.
+
+## Sync framework
+
+Offline-first sync ships as a framework; apps register resources in `config/sync.php` (`resource => ['handler' => SyncResourceHandler, 'delta' => DeltaProvider]`). Devices are the reference implementation (`DeviceSyncHandler`, `DeviceDeltaProvider`).
+
+- `POST /api/v1/sync/operations` — batch of `{id (uuidv7), type, resource, client_id?, resource_id?, payload, occurred_at, depends_on[]}`. Per-op transactional apply; results are `{id, status: applied|conflict|failed, server_id?, errors}`. Idempotent via the `sync_operations` ledger (replayed op ids return their stored result). Unknown resources / bad payloads fail per-op, never the batch.
+- Conflict pattern: client echoes the `updated_at` it last saw as `payload.version`; handler throws `SyncConflictException` when the server row is newer. Deletes are idempotent (already-gone → applied).
+- `GET /api/v1/sync/delta?since=<iso8601>&resources=a,b` — per resource: `records` (serialized), `tombstones`, `has_more`, `cursor`; `meta.server_time` is the client's next cursor once all `has_more` are false.
+- Deletions propagate via the `RecordsTombstones` model trait (define `syncResource()` / `syncResourceId()`), written to `sync_tombstones`.
+
+## Notifications
+
+Database notifications with a mobile payload contract. Extend `App\Notifications\AppNotification` and implement `type()`, `title()`, `body()`, `deepLink()` (`{route, params}` the app opens on tap). Channels come from `config/mobile.php` `notification_channels` — add an FCM/APNs channel there later without touching subclasses. `SystemAnnouncementNotification` is the reference implementation.
 
 ## Web routes (PayFast)
 
@@ -90,7 +145,7 @@ Admin routes are gated by `users.view` / `users.create` / `users.update` permiss
 
 ## Enums
 
-`App\Enums\PaymentStatus` and `App\Enums\SubscriptionStatus` are PHP backed string enums.
+`App\Enums\PaymentStatus`, `SubscriptionStatus`, `DevicePlatform`, `SyncOperationStatus` and `SyncOperationType` are PHP backed string enums.
 
 Both expose:
 - `->label()` — human-readable display string
@@ -173,6 +228,9 @@ Run order matters. Key tables:
 7. subscriptions
 8. payments
 9. payment_events
+10. devices (links personal_access_tokens)
+11. sync_operations / sync_tombstones
+12. notifications
 
 ## Local development
 

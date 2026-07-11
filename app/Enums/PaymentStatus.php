@@ -15,26 +15,26 @@ enum PaymentStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::Initiated  => 'Initiated',
+            self::Initiated => 'Initiated',
             self::Processing => 'Processing',
-            self::Pending    => 'Pending',
-            self::Paid       => 'Paid',
-            self::Returned   => 'Returned',
-            self::Cancelled  => 'Cancelled',
-            self::Failed     => 'Failed',
+            self::Pending => 'Pending',
+            self::Paid => 'Paid',
+            self::Returned => 'Returned',
+            self::Cancelled => 'Cancelled',
+            self::Failed => 'Failed',
         };
     }
 
     public function color(): string
     {
         return match ($this) {
-            self::Initiated  => 'info',
+            self::Initiated => 'info',
             self::Processing => 'warning',
-            self::Pending    => 'warning',
-            self::Paid       => 'success',
-            self::Returned   => 'success',
-            self::Cancelled  => 'default',
-            self::Failed     => 'error',
+            self::Pending => 'warning',
+            self::Paid => 'success',
+            self::Returned => 'success',
+            self::Cancelled => 'default',
+            self::Failed => 'error',
         };
     }
 

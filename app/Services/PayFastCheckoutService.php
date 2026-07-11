@@ -24,17 +24,17 @@ class PayFastCheckoutService implements PayFastCheckoutServiceInterface
             $payment = Payment::query()->updateOrCreate(
                 ['merchant_payment_id' => $merchantPaymentId],
                 [
-                    'user_id'             => $userId,
-                    'provider'            => 'payfast',
-                    'item_name'           => (string) $data['item_name'],
-                    'item_description'    => $data['item_description'] ?? null,
-                    'amount_requested'    => (float) $data['amount'],
+                    'user_id' => $userId,
+                    'provider' => 'payfast',
+                    'item_name' => (string) $data['item_name'],
+                    'item_description' => $data['item_description'] ?? null,
+                    'amount_requested' => (float) $data['amount'],
                     'customer_first_name' => $data['name_first'] ?? null,
-                    'customer_last_name'  => $data['name_last'] ?? null,
-                    'customer_email'      => $data['email_address'] ?? null,
-                    'status'              => PaymentStatus::Initiated,
-                    'initiated_at'        => now(),
-                    'metadata'            => $data,
+                    'customer_last_name' => $data['name_last'] ?? null,
+                    'customer_email' => $data['email_address'] ?? null,
+                    'status' => PaymentStatus::Initiated,
+                    'initiated_at' => now(),
+                    'metadata' => $data,
                 ]
             );
 
@@ -64,20 +64,20 @@ class PayFastCheckoutService implements PayFastCheckoutServiceInterface
             $subscription = Subscription::query()->updateOrCreate(
                 ['merchant_payment_id' => $merchantPaymentId],
                 [
-                    'user_id'             => $userId,
-                    'provider'            => 'payfast',
-                    'item_name'           => (string) $data['item_name'],
-                    'amount_requested'    => (float) $data['amount'],
-                    'recurring_amount'    => (float) $data['recurring_amount'],
-                    'billing_date'        => $data['billing_date'],
-                    'frequency'           => $frequency,
-                    'cycles'              => (int) ($data['cycles'] ?? 0),
+                    'user_id' => $userId,
+                    'provider' => 'payfast',
+                    'item_name' => (string) $data['item_name'],
+                    'amount_requested' => (float) $data['amount'],
+                    'recurring_amount' => (float) $data['recurring_amount'],
+                    'billing_date' => $data['billing_date'],
+                    'frequency' => $frequency,
+                    'cycles' => (int) ($data['cycles'] ?? 0),
                     'customer_first_name' => $data['name_first'] ?? null,
-                    'customer_last_name'  => $data['name_last'] ?? null,
-                    'customer_email'      => $data['email_address'] ?? null,
-                    'status'              => SubscriptionStatus::Initiated,
-                    'initiated_at'        => now(),
-                    'metadata'            => $data,
+                    'customer_last_name' => $data['name_last'] ?? null,
+                    'customer_email' => $data['email_address'] ?? null,
+                    'status' => SubscriptionStatus::Initiated,
+                    'initiated_at' => now(),
+                    'metadata' => $data,
                 ]
             );
 
@@ -144,18 +144,18 @@ class PayFastCheckoutService implements PayFastCheckoutServiceInterface
                     return $this->rejectItn(reason: 'amount_mismatch', payload: $payload, eventRef: $eventRef, subscriptionId: $subscription->id);
                 }
 
-                $rawStatus      = (string) ($payload['payment_status'] ?? '');
+                $rawStatus = (string) ($payload['payment_status'] ?? '');
                 $resolvedStatus = $this->resolveSubscriptionStatus($rawStatus);
                 $subscription->fill([
-                    'token'               => $payload['token'] ?? $subscription->token,
-                    'payment_status'      => $rawStatus ?: $subscription->payment_status,
-                    'status'              => $resolvedStatus,
+                    'token' => $payload['token'] ?? $subscription->token,
+                    'payment_status' => $rawStatus ?: $subscription->payment_status,
+                    'status' => $resolvedStatus,
                     'customer_first_name' => $payload['name_first'] ?? $subscription->customer_first_name,
-                    'customer_last_name'  => $payload['name_last'] ?? $subscription->customer_last_name,
-                    'customer_email'      => $payload['email_address'] ?? $subscription->customer_email,
-                    'billing_date'        => $payload['billing_date'] ?? $subscription->billing_date,
-                    'activated_at'        => $resolvedStatus->isActive() ? ($subscription->activated_at ?? now()) : $subscription->activated_at,
-                    'metadata'            => array_merge($subscription->metadata ?? [], ['last_itn' => $payload]),
+                    'customer_last_name' => $payload['name_last'] ?? $subscription->customer_last_name,
+                    'customer_email' => $payload['email_address'] ?? $subscription->customer_email,
+                    'billing_date' => $payload['billing_date'] ?? $subscription->billing_date,
+                    'activated_at' => $resolvedStatus->isActive() ? ($subscription->activated_at ?? now()) : $subscription->activated_at,
+                    'metadata' => array_merge($subscription->metadata ?? [], ['last_itn' => $payload]),
                 ]);
                 $subscription->save();
 
@@ -181,22 +181,22 @@ class PayFastCheckoutService implements PayFastCheckoutServiceInterface
                 return $this->rejectItn(reason: 'amount_mismatch', payload: $payload, eventRef: $eventRef, paymentId: $payment->id);
             }
 
-            $rawStatus      = (string) ($payload['payment_status'] ?? '');
+            $rawStatus = (string) ($payload['payment_status'] ?? '');
             $resolvedStatus = $this->resolvePaymentStatus($rawStatus);
             $payment->fill([
-                'payfast_payment_id'  => isset($payload['pf_payment_id']) ? (string) $payload['pf_payment_id'] : $payment->payfast_payment_id,
-                'payment_status'      => $rawStatus ?: $payment->payment_status,
-                'status'              => $resolvedStatus,
-                'item_name'           => $payload['item_name'] ?? $payment->item_name,
-                'item_description'    => $payload['item_description'] ?? $payment->item_description,
-                'amount_gross'        => $this->toDecimalOrNull($payload['amount_gross'] ?? null),
-                'amount_fee'          => $this->toDecimalOrNull($payload['amount_fee'] ?? null),
-                'amount_net'          => $this->toDecimalOrNull($payload['amount_net'] ?? null),
+                'payfast_payment_id' => isset($payload['pf_payment_id']) ? (string) $payload['pf_payment_id'] : $payment->payfast_payment_id,
+                'payment_status' => $rawStatus ?: $payment->payment_status,
+                'status' => $resolvedStatus,
+                'item_name' => $payload['item_name'] ?? $payment->item_name,
+                'item_description' => $payload['item_description'] ?? $payment->item_description,
+                'amount_gross' => $this->toDecimalOrNull($payload['amount_gross'] ?? null),
+                'amount_fee' => $this->toDecimalOrNull($payload['amount_fee'] ?? null),
+                'amount_net' => $this->toDecimalOrNull($payload['amount_net'] ?? null),
                 'customer_first_name' => $payload['name_first'] ?? $payment->customer_first_name,
-                'customer_last_name'  => $payload['name_last'] ?? $payment->customer_last_name,
-                'customer_email'      => $payload['email_address'] ?? $payment->customer_email,
-                'paid_at'             => $resolvedStatus === PaymentStatus::Paid ? ($payment->paid_at ?? now()) : $payment->paid_at,
-                'metadata'            => array_merge($payment->metadata ?? [], ['last_itn' => $payload]),
+                'customer_last_name' => $payload['name_last'] ?? $payment->customer_last_name,
+                'customer_email' => $payload['email_address'] ?? $payment->customer_email,
+                'paid_at' => $resolvedStatus === PaymentStatus::Paid ? ($payment->paid_at ?? now()) : $payment->paid_at,
+                'metadata' => array_merge($payment->metadata ?? [], ['last_itn' => $payload]),
             ]);
             $payment->save();
 
@@ -272,22 +272,22 @@ class PayFastCheckoutService implements PayFastCheckoutServiceInterface
     private function resolvePaymentStatus(string $payfastStatus): PaymentStatus
     {
         return match (strtoupper($payfastStatus)) {
-            'COMPLETE'  => PaymentStatus::Paid,
-            'FAILED'    => PaymentStatus::Failed,
+            'COMPLETE' => PaymentStatus::Paid,
+            'FAILED' => PaymentStatus::Failed,
             'CANCELLED' => PaymentStatus::Cancelled,
-            'PENDING'   => PaymentStatus::Pending,
-            default     => PaymentStatus::Processing,
+            'PENDING' => PaymentStatus::Pending,
+            default => PaymentStatus::Processing,
         };
     }
 
     private function resolveSubscriptionStatus(string $payfastStatus): SubscriptionStatus
     {
         return match (strtoupper($payfastStatus)) {
-            'COMPLETE'  => SubscriptionStatus::Active,
-            'FAILED'    => SubscriptionStatus::Failed,
+            'COMPLETE' => SubscriptionStatus::Active,
+            'FAILED' => SubscriptionStatus::Failed,
             'CANCELLED' => SubscriptionStatus::Cancelled,
-            'PENDING'   => SubscriptionStatus::Pending,
-            default     => SubscriptionStatus::Processing,
+            'PENDING' => SubscriptionStatus::Pending,
+            default => SubscriptionStatus::Processing,
         };
     }
 
