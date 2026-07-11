@@ -11,4 +11,4 @@ Route::prefix('payments/payfast')->group(function () {
     Route::get('/cancel', [PayFastController::class, 'handleCancel']);
 });
 
-Route::view('/{any?}', 'application')->where('any', '.*');
+Route::view('/{any?}', 'application')->where('any', '^(?!api(/|$)).*$');

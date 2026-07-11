@@ -41,8 +41,8 @@ export const useAdminUsersStore = defineStore('adminUsers', {
                 const response = await v1(`users?${params}`);
 
                 this.rows = response?.data?.map((item) => item?.data ?? item) ?? [];
-                this.meta = response?.meta ?? this.meta;
-                this.options = response?.options ?? this.options;
+                this.meta = response?.meta?.pagination ?? this.meta;
+                this.options = response?.meta?.options ?? this.options;
 
                 return response;
             } finally {

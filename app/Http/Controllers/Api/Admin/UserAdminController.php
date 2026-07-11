@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreUserRequest;
 use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Http\Resources\Admin\UserAdminResource;
+use App\Http\Responses\Envelope;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,14 +26,7 @@ class UserAdminController extends Controller
 
         $users = $this->service->paginate($perPage, $search, $role);
 
-        return response()->json([
-            'data' => UserAdminResource::collection($users->items()),
-            'meta' => [
-                'current_page' => $users->currentPage(),
-                'last_page' => $users->lastPage(),
-                'per_page' => $users->perPage(),
-                'total' => $users->total(),
-            ],
+        return Envelope::success(UserAdminResource::collection($users), '', [
             'options' => [
                 'roles' => $this->service->availableRoles(),
                 'permissions' => $this->service->availablePermissions(),
@@ -44,13 +38,13 @@ class UserAdminController extends Controller
     {
         $user = $this->service->create($request->validated());
 
-        return response()->json(new UserAdminResource($user), 201);
+        return Envelope::success(new UserAdminResource($user), 'User created.', [], 201);
     }
 
-    public function update(UpdateUserRequest $request, User $user): UserAdminResource
+    public function update(UpdateUserRequest $request, User $user): JsonResponse
     {
         $updated = $this->service->update($user, $request->validated());
 
-        return new UserAdminResource($updated);
+        return Envelope::success(new UserAdminResource($updated), 'User updated.');
     }
 }

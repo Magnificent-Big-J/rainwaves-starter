@@ -6,18 +6,19 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdatePasswordRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Resources\ProfileResource;
+use App\Http\Responses\Envelope;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 
 class ProfileController extends Controller
 {
-    public function show(): ProfileResource
+    public function show(): JsonResponse
     {
-        return new ProfileResource(request()->user());
+        return Envelope::success(new ProfileResource(request()->user()));
     }
 
-    public function update(UpdateProfileRequest $request): ProfileResource
+    public function update(UpdateProfileRequest $request): JsonResponse
     {
         $user = $request->user();
         $data = $request->validated();
@@ -36,7 +37,7 @@ class ProfileController extends Controller
             $user->addMediaFromRequest('avatar')->toMediaCollection('avatar');
         }
 
-        return new ProfileResource($user->refresh());
+        return Envelope::success(new ProfileResource($user->refresh()), 'Profile updated.');
     }
 
     public function updatePassword(UpdatePasswordRequest $request): JsonResponse
@@ -45,9 +46,6 @@ class ProfileController extends Controller
         $user->password = Hash::make($request->string('password')->toString());
         $user->save();
 
-        return response()->json([
-            'status' => 'ok',
-            'message' => 'Password updated successfully.',
-        ]);
+        return Envelope::success(null, 'Password updated successfully.');
     }
 }
