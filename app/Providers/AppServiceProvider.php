@@ -4,9 +4,12 @@ namespace App\Providers;
 
 use App\Contracts\MobileAuthServiceInterface;
 use App\Contracts\PayFastCheckoutServiceInterface;
+use App\Contracts\Sync\SyncProcessorInterface;
 use App\Contracts\UserAdminServiceInterface;
 use App\Services\MobileAuthService;
 use App\Services\PayFastCheckoutService;
+use App\Services\Sync\SyncProcessor;
+use App\Services\Sync\SyncRegistry;
 use App\Services\UserAdminService;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -20,6 +23,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(UserAdminServiceInterface::class, UserAdminService::class);
         $this->app->bind(PayFastCheckoutServiceInterface::class, PayFastCheckoutService::class);
         $this->app->bind(MobileAuthServiceInterface::class, MobileAuthService::class);
+        $this->app->bind(SyncProcessorInterface::class, SyncProcessor::class);
+        $this->app->singleton(SyncRegistry::class);
     }
 
     public function boot(): void

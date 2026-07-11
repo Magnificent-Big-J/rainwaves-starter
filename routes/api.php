@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Admin\UserAdminController;
 use App\Http\Controllers\Api\DeviceController;
 use App\Http\Controllers\Api\MobileAuthController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\SyncController;
 use App\Http\Resources\AuthUserResource;
 use App\Http\Responses\Envelope;
 use Illuminate\Http\Request;
@@ -26,6 +27,9 @@ Route::middleware(['auth:sanctum', 'idempotency'])->group(function () {
     Route::get('/v1/devices', [DeviceController::class, 'index']);
     Route::post('/v1/devices', [DeviceController::class, 'store']);
     Route::delete('/v1/devices/{uuid}', [DeviceController::class, 'destroy']);
+
+    Route::post('/v1/sync/operations', [SyncController::class, 'operations']);
+    Route::get('/v1/sync/delta', [SyncController::class, 'delta']);
 
     Route::get('/v1/profile', [ProfileController::class, 'show']);
     Route::patch('/v1/profile', [ProfileController::class, 'update']);
