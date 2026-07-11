@@ -2,13 +2,18 @@
 
 use App\Http\Controllers\Api\Admin\UserAdminController;
 use App\Http\Controllers\Api\DeviceController;
+use App\Http\Controllers\Api\MetaController;
 use App\Http\Controllers\Api\MobileAuthController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SyncController;
 use App\Http\Resources\AuthUserResource;
 use App\Http\Responses\Envelope;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+// Public mobile bootstrap.
+Route::get('/v1/meta', [MetaController::class, 'show'])->middleware('throttle:60,1');
 
 // Mobile token auth (guest) — cookie SPA auth lives under /auth/session/*.
 Route::prefix('v1/auth')->middleware('throttle:mobile-auth')->group(function () {
@@ -30,6 +35,10 @@ Route::middleware(['auth:sanctum', 'idempotency'])->group(function () {
 
     Route::post('/v1/sync/operations', [SyncController::class, 'operations']);
     Route::get('/v1/sync/delta', [SyncController::class, 'delta']);
+
+    Route::get('/v1/notifications', [NotificationController::class, 'index']);
+    Route::post('/v1/notifications/read-all', [NotificationController::class, 'markAllRead']);
+    Route::post('/v1/notifications/{id}/read', [NotificationController::class, 'markRead']);
 
     Route::get('/v1/profile', [ProfileController::class, 'show']);
     Route::patch('/v1/profile', [ProfileController::class, 'update']);
