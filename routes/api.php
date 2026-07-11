@@ -15,7 +15,8 @@ Route::prefix('v1/auth')->middleware('throttle:mobile-auth')->group(function () 
     Route::post('/two-factor', [MobileAuthController::class, 'twoFactor']);
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+// idempotency only engages on mutating requests carrying an Idempotency-Key.
+Route::middleware(['auth:sanctum', 'idempotency'])->group(function () {
     Route::post('/v1/auth/logout', [MobileAuthController::class, 'logout']);
 
     Route::get('/v1/ping', fn () => Envelope::success(['status' => 'ok']));

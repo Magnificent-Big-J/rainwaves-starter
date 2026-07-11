@@ -36,7 +36,7 @@ class DeviceController extends Controller
             collect($payload)->except('uuid')->put('last_seen_at', now())->all()
         );
 
-        if ($currentToken instanceof PersonalAccessToken && $device->personal_access_token_id === null) {
+        if ($currentToken instanceof PersonalAccessToken && $currentToken->exists && $device->personal_access_token_id === null) {
             $device->forceFill(['personal_access_token_id' => $currentToken->getKey()])->save();
         }
 
