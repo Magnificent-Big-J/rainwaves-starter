@@ -33,10 +33,10 @@ class Payment extends Model
     protected function casts(): array
     {
         return [
-            'status'       => PaymentStatus::class,
-            'metadata'     => 'array',
+            'status' => PaymentStatus::class,
+            'metadata' => 'array',
             'initiated_at' => 'datetime',
-            'paid_at'      => 'datetime',
+            'paid_at' => 'datetime',
         ];
     }
 

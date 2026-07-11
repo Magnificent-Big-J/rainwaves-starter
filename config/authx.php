@@ -2,8 +2,8 @@
 
 use App\Http\Resources\AuthUserResource;
 use App\Models\User;
-use Rainwaves\LaraAuthSuite\Support\Enums\AuthMode;
 use Rainwaves\LaraAuthSuite\Support\Enums\AuthFeature;
+use Rainwaves\LaraAuthSuite\Support\Enums\AuthMode;
 use Rainwaves\LaraAuthSuite\Support\Enums\TwoFactorChannel;
 
 return [

@@ -31,13 +31,21 @@ Implemented so far:
 - reusable auth foundation components and stores
 - MinIO bucket bootstrap for local public image access
 - Node 20.19.0 pinned for the frontend toolchain
+- `rainwaves/lara-auth-suite` (session + token auth, 2FA) and `rainwaves/payfast-payment`
+- permissions/admin baseline (spatie/laravel-permission, admin users CRUD)
+- profile + avatar media flows
+- **Mobile API foundation** (see CLAUDE.md for contracts):
+  - response envelope on every `/api/*` response, enveloped error rendering
+  - mobile token auth: device-named Sanctum PATs, 2FA-aware login, logout
+  - device registration (`devices` table + endpoints, token linking)
+  - `Idempotency-Key` replay middleware on mutating routes
+  - offline sync framework: operation batch ingest + delta reads with
+    tombstones (handlers registered per resource in `config/sync.php`)
+  - in-app notification feed with deep-link payload contract
+  - `GET /api/v1/meta` bootstrap endpoint (`config/mobile.php`)
 
 Not implemented yet:
 
-- `rainwaves/lara-auth-suite`
-- `rainwaves/payfast-payment`
-- permissions/admin baseline
-- profile/media flows
 - production deployment docs
 
 ## Reusable Starter Primitives

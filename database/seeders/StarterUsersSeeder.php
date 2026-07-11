@@ -10,9 +10,7 @@ use Rainwaves\LaraAuthSuite\TwoFactor\Contracts\ITwoFactorAuth;
 
 class StarterUsersSeeder extends Seeder
 {
-    public function __construct(private ITwoFactorAuth $twoFactor)
-    {
-    }
+    public function __construct(private ITwoFactorAuth $twoFactor) {}
 
     public function run(): void
     {
