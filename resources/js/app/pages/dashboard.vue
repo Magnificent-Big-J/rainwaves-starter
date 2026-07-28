@@ -175,7 +175,7 @@ const stats = [
 
 const modules = [
     {
-        to: '/auth/profile',
+        to: '/profile',
         title: 'Profile & 2FA',
         text: 'Update your name, email, avatar, and manage two-factor authentication.',
         icon: 'mdi-account-circle-outline',

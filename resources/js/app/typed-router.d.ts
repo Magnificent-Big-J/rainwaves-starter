@@ -65,13 +65,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/auth/profile': RouteRecordInfo<
-      '/auth/profile',
-      '/auth/profile',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
     '/auth/register': RouteRecordInfo<
       '/auth/register',
       '/auth/register',
@@ -121,6 +114,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/payfast-browser-test': RouteRecordInfo<
+      '/payfast-browser-test',
+      '/payfast-browser-test',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/profile': RouteRecordInfo<
+      '/profile',
+      '/profile',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -164,12 +171,6 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'resources/js/app/pages/auth/profile.vue': {
-      routes:
-        | '/auth/profile'
-      views:
-        | never
-    }
     'resources/js/app/pages/auth/register.vue': {
       routes:
         | '/auth/register'
@@ -209,6 +210,18 @@ declare module 'vue-router/auto-routes' {
     'resources/js/app/pages/foundation.vue': {
       routes:
         | '/foundation'
+      views:
+        | never
+    }
+    'resources/js/app/pages/payfast-browser-test.vue': {
+      routes:
+        | '/payfast-browser-test'
+      views:
+        | never
+    }
+    'resources/js/app/pages/profile.vue': {
+      routes:
+        | '/profile'
       views:
         | never
     }

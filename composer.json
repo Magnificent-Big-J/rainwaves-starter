@@ -13,8 +13,8 @@
         "laravel/tinker": "^3.0",
         "league/flysystem-aws-s3-v3": "^3.32",
         "predis/predis": "^3.4",
-        "rainwaves/lara-auth-suite": "^2.0",
-        "rainwaves/payfast-payment": "^1.7",
+        "rainwaves/lara-auth-suite": "^2.1.1",
+        "rainwaves/payfast-payment": "dev-main",
         "spatie/laravel-activitylog": "^5.0",
         "spatie/laravel-medialibrary": "^11.21",
         "spatie/laravel-permission": "^7.3"
@@ -88,5 +88,24 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "repositories": {
+        "payfast": {
+            "type": "path",
+            "url": "/home/eclaims/package-development/rainwaves/payfast-payment",
+            "options": {
+                "symlink": false
+            }
+        },
+        "lara-auth-suite": {
+            "type": "path",
+            "url": "/home/eclaims/package-development/rainwaves/lara-auth-suite",
+            "options": {
+                "symlink": false,
+                "versions": {
+                    "rainwaves/lara-auth-suite": "2.1.1"
+                }
+            }
+        }
+    }
 }

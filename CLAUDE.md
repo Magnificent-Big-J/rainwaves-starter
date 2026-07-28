@@ -41,9 +41,10 @@ resources/js/app/
   components/         # AppDataTable, AppSectionCard, MediaUploader, FormActions, FormStatusAlert, BusyOverlay, AppToastHost, AuthCard
   layouts/            # default.vue (sidebar + guest bar), auth.vue (split auth shell)
   pages/
-    auth/             # login, forgot-password, reset-password, verify, profile
+    auth/             # login, forgot-password, reset-password, verify
     admin/            # users
     index.vue         # dashboard/home
+    profile.vue       # account/security page — not under auth/, it's not an auth flow
   stores/             # session, profile, admin-users, two-factor, app-errors, auth-shared (utils)
   utils/api.js        # ofetch instance with credentials + headers
   plugins/vuetify.js  # rainwavesStarter theme
@@ -60,6 +61,7 @@ resources/js/app/
   - Pending 2FA → force `/auth/verify`
 - Auth package routes are registered automatically under the configured prefix (see `config/authx.php`)
 - `GET /api/v1/me` returns `AuthUserResource` (id, name, email, avatar_url, roles, permissions)
+- `App\Listeners\LogSecurityActivity` (registered in `AppServiceProvider::registerSecurityAuditListeners()`) records all 14 lara-auth-suite security events into `spatie/laravel-activitylog` under `log_name = 'security'` — the package's own listener only writes a debug-level log line with the event class name, nothing queryable. Each entry carries the causing user (when the event has one), IP, truncated user-agent, and event-specific safe fields (channel, rate-limit policy/dimension, etc.). `AuthenticationRateLimited`, `AuthenticationStateRevoked`, `TwoFactorDisabled`, and `RecoveryCodeUsed` additionally get `severity: 'high'` and a `Log::warning()` line. `LoginFailed`/`AuthenticationRateLimited` never bind a causer/subject — the package deliberately keeps those non-enumerating, and looking the email up to attach a user would undo that.
 
 ## API response envelope
 

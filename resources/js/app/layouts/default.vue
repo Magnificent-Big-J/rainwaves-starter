@@ -44,7 +44,7 @@
                     </nav>
 
                     <div class="sidebar__footer">
-                        <RouterLink to="/auth/profile" class="user-card" @click="mobileOpen = false">
+                        <RouterLink to="/profile" class="user-card" @click="mobileOpen = false">
                             <span class="user-card__avatar">{{ userInitials }}</span>
                             <div class="user-card__info">
                                 <span class="user-card__name">{{ session.user?.name }}</span>
@@ -120,7 +120,8 @@ const mobileOpen = ref(false);
 
 const mainNav = [
     { label: 'Dashboard', to: '/dashboard',    icon: 'mdi-view-dashboard-outline' },
-    { label: 'Profile',   to: '/auth/profile', icon: 'mdi-account-circle-outline' },
+    { label: 'PayFast Test', to: '/payfast-browser-test', icon: 'mdi-credit-card-check-outline' },
+    { label: 'Profile',   to: '/profile', icon: 'mdi-account-circle-outline' },
 ];
 
 const adminNav = [

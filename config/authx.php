@@ -19,7 +19,6 @@ return [
         AuthFeature::PasswordReset->value,
         AuthFeature::TwoFactor->value,
         AuthFeature::Tokens->value,
-        AuthFeature::Devices->value,
     ],
     '2fa' => [
         'channels' => [TwoFactorChannel::Email->value, TwoFactorChannel::Totp->value], // allowed: email, totp
@@ -35,18 +34,35 @@ return [
         'totp_window' => 1,  // steps either side of current accepted (1 = ±30s clock drift)
         'verification_ttl_seconds' => 600, // how long a verified 2FA state is trusted for token users
         'recovery_codes_count' => 8,
-        'require_password_on_manage' => true,  // gates disable + regenerate recovery codes
-        'require_password_on_enable' => false, // enabling 2FA is security-positive; no password needed
+        'require_password_on_manage' => true, // gates disable + regenerate recovery codes
+        // App decision: enabling 2FA stays frictionless here — no password
+        // prompt exists in this app's frontend for that step (see
+        // TwoFactorSetupPanel.vue / two-factor.js store, which never collect
+        // one). Package default is `true`; this app opts out explicitly.
+        'require_password_on_enable' => false,
+        'recent_password_ttl_seconds' => 300, // how long a POST /auth/password/confirm stays valid before a sensitive action needs it again
     ],
     'tokens' => [
-        'default_abilities' => ['*'],
-        'expiry_minutes' => null,
+        'default_abilities' => ['auth:read'],
+        'expiry_minutes' => 10080, // 7 days
+        'default_name' => 'authx-client',
+        'ability_resolver' => null,
     ],
     'throttle' => [
-        'login' => 5,
-        'two_factor' => 5,
-        'reset' => 5,
+        'login_per_account' => 5,
+        'login_per_ip' => 20,
+        'password_reset_per_account' => 3,
+        'password_reset_per_ip' => 10,
+        'otp_send_per_account' => 3,
+        'otp_send_per_ip' => 10,
+        'two_factor_per_account' => 5,
+        'two_factor_per_ip' => 20,
         'decay_seconds' => 60,
+    ],
+    'password_reset' => [
+        'revoke_tokens' => true, // revoke all Sanctum personal access tokens on reset
+        'invalidate_sessions' => true, // remove other database-backed sessions on reset
+        'notify_user' => true, // send a "your password was changed" notification (best-effort)
     ],
     'registration' => [
         'enabled' => false,

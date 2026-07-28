@@ -215,20 +215,20 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
 
-import AppBanner from '../../components/AppBanner.vue';
-import AppPageHeader from '../../components/AppPageHeader.vue';
-import AppSectionCard from '../../components/AppSectionCard.vue';
-import AppStatCard from '../../components/AppStatCard.vue';
-import AppStatusBadge from '../../components/AppStatusBadge.vue';
-import AppTextField from '../../components/AppTextField.vue';
-import FormActions from '../../components/FormActions.vue';
-import FormStatusAlert from '../../components/FormStatusAlert.vue';
-import MediaUploader from '../../components/MediaUploader.vue';
-import RecoveryCodesPanel from '../../components/RecoveryCodesPanel.vue';
-import TwoFactorSetupPanel from '../../components/TwoFactorSetupPanel.vue';
-import { useProfileStore } from '../../stores/profile';
-import { useSessionStore } from '../../stores/session';
-import { useTwoFactorStore } from '../../stores/two-factor';
+import AppBanner from '../components/AppBanner.vue';
+import AppPageHeader from '../components/AppPageHeader.vue';
+import AppSectionCard from '../components/AppSectionCard.vue';
+import AppStatCard from '../components/AppStatCard.vue';
+import AppStatusBadge from '../components/AppStatusBadge.vue';
+import AppTextField from '../components/AppTextField.vue';
+import FormActions from '../components/FormActions.vue';
+import FormStatusAlert from '../components/FormStatusAlert.vue';
+import MediaUploader from '../components/MediaUploader.vue';
+import RecoveryCodesPanel from '../components/RecoveryCodesPanel.vue';
+import TwoFactorSetupPanel from '../components/TwoFactorSetupPanel.vue';
+import { useProfileStore } from '../stores/profile';
+import { useSessionStore } from '../stores/session';
+import { useTwoFactorStore } from '../stores/two-factor';
 
 const session = useSessionStore();
 const profileStore = useProfileStore();

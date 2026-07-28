@@ -23,7 +23,7 @@
                     Customer-facing apps should not inherit the dense admin sidebar. This shell gives you a lighter authenticated surface while still reusing the starter’s notifications, billing primitives, and profile flows.
                 </p>
                 <div class="customer-home__actions">
-                    <v-btn color="primary" to="/auth/profile">Manage profile</v-btn>
+                    <v-btn color="primary" to="/profile">Manage profile</v-btn>
                     <v-btn variant="outlined">View orders</v-btn>
                 </div>
             </AppSectionCard>

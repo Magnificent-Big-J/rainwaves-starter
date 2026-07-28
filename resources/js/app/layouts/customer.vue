@@ -24,7 +24,7 @@
                 <div class="customer-actions">
                     <AppNotificationPanel />
 
-                    <RouterLink to="/auth/profile" class="customer-profile">
+                    <RouterLink to="/profile" class="customer-profile">
                         <span class="customer-profile__avatar">{{ userInitials }}</span>
                         <span class="customer-profile__meta">
                             <span class="customer-profile__name">{{ session.user?.name }}</span>
@@ -58,7 +58,7 @@ const router = useRouter();
 
 const customerNav = [
     { label: 'Home', to: '/customer/home' },
-    { label: 'Profile', to: '/auth/profile' },
+    { label: 'Profile', to: '/profile' },
 ];
 
 const userInitials = computed(() =>

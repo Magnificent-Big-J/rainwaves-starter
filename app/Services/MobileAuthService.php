@@ -14,6 +14,7 @@ use Rainwaves\LaraAuthSuite\Contracts\AuthService;
 use Rainwaves\LaraAuthSuite\Contracts\ITwoFactorRequirement;
 use Rainwaves\LaraAuthSuite\Domain\Events\UserLoggedIn;
 use Rainwaves\LaraAuthSuite\Support\AuthxConfig;
+use Rainwaves\LaraAuthSuite\Support\Enums\PendingAuthPurpose;
 use Rainwaves\LaraAuthSuite\Support\Enums\TwoFactorChannel;
 use Rainwaves\LaraAuthSuite\Support\PendingAuthManager;
 use Rainwaves\LaraAuthSuite\TwoFactor\Contracts\ITwoFactorAuth;
@@ -37,9 +38,11 @@ readonly class MobileAuthService implements MobileAuthServiceInterface
     {
         $user = $this->auth->attemptLogin($email, $password);
 
-        if ($this->twoFactorRequirement->shouldRequire($user)) {
+        $decision = $this->twoFactorRequirement->decide($user);
+
+        if ($decision->requiresChallenge()) {
             $channel = $this->twoFactor->currentChannel($user) ?? AuthxConfig::defaultTwoFactorChannel();
-            $pendingAuthId = $this->pendingAuth->startToken($user);
+            $pendingAuthId = $this->pendingAuth->startToken($user, PendingAuthPurpose::LoginChallenge);
 
             // Stash the device payload so the client doesn't resend it on verify.
             Cache::put(
@@ -57,6 +60,24 @@ readonly class MobileAuthService implements MobileAuthServiceInterface
                 requiresTwoFactor: true,
                 channel: $channel,
                 pendingAuthId: $pendingAuthId,
+            );
+        }
+
+        if ($decision->requiresSetup()) {
+            $pendingAuthId = $this->pendingAuth->startToken($user, PendingAuthPurpose::MfaSetup);
+
+            // Stash the device payload so the client doesn't resend it once setup completes.
+            Cache::put(
+                self::PENDING_DEVICE_PREFIX.$pendingAuthId,
+                $device,
+                max(60, (int) config('authx.2fa.otp.expiry_seconds', 180))
+            );
+
+            return new MobileLoginResult(
+                user: $user,
+                requiresSetup: true,
+                pendingAuthId: $pendingAuthId,
+                allowedChannels: AuthxConfig::twoFactorChannels(),
             );
         }
 

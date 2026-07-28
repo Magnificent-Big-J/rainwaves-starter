@@ -13,7 +13,10 @@ readonly class MobileLoginResult
         public ?string $token = null,
         public ?Device $device = null,
         public bool $requiresTwoFactor = false,
+        public bool $requiresSetup = false,
         public ?TwoFactorChannel $channel = null,
         public ?string $pendingAuthId = null,
+        /** @var list<TwoFactorChannel> */
+        public array $allowedChannels = [],
     ) {}
 }

@@ -108,8 +108,14 @@ class PayFastCheckoutService implements PayFastCheckoutServiceInterface
 
     public function processItn(array $payload, string $rawBody = ''): array
     {
-        if (! $this->validateItnSignature($payload, $rawBody)) {
-            return ['accepted' => false, 'duplicate' => false, 'reason' => 'invalid_signature'];
+        $validationFailure = $this->itnValidationFailure($payload, $rawBody);
+
+        if ($validationFailure) {
+            return $this->rejectItn(
+                reason: $validationFailure,
+                payload: $payload,
+                eventRef: (string) ($payload['pf_payment_id'] ?? $payload['token'] ?? $payload['m_payment_id'] ?? str()->uuid())
+            );
         }
 
         return DB::transaction(function () use ($payload) {
@@ -291,14 +297,14 @@ class PayFastCheckoutService implements PayFastCheckoutServiceInterface
         };
     }
 
-    private function validateItnSignature(array $payload, string $rawBody): bool
+    private function itnValidationFailure(array $payload, string $rawBody): ?string
     {
         $hasReference = ! empty($payload['m_payment_id'])
             || ! empty($payload['pf_payment_id'])
             || ! empty($payload['token']);
 
         if (! $hasReference || empty($payload['payment_status'])) {
-            return false;
+            return 'missing_required_itn_fields';
         }
 
         $validator = new PayFastItnValidator(
@@ -307,8 +313,15 @@ class PayFastCheckoutService implements PayFastCheckoutServiceInterface
             $rawBody
         );
 
-        return $validator->validateSignature()
-            && $validator->validateMerchantId((string) config('payfast.merchant_id'));
+        if (! $validator->validateSignature()) {
+            return 'invalid_signature';
+        }
+
+        if (! $validator->validateMerchantId((string) config('payfast.merchant_id'))) {
+            return 'merchant_id_mismatch';
+        }
+
+        return null;
     }
 
     private function toDecimalOrNull(mixed $value): ?float

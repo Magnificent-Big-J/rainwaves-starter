@@ -36,6 +36,17 @@ class MobileAuthController extends Controller
             ], 'Two-factor verification required.');
         }
 
+        if ($result->requiresSetup) {
+            return Envelope::success([
+                'two_factor_setup_required' => true,
+                'pending_auth_id' => $result->pendingAuthId,
+                'allowed_channels' => array_map(
+                    fn ($channel) => $channel->value,
+                    $result->allowedChannels,
+                ),
+            ], 'Two-factor setup required.');
+        }
+
         return $this->loginResponse($result, 'Logged in.');
     }
 
