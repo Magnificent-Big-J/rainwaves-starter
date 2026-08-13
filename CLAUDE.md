@@ -245,6 +245,12 @@ Run order matters. Key tables:
 11. sync_operations / sync_tombstones
 12. notifications
 
+## starter:doctor
+
+`php artisan starter:doctor` reports on deployment readiness: APP_KEY/APP_ENV/APP_DEBUG, `authx` fail-closed permission config, whether dev-only PayFast routes are registered (checked against the live route table, not just config), DB connectivity + pending migrations, Redis, Horizon master supervisor, storage disk write access, mail driver, PayFast credentials (fails/warns if still the published sandbox defaults), and the frontend build manifest.
+
+Plain `starter:doctor` is informational (always exits 0). `starter:doctor --production` turns every blocking finding into a non-zero exit — wire it into a deploy pipeline as a release gate. See `tests/Feature/Console/StarterDoctorCommandTest.php`.
+
 ## Local development
 
 ```bash
