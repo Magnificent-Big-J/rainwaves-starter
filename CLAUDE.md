@@ -111,11 +111,19 @@ Under `auth:sanctum` + `idempotency` middleware:
 | GET | `/api/v1/profile` | ProfileController@show |
 | PATCH | `/api/v1/profile` | ProfileController@update |
 | PUT | `/api/v1/profile/password` | ProfileController@updatePassword |
+| GET | `/api/v1/sessions` | SessionController@index — active browser sessions |
+| DELETE | `/api/v1/sessions/others` | SessionController@destroyOthers |
+| DELETE | `/api/v1/sessions/{id}` | SessionController@destroy |
 | GET | `/api/v1/users` | UserAdminController@index |
 | POST | `/api/v1/users` | UserAdminController@store |
 | PATCH | `/api/v1/users/{user}` | UserAdminController@update |
+| GET | `/api/v1/roles` | RoleAdminController@index |
+| PUT | `/api/v1/roles/{role}/permissions` | RoleAdminController@updatePermissions |
+| GET | `/api/v1/activity-log` | ActivityLogController@index |
 
-Admin routes are gated by `users.view` / `users.create` / `users.update` permissions.
+Public also includes `GET /api/v1/web-config` (brand/navigation/features bootstrap, see below).
+
+Admin routes are gated by permissions: `users.view` / `users.create` / `users.update`, `roles.view` / `roles.manage`, `activity.view`.
 
 ## Mobile auth (token flow)
 
@@ -191,6 +199,23 @@ Config: `config/payfast.php` — reads merchant ID, key, pass phrase, env, URLs 
 ### Gotcha: spatie/laravel-permission's dynamic-guard relations crash inside `auth:sanctum` routes
 
 `Role->users()` / `Permission->roles()` (and anything built on them, e.g. `Role::withCount('users')`) resolve their target model via `config('auth.defaults.guard')` when called on a fresh (attribute-less) model instance — which is exactly how Eloquent builds a relation for `withCount`/`loadCount`. `Illuminate\Auth\Middleware\Authenticate::authenticate()` calls `AuthManager::shouldUse('sanctum')` for every request that authenticates via `auth:sanctum`, which **mutates that same `auth.defaults.guard` config value for the rest of the request**. `'sanctum'` has no `config('auth.guards.sanctum')` entry (Sanctum registers its guard programmatically), so `Guard::getModelForGuard('sanctum')` returns `null` and the relation build fatals with `Error: Class name must be a valid object or a string` — a controller-only failure that never reproduces calling the same query directly in a test body or tinker (see `RoleAdminController::withUserCounts()` for the workaround: count the `model_has_roles`/`model_has_permissions` pivot table directly instead of using the relation).
+
+## Standard page catalogue (RS-105)
+
+Beyond auth/profile/admin-users (pre-existing), the starter now ships:
+
+| Page | Route | Backend |
+|---|---|---|
+| Notifications (full history) | `/notifications` | `GET/POST /api/v1/notifications*` (pre-existing) |
+| Active sessions | `/account/sessions` | `GET/DELETE /api/v1/sessions*` — real browser sessions from `sessions` table, distinct from mobile devices |
+| Roles & Permissions | `/admin/roles` | `GET /api/v1/roles`, `PUT /api/v1/roles/{role}/permissions` — `super-admin` is immutable through this endpoint |
+| Audit Log | `/admin/audit-log` | `GET /api/v1/activity-log` — `spatie/laravel-activitylog` entries, includes the 14 security events from `LogSecurityActivity` |
+| Settings | `/admin/settings` | Read-only view of `config/app-brand.php` / `features.php` / `navigation.php` via the existing `/api/v1/web-config` |
+| Privacy / Terms | `/legal/privacy`, `/legal/terms` | Static placeholder content — replace before launch |
+| Support | `/support` | Static contact page reading `brand.support_email` |
+| Not found | any unmatched path, or `/showcase-disabled` | `pages/[...notFound].vue` — SPA-side catch-all |
+
+Laravel-level error pages (`resources/views/errors/{404,403,419,429,500,503}.blade.php`) are separate from the SPA catch-all above — they render for genuine backend HTTP errors that occur before Vue mounts (see "Brand & navigation config" section for detail).
 
 ## Roles & permissions
 
