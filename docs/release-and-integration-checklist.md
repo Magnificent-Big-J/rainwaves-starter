@@ -1,4 +1,13 @@
-# Release And Integration Checklist
+# Release And Integration Checklist (historical — superseded)
+
+**Every item below is done.** This was the original v1.0 bootstrap checklist, written before auth, roles/permissions, the payment baseline, and the reusable component library existed at all. It now understates what's actually here — e.g. the payment baseline it asks for as "present and testable" has since grown real ITN hardening, server-side pricing authority, and a module registry, and the package version targets below (`lara-auth-suite v2.0.0`, `payfast-payment v1.7.0`) were superseded by `^2.1.1`/`^2.0.1` (see `composer.json`) long before this note was added.
+
+Kept for history, not as a task list. For current state, read:
+
+- `CLAUDE.md` — the live architecture/conventions reference
+- `2026-07-29-rainwaves-starter-v2-tracker.md` (in the planning docs, not this repo) — the actual gap-closure tracker and session log
+
+---
 
 This starter is meant to be ready to use, not a thin scaffold.
 That means package release and package integration are part of implementation, not optional follow-up work.
