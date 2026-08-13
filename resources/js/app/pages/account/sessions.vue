@@ -123,11 +123,15 @@ onMounted(() => sessions.fetch());
 </script>
 
 <style scoped>
+/* Capped reading width, not page boxing (see notifications.vue for the same
+   reasoning) — wider than that page specifically because .session-row__ua
+   truncates with an ellipsis, and user-agent strings are long enough that
+   the extra room noticeably reduces how often that truncation kicks in. */
 .sessions-page {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    max-width: 860px;
+    max-width: 1100px;
 }
 
 .sessions-page__loading {

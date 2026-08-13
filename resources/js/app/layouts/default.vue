@@ -640,8 +640,13 @@ const NavItem = defineComponent({
 }
 
 /* App main ─────────────────────────────────────────── */
+/* Single source of truth for page spacing — every page rendered through this
+   layout gets consistent padding here rather than each page declaring (or
+   forgetting to declare) its own. Pages themselves must stay fluid (no
+   max-width/margin:auto self-boxing) so this padding is the only inset. */
 .app-main {
     flex: 1;
+    padding: 2rem 2rem 4rem;
 }
 
 /* Desktop: sidebar always visible ──────────────────── */
@@ -666,6 +671,10 @@ const NavItem = defineComponent({
 @media (max-width: 959px) {
     .topbar {
         padding: 0 1rem;
+    }
+
+    .app-main {
+        padding: 1.75rem 1rem 3rem;
     }
 }
 
@@ -697,6 +706,10 @@ const NavItem = defineComponent({
 }
 
 @media (max-width: 480px) {
+    .app-main {
+        padding-inline: 0.75rem;
+    }
+
     .sidebar__footer {
         padding: 0.75rem 0.625rem;
     }

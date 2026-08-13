@@ -378,6 +378,16 @@ Cards default to `elevation: 0`, `rounded: xl`. Buttons `rounded: lg`, `fontWeig
 - `default.vue` — authenticated shell with **custom CSS sidebar** (no `v-navigation-drawer`). CSS `transform` for mobile slide-in with backdrop overlay. Left-border green active indicator on nav items. Guest users (unauthenticated) see a slim top bar with About / Register / Sign in links instead of the sidebar.
 - `auth.vue` — dark `#011d12` background with three CSS geometric rings (`border-radius: 50%`) and a dot-grid overlay. Centered floating card, brand logo above, footer below. No split panel.
 
+### Fluid pages, single source of truth for spacing
+
+Every page rendered through `default.vue` must be **fluid** — no page-level `max-width` + `margin: 0 auto` boxing/centering. `.app-main` in `default.vue` is the *only* place page-level padding is declared (`2rem 2rem 4rem`, stepping down at 959px/480px) — individual pages must not redeclare their own root padding, since that either duplicates it (wrong spacing) or, if a page adds padding but a *different* page doesn't, produces the exact bug this was written to prevent: some pages jam their header content against the topbar while others don't.
+
+This was a real, comprehensive gap found and fixed in one pass across every `default.vue`/`contextual`-layout page (`dashboard.vue`, `admin/*`, `profile.vue`, `notifications.vue`, `account/*`, the showcase pages): several pages boxed themselves at `max-width: 1180px` (or narrower), wasting most of a wide screen, while others had no root padding at all, causing their header badges/buttons to visually collide with the topbar. Fixed at the layout level once rather than per-page, since per-page was exactly how the inconsistency happened in the first place.
+
+**The one legitimate exception**: a genuine reading/scanning-width cap on specific *content* (a form, a single-column list) — a text input or a notification row stretched to 1800px is worse UX, not better use of space. This is different from boxing the *whole page*: the cap applies to one inner element (e.g. `profile.vue`'s `.profile-grid { max-width: 1500px }`, `notifications.vue`/`account/sessions.vue`'s root `max-width: 960px/1100px`), is never combined with `margin: 0 auto` (no centering — it just stops growing, doesn't re-center in the remaining space), and stat-card rows / tables / anything that genuinely benefits from width stay uncapped.
+
+`AppFilterBar.vue` also had a real, structural bug behind the "inconsistent search/filter box sizing" symptom: `.filter-bar__primary` had no `flex-grow`, so it shrank to its own content's minimum size and forced its children to wrap onto separate lines even with plenty of room in the row. Fixed generically — `.filter-bar__primary :deep(.app-text-field)` gets `flex: 2 1 240px; max-width: 420px` and `.app-select`/`.app-autocomplete` get `flex: 1 1 180px; max-width: 280px` — so any page dropping an `AppTextField` + `AppSelect(s)` into `AppFilterBar` gets a consistent, proportional row for free, without a bespoke `min-width` class per page (several pages had one, several didn't, which is why the search box looked oversized on one page and was truncated to a couple of characters on another).
+
 ## Migrations
 
 Run order matters. Key tables:

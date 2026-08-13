@@ -83,11 +83,16 @@ onMounted(() => notifications.fetch());
 </script>
 
 <style scoped>
+/* A capped reading width, not page boxing — a notification row (icon + text +
+   timestamp) stretched across a full 1850px viewport would just widen the gap
+   between them, not add anything useful. The page itself stays fluid (no
+   margin:auto centering); this is a legitimate content-width exception, same
+   reasoning as profile.vue's form grid. */
 .notifications-page {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    max-width: 860px;
+    max-width: 960px;
 }
 
 .notifications-page__loading {
