@@ -13,10 +13,13 @@
         "format": "prettier --write resources/js",
         "format:check": "prettier --check resources/js",
         "test:unit": "vitest run",
-        "test:unit:watch": "vitest"
+        "test:unit:watch": "vitest",
+        "test:e2e": "playwright test",
+        "test:e2e:ui": "playwright test --ui"
     },
     "devDependencies": {
         "@eslint/js": "^9.39.5",
+        "@playwright/test": "^1.62.1",
         "@rolldown/binding-linux-x64-gnu": "^1.0.0-rc.17",
         "@vitejs/plugin-vue": "^6.0.6",
         "@vitest/coverage-v8": "^4.1.10",
