@@ -9,19 +9,10 @@
         </div>
 
         <div class="chart-card__body">
-            <apexchart
-                type="donut"
-                height="240"
-                :options="chartOptions"
-                :series="series"
-            />
+            <apexchart type="donut" height="240" :options="chartOptions" :series="series" />
 
             <div class="chart-card__legend">
-                <div
-                    v-for="(label, index) in labels"
-                    :key="label"
-                    class="chart-card__legend-item"
-                >
+                <div v-for="(label, index) in labels" :key="label" class="chart-card__legend-item">
                     <span class="chart-card__swatch" :style="{ background: colors[index] || '#006a4a' }" />
                     <span>{{ label }}</span>
                     <strong>{{ series[index] ?? 0 }}</strong>

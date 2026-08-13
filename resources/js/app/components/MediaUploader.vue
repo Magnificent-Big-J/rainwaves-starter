@@ -2,23 +2,12 @@
     <div class="media-uploader">
         <div class="media-uploader__preview">
             <v-avatar :size="avatarSize" color="primary" variant="tonal" class="media-uploader__avatar">
-                <v-img
-                    v-if="previewUrl"
-                    :src="previewUrl"
-                    :alt="alt"
-                    cover
-                />
+                <v-img v-if="previewUrl" :src="previewUrl" :alt="alt" cover />
                 <span v-else class="media-uploader__initials">{{ initials }}</span>
             </v-avatar>
 
             <div class="media-uploader__actions">
-                <v-btn
-                    size="small"
-                    variant="tonal"
-                    color="primary"
-                    prepend-icon="mdi-upload"
-                    @click="triggerPicker"
-                >
+                <v-btn size="small" variant="tonal" color="primary" prepend-icon="mdi-upload" @click="triggerPicker">
                     Upload
                 </v-btn>
                 <v-btn
@@ -32,13 +21,7 @@
             </div>
         </div>
 
-        <input
-            ref="input"
-            type="file"
-            accept="image/*"
-            class="media-uploader__input"
-            @change="onPick"
-        />
+        <input ref="input" type="file" accept="image/*" class="media-uploader__input" @change="onPick" />
 
         <p class="media-uploader__hint">
             {{ hint }}

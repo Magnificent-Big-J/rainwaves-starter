@@ -1,11 +1,6 @@
 <template>
     <div v-if="active" class="busy-overlay">
-        <v-progress-circular
-            indeterminate
-            color="primary"
-            size="42"
-            width="4"
-        />
+        <v-progress-circular indeterminate color="primary" size="42" width="4" />
     </div>
 </template>
 

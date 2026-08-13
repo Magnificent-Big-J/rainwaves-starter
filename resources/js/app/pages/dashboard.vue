@@ -31,14 +31,12 @@
         </div>
 
         <div class="dashboard__body">
-            <AppSectionCard title="Platform modules" subtitle="Every major starter surface is discoverable from the dashboard.">
+            <AppSectionCard
+                title="Platform modules"
+                subtitle="Every major starter surface is discoverable from the dashboard."
+            >
                 <div class="module-grid">
-                    <RouterLink
-                        v-for="mod in modules"
-                        :key="mod.to"
-                        :to="mod.to"
-                        class="module-card"
-                    >
+                    <RouterLink v-for="mod in modules" :key="mod.to" :to="mod.to" class="module-card">
                         <div class="module-card__top">
                             <span class="module-card__icon">
                                 <v-icon size="20" :color="mod.color">{{ mod.icon }}</v-icon>
@@ -63,12 +61,7 @@
                         </div>
                     </div>
                     <div class="role-list">
-                        <AppStatusBadge
-                            v-for="role in session.user?.roles"
-                            :key="role"
-                            :status="role"
-                            :label="role"
-                        />
+                        <AppStatusBadge v-for="role in session.user?.roles" :key="role" :status="role" :label="role" />
                         <span v-if="!session.user?.roles?.length" class="role-none">No roles assigned</span>
                     </div>
                 </AppSectionCard>
@@ -149,9 +142,7 @@ const greeting = computed(() => {
     return 'Good evening';
 });
 
-const firstName = computed(() =>
-    session.user?.name?.split(' ')[0] || 'there'
-);
+const firstName = computed(() => session.user?.name?.split(' ')[0] || 'there');
 
 const userInitials = computed(() =>
     (session.user?.name || 'RW')
@@ -167,10 +158,38 @@ const today = computed(() =>
 );
 
 const stats = [
-    { label: 'Active roles', value: '4', helper: 'Seeded platform roles', icon: 'mdi-shield-account-outline', bg: 'rgba(0,106,74,0.08)', iconColor: 'var(--rw-600)' },
-    { label: 'Permissions seeded', value: '21', helper: 'Authorization baseline', icon: 'mdi-key-outline', bg: 'rgba(180,83,9,0.08)', iconColor: 'var(--rw-amber)' },
-    { label: 'Queue backend', value: 'Redis', helper: 'Horizon-ready workload', icon: 'mdi-database-outline', bg: 'rgba(3,105,161,0.08)', iconColor: '#0369a1' },
-    { label: 'Storage backend', value: 'MinIO', helper: 'Media and uploads', icon: 'mdi-cloud-outline', bg: 'rgba(101,16,147,0.08)', iconColor: '#6510a3' },
+    {
+        label: 'Active roles',
+        value: '4',
+        helper: 'Seeded platform roles',
+        icon: 'mdi-shield-account-outline',
+        bg: 'rgba(0,106,74,0.08)',
+        iconColor: 'var(--rw-600)',
+    },
+    {
+        label: 'Permissions seeded',
+        value: '21',
+        helper: 'Authorization baseline',
+        icon: 'mdi-key-outline',
+        bg: 'rgba(180,83,9,0.08)',
+        iconColor: 'var(--rw-amber)',
+    },
+    {
+        label: 'Queue backend',
+        value: 'Redis',
+        helper: 'Horizon-ready workload',
+        icon: 'mdi-database-outline',
+        bg: 'rgba(3,105,161,0.08)',
+        iconColor: '#0369a1',
+    },
+    {
+        label: 'Storage backend',
+        value: 'MinIO',
+        helper: 'Media and uploads',
+        icon: 'mdi-cloud-outline',
+        bg: 'rgba(101,16,147,0.08)',
+        iconColor: '#6510a3',
+    },
 ];
 
 const modules = [
@@ -295,7 +314,10 @@ const paymentEvents = [
     text-decoration: none;
     color: inherit;
     box-shadow: var(--rw-shadow-xs);
-    transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+    transition:
+        border-color 0.15s,
+        box-shadow 0.15s,
+        transform 0.15s;
 }
 
 .module-card:hover {

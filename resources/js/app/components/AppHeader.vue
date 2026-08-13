@@ -8,13 +8,7 @@
             </div>
         </div>
         <v-spacer />
-        <v-btn
-            v-for="item in items"
-            :key="item.to"
-            :to="item.to"
-            variant="text"
-            rounded="xl"
-        >
+        <v-btn v-for="item in items" :key="item.to" :to="item.to" variant="text" rounded="xl">
             {{ item.label }}
         </v-btn>
     </v-app-bar>

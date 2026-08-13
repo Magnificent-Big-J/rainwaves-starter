@@ -48,9 +48,7 @@ export const useSessionStore = defineStore('sessionAuth', {
                 return homeRoutes.guest ?? '/';
             }
 
-            return this.isAdminSurface
-                ? (homeRoutes.admin ?? '/dashboard')
-                : (homeRoutes.customer ?? '/customer/home');
+            return this.isAdminSurface ? (homeRoutes.admin ?? '/dashboard') : (homeRoutes.customer ?? '/customer/home');
         },
     },
     actions: {

@@ -1,7 +1,7 @@
 <template>
     <div class="data-table">
         <div v-if="$slots.toolbar || searchable || title" class="data-table__toolbar">
-            <div class="data-table__title" v-if="title">
+            <div v-if="title" class="data-table__title">
                 <span>{{ title }}</span>
                 <v-chip v-if="meta" size="small" variant="tonal" color="primary">
                     {{ meta.total ?? rows.length }}
@@ -39,29 +39,17 @@
                 </tr>
                 <tr v-else-if="!rows.length">
                     <td :colspan="columns.length" class="data-table__empty">
-                        <AppEmptyState
-                            :title="emptyTitle"
-                            :text="emptyText"
-                            icon="mdi-database-search-outline"
-                        />
+                        <AppEmptyState :title="emptyTitle" :text="emptyText" icon="mdi-database-search-outline" />
                     </td>
                 </tr>
-                <tr
-                    v-for="row in rows"
-                    :key="row.id ?? row"
-                    class="data-table__row"
-                    @click="$emit('row-click', row)"
-                >
+                <tr v-for="row in rows" :key="row.id ?? row" class="data-table__row" @click="$emit('row-click', row)">
                     <slot name="row" :row="row" />
                 </tr>
             </tbody>
         </v-table>
 
         <div v-if="meta && meta.last_page > 1" class="data-table__pagination">
-            <AppPaginationBar
-                :meta="meta"
-                @update:page="$emit('page-change', $event)"
-            />
+            <AppPaginationBar :meta="meta" @update:page="$emit('page-change', $event)" />
         </div>
     </div>
 </template>

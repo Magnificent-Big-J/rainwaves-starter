@@ -1,11 +1,9 @@
 <template>
     <v-app>
         <div :class="['shell', session.isAuthenticated && 'shell--auth']">
-
             <!-- ── Authenticated sidebar ──────────────────────── -->
             <aside v-if="session.isAuthenticated" :class="['sidebar', mobileOpen && 'sidebar--open']">
                 <div class="sidebar__inner">
-
                     <div class="sidebar__brand">
                         <RouterLink to="/" class="brand-mark" @click="mobileOpen = false">
                             <span class="brand-mark__badge">
@@ -21,9 +19,9 @@
                     <nav class="sidebar__nav">
                         <div class="nav-group">
                             <NavItem
-                                v-for="item in mainNav"
-                                :key="item.to"
-                                :item="item"
+                                v-for="mainItem in mainNav"
+                                :key="mainItem.to"
+                                :item="mainItem"
                                 @click="mobileOpen = false"
                             />
                         </div>
@@ -34,9 +32,9 @@
                             </div>
                             <div class="nav-group">
                                 <NavItem
-                                    v-for="item in adminNav"
-                                    :key="item.to"
-                                    :item="item"
+                                    v-for="adminItem in adminNav"
+                                    :key="adminItem.to"
+                                    :item="adminItem"
                                     @click="mobileOpen = false"
                                 />
                             </div>
@@ -48,9 +46,9 @@
                             </div>
                             <div class="nav-group">
                                 <NavItem
-                                    v-for="item in showcaseNav"
-                                    :key="item.to"
-                                    :item="item"
+                                    v-for="showcaseItem in showcaseNav"
+                                    :key="showcaseItem.to"
+                                    :item="showcaseItem"
                                     @click="mobileOpen = false"
                                 />
                             </div>
@@ -69,20 +67,14 @@
                             <v-icon size="17">mdi-logout</v-icon>
                         </button>
                     </div>
-
                 </div>
             </aside>
 
             <!-- ── Mobile overlay ─────────────────────────────── -->
-            <div
-                v-if="session.isAuthenticated && mobileOpen"
-                class="sidebar-overlay"
-                @click="mobileOpen = false"
-            />
+            <div v-if="session.isAuthenticated && mobileOpen" class="sidebar-overlay" @click="mobileOpen = false" />
 
             <!-- ── App body ───────────────────────────────────── -->
             <div class="app-body">
-
                 <!-- Authenticated topbar -->
                 <header v-if="session.isAuthenticated" class="topbar">
                     <button class="topbar__burger" @click="mobileOpen = !mobileOpen">
@@ -100,16 +92,18 @@
                 <header v-else class="guest-bar">
                     <RouterLink to="/" class="guest-brand">
                         <span class="guest-brand__badge">{{ appConfig.brand.short_name }}</span>
-                        <span class="guest-brand__name">{{ brandFirstWord }} <em>{{ brandRest }}</em></span>
+                        <span class="guest-brand__name"
+                            >{{ brandFirstWord }} <em>{{ brandRest }}</em></span
+                        >
                     </RouterLink>
                     <nav class="guest-nav">
                         <RouterLink
-                            v-for="item in guestNav"
-                            :key="item.to"
-                            :to="item.to"
+                            v-for="guestItem in guestNav"
+                            :key="guestItem.to"
+                            :to="guestItem.to"
                             class="guest-nav__link"
                         >
-                            {{ item.label }}
+                            {{ guestItem.label }}
                         </RouterLink>
                         <RouterLink to="/auth/register" class="guest-nav__link">Register</RouterLink>
                         <RouterLink to="/auth/login" class="guest-nav__cta">Sign in</RouterLink>
@@ -119,7 +113,6 @@
                 <main class="app-main">
                     <RouterView />
                 </main>
-
             </div>
         </div>
     </v-app>
@@ -199,7 +192,7 @@ watch(
 
 // ── Inline NavItem to keep this file self-contained ──
 const NavItem = defineComponent({
-    props: { item: Object },
+    props: { item: { type: Object, required: true } },
     emits: ['click'],
     setup(props, { emit }) {
         const route = useRoute();
@@ -217,9 +210,7 @@ const NavItem = defineComponent({
                     onClick: () => emit('click'),
                 },
                 () => [
-                    h('span', { class: 'nav-item__icon' }, [
-                        h('i', { class: `mdi ${props.item.icon}` }),
-                    ]),
+                    h('span', { class: 'nav-item__icon' }, [h('i', { class: `mdi ${props.item.icon}` })]),
                     h('span', { class: 'nav-item__label' }, props.item.label),
                 ]
             );
@@ -345,7 +336,9 @@ const NavItem = defineComponent({
     font-weight: 500;
     color: var(--rw-muted);
     text-decoration: none;
-    transition: background 0.12s, color 0.12s;
+    transition:
+        background 0.12s,
+        color 0.12s;
     position: relative;
 }
 
@@ -468,7 +461,9 @@ const NavItem = defineComponent({
     border-radius: 0.4rem;
     color: var(--rw-muted);
     cursor: pointer;
-    transition: background 0.12s, color 0.12s;
+    transition:
+        background 0.12s,
+        color 0.12s;
     flex-shrink: 0;
 }
 
@@ -521,7 +516,9 @@ const NavItem = defineComponent({
     border-radius: 0.4rem;
     cursor: pointer;
     color: var(--rw-muted);
-    transition: background 0.12s, color 0.12s;
+    transition:
+        background 0.12s,
+        color 0.12s;
 }
 
 .topbar__burger:hover {
@@ -607,7 +604,9 @@ const NavItem = defineComponent({
     font-weight: 500;
     color: var(--rw-muted);
     border-radius: 0.5rem;
-    transition: background 0.12s, color 0.12s;
+    transition:
+        background 0.12s,
+        color 0.12s;
 }
 
 .guest-nav__link:hover {
@@ -623,7 +622,9 @@ const NavItem = defineComponent({
     background: var(--rw-50);
     border-radius: 0.5rem;
     border: 1px solid var(--rw-100);
-    transition: background 0.12s, border-color 0.12s;
+    transition:
+        background 0.12s,
+        border-color 0.12s;
 }
 
 .guest-nav__cta:hover {

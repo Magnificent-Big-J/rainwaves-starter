@@ -1,31 +1,16 @@
 <template>
     <div class="form-actions">
-        <v-btn
-            block
-            type="submit"
-            size="large"
-            color="primary"
-            :loading="loading"
-        >
+        <v-btn block type="submit" size="large" color="primary" :loading="loading">
             {{ submitLabel }}
         </v-btn>
 
-        <div
-            v-if="leftLinkLabel || rightLinkLabel"
-            class="form-actions__links"
-        >
-            <RouterLink
-                v-if="leftLinkLabel"
-                :to="leftLinkTo"
-            >
+        <div v-if="leftLinkLabel || rightLinkLabel" class="form-actions__links">
+            <RouterLink v-if="leftLinkLabel" :to="leftLinkTo">
                 {{ leftLinkLabel }}
             </RouterLink>
             <span v-else />
 
-            <RouterLink
-                v-if="rightLinkLabel"
-                :to="rightLinkTo"
-            >
+            <RouterLink v-if="rightLinkLabel" :to="rightLinkTo">
                 {{ rightLinkLabel }}
             </RouterLink>
             <span v-else />

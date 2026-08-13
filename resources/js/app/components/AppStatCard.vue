@@ -4,12 +4,7 @@
             <div class="stat-card__icon" :style="{ background: iconBackground }">
                 <v-icon :icon="icon" :color="iconColor" size="18" />
             </div>
-            <AppStatusBadge
-                v-if="status"
-                :status="status"
-                :label="statusLabel"
-                class="stat-card__status"
-            />
+            <AppStatusBadge v-if="status" :status="status" :label="statusLabel" class="stat-card__status" />
         </div>
 
         <div class="stat-card__value">{{ value }}</div>

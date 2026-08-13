@@ -16,7 +16,10 @@
                 />
                 <AppSelect
                     v-model="filters.logName"
-                    :items="[{ title: 'All logs', value: '' }, ...store.options.log_names.map((n) => ({ title: n, value: n }))]"
+                    :items="[
+                        { title: 'All logs', value: '' },
+                        ...store.options.log_names.map((n) => ({ title: n, value: n })),
+                    ]"
                     label="Filter by log"
                     @update:model-value="onFilterChange"
                 />
@@ -39,8 +42,12 @@
                             <AppStatusBadge v-if="row.log_name" status="processing" :label="row.log_name" />
                         </div>
                     </td>
-                    <td><span class="text-muted">{{ row.causer?.name ?? 'System' }}</span></td>
-                    <td><span class="text-muted text-sm">{{ formatDate(row.created_at) }}</span></td>
+                    <td>
+                        <span class="text-muted">{{ row.causer?.name ?? 'System' }}</span>
+                    </td>
+                    <td>
+                        <span class="text-muted text-sm">{{ formatDate(row.created_at) }}</span>
+                    </td>
                 </template>
             </AppDataTable>
         </AppSectionCard>

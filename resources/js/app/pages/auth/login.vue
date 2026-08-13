@@ -8,13 +8,7 @@
         <FormStatusAlert :message="formMessage" :type="formMessageType" />
 
         <v-form class="auth-form" @submit.prevent="submit">
-            <AppTextField
-                v-model="form.email"
-                label="Email"
-                type="email"
-                autocomplete="email"
-                required
-            />
+            <AppTextField v-model="form.email" label="Email" type="email" autocomplete="email" required />
 
             <AppTextField
                 v-model="form.password"
@@ -61,11 +55,7 @@ const form = reactive({
     password: '',
 });
 
-const formMessage = ref(
-    route.query.registered === '1'
-        ? 'Account created. Sign in to continue.'
-        : ''
-);
+const formMessage = ref(route.query.registered === '1' ? 'Account created. Sign in to continue.' : '');
 const formMessageType = ref(route.query.registered === '1' ? 'success' : 'error');
 
 const submit = async () => {

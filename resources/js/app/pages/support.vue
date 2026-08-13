@@ -3,8 +3,8 @@
         <p class="eyebrow">Support</p>
         <h1 class="support-page__title">Need a hand?</h1>
         <p class="support-page__text">
-            Reach out and we'll get back to you. If you're signed in, include your account email so we can find
-            your account faster.
+            Reach out and we'll get back to you. If you're signed in, include your account email so we can find your
+            account faster.
         </p>
 
         <div class="support-page__cards">
@@ -96,7 +96,9 @@ const appConfig = useAppConfigStore();
     text-decoration: none;
     color: rgba(255, 255, 255, 0.9);
     text-align: left;
-    transition: background 0.15s, border-color 0.15s;
+    transition:
+        background 0.15s,
+        border-color 0.15s;
 }
 
 .support-card:hover {

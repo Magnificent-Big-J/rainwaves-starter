@@ -1,6 +1,5 @@
 <template>
     <div class="landing">
-
         <section class="landing-hero">
             <div class="landing-hero__kicker">
                 <span class="landing-kicker-badge">
@@ -9,13 +8,10 @@
                 </span>
             </div>
 
-            <h1 class="landing-hero__title">
-                The platform foundation<br>your app deserves.
-            </h1>
+            <h1 class="landing-hero__title">The platform foundation<br />your app deserves.</h1>
             <p class="landing-hero__text">
-                Rainwaves Starter ships with authentication, two-factor security,
-                role-based access, payments, media, and a complete UI shell —
-                so your team starts building features on day one.
+                Rainwaves Starter ships with authentication, two-factor security, role-based access, payments, media,
+                and a complete UI shell — so your team starts building features on day one.
             </p>
             <div class="landing-hero__cta">
                 <RouterLink to="/auth/login" class="cta-primary">Sign in</RouterLink>
@@ -24,11 +20,7 @@
         </section>
 
         <section class="landing-features">
-            <div
-                v-for="feature in features"
-                :key="feature.title"
-                class="feature-card"
-            >
+            <div v-for="feature in features" :key="feature.title" class="feature-card">
                 <div class="feature-card__icon">
                     <v-icon :color="feature.iconColor" size="20">{{ feature.icon }}</v-icon>
                 </div>
@@ -53,7 +45,6 @@
                 </div>
             </div>
         </section>
-
     </div>
 </template>
 
@@ -142,18 +133,18 @@ const features = [
 ];
 
 const stack = [
-    { name: 'Laravel',              version: '13', role: 'Backend framework' },
-    { name: 'Sanctum',              version: '4',  role: 'Session / API auth' },
-    { name: 'lara-auth-suite',      version: '2',  role: 'Auth, 2FA, password reset' },
-    { name: 'payfast-payment',      version: '1',  role: 'PayFast checkout' },
-    { name: 'laravel-permission',   version: '7',  role: 'Roles & permissions' },
+    { name: 'Laravel', version: '13', role: 'Backend framework' },
+    { name: 'Sanctum', version: '4', role: 'Session / API auth' },
+    { name: 'lara-auth-suite', version: '2', role: 'Auth, 2FA, password reset' },
+    { name: 'payfast-payment', version: '1', role: 'PayFast checkout' },
+    { name: 'laravel-permission', version: '7', role: 'Roles & permissions' },
     { name: 'laravel-medialibrary', version: '11', role: 'File / media management' },
-    { name: 'laravel-activitylog',  version: '5',  role: 'Audit trail' },
-    { name: 'Horizon',              version: '5',  role: 'Queue monitoring' },
-    { name: 'Vue',                  version: '3',  role: 'Frontend framework' },
-    { name: 'Vuetify',              version: '3',  role: 'UI component library' },
-    { name: 'Pinia',                version: '2',  role: 'State management' },
-    { name: 'Vite',                 version: '6',  role: 'Build tool' },
+    { name: 'laravel-activitylog', version: '5', role: 'Audit trail' },
+    { name: 'Horizon', version: '5', role: 'Queue monitoring' },
+    { name: 'Vue', version: '3', role: 'Frontend framework' },
+    { name: 'Vuetify', version: '3', role: 'UI component library' },
+    { name: 'Pinia', version: '2', role: 'State management' },
+    { name: 'Vite', version: '6', role: 'Build tool' },
 ];
 </script>
 
@@ -246,7 +237,9 @@ const stack = [
     border-radius: 0.625rem;
     text-decoration: none;
     border: 1px solid rgba(255, 255, 255, 0.15);
-    transition: border-color 0.14s, color 0.14s;
+    transition:
+        border-color 0.14s,
+        color 0.14s;
 }
 
 .cta-ghost:hover {
@@ -268,7 +261,9 @@ const stack = [
     border: 1px solid rgba(255, 255, 255, 0.08);
     display: grid;
     gap: 0.6rem;
-    transition: background 0.15s, border-color 0.15s;
+    transition:
+        background 0.15s,
+        border-color 0.15s;
 }
 
 .feature-card:hover {

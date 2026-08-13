@@ -55,10 +55,14 @@
             >
                 <div class="catalog-coverage">
                     <AppStatusBadge status="active" :label="`${liveDemoComponents.length} live demos`" />
-                    <AppStatusBadge status="processing" :label="`${componentCount - liveDemoComponents.length} listed only`" />
+                    <AppStatusBadge
+                        status="processing"
+                        :label="`${componentCount - liveDemoComponents.length} listed only`"
+                    />
                 </div>
                 <p class="catalog-coverage__copy">
-                    Some pieces are best demonstrated on their home pages instead of in a synthetic playground, especially admin table flows, media upload, and profile security panels.
+                    Some pieces are best demonstrated on their home pages instead of in a synthetic playground,
+                    especially admin table flows, media upload, and profile security panels.
                 </p>
             </AppSectionCard>
 
@@ -70,12 +74,7 @@
                     :subtitle="group.subtitle"
                 >
                     <div class="catalog-badges">
-                        <AppStatusBadge
-                            v-for="item in group.items"
-                            :key="item"
-                            status="draft"
-                            :label="item"
-                        />
+                        <AppStatusBadge v-for="item in group.items" :key="item" status="draft" :label="item" />
                     </div>
                 </AppSectionCard>
             </div>
@@ -140,13 +139,11 @@
             </div>
 
             <div class="catalog-grid">
-                <AppSectionCard title="Data table demo" subtitle="Shared table surface with pagination and starter-style row rendering.">
-                    <AppDataTable
-                        title="Starter rows"
-                        :columns="demoColumns"
-                        :rows="demoRows"
-                        :meta="demoMeta"
-                    >
+                <AppSectionCard
+                    title="Data table demo"
+                    subtitle="Shared table surface with pagination and starter-style row rendering."
+                >
+                    <AppDataTable title="Starter rows" :columns="demoColumns" :rows="demoRows" :meta="demoMeta">
                         <template #row="{ row }">
                             <td>{{ row.name }}</td>
                             <td>{{ row.surface }}</td>
@@ -157,12 +154,12 @@
                     </AppDataTable>
                 </AppSectionCard>
 
-                <AppSectionCard title="Media and security demos" subtitle="Domain-level starter pieces should be visible here too, not only on their feature pages.">
+                <AppSectionCard
+                    title="Media and security demos"
+                    subtitle="Domain-level starter pieces should be visible here too, not only on their feature pages."
+                >
                     <div class="playground-stack">
-                        <MediaUploader
-                            v-model="demoAvatar"
-                            name="Starter Owner"
-                        />
+                        <MediaUploader v-model="demoAvatar" name="Starter Owner" />
 
                         <TwoFactorSetupPanel
                             :enabled="false"
@@ -227,13 +224,7 @@ const formComponents = [
     'AppAddressAutocomplete',
 ];
 
-const layoutComponents = [
-    'AppPageHeader',
-    'AppSectionCard',
-    'AppEmptyState',
-    'AppHeader',
-    'AuthCard',
-];
+const layoutComponents = ['AppPageHeader', 'AppSectionCard', 'AppEmptyState', 'AppHeader', 'AuthCard'];
 
 const feedbackComponents = [
     'AppAlert',
@@ -296,9 +287,7 @@ const groups = [
     },
 ];
 
-const componentCount = computed(() =>
-    groups.reduce((total, group) => total + group.items.length, 0)
-);
+const componentCount = computed(() => groups.reduce((total, group) => total + group.items.length, 0));
 
 const liveDemoComponents = [
     'AppPageHeader',
@@ -322,9 +311,7 @@ const liveDemoComponents = [
 ];
 
 const chartCategories = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-const chartSeries = [
-    { name: 'Adoption', data: [5, 9, 14, 19, 24] },
-];
+const chartSeries = [{ name: 'Adoption', data: [5, 9, 14, 19, 24] }];
 const demoColumns = [
     { key: 'name', label: 'Component' },
     { key: 'surface', label: 'Surface' },

@@ -17,11 +17,7 @@ const buildOtpAuthUri = ({ secret, account, issuer }) => {
 };
 
 const extractSecret = (response) => {
-    return response?.secret
-        || response?.data?.secret
-        || response?.two_factor?.secret
-        || response?.totp?.secret
-        || null;
+    return response?.secret || response?.data?.secret || response?.two_factor?.secret || response?.totp?.secret || null;
 };
 
 export const useTwoFactorStore = defineStore('twoFactorAuth', {
@@ -138,9 +134,7 @@ export const useTwoFactorStore = defineStore('twoFactorAuth', {
                     otpauthUrl = buildOtpAuthUri({ secret, account, issuer });
                 }
 
-                const qrCodeDataUrl = otpauthUrl
-                    ? await QRCode.toDataURL(otpauthUrl, { width: 220, margin: 1 })
-                    : null;
+                const qrCodeDataUrl = otpauthUrl ? await QRCode.toDataURL(otpauthUrl, { width: 220, margin: 1 }) : null;
 
                 this.setup = { secret, otpauthUrl, qrCodeDataUrl, recoveryCodes: [] };
 

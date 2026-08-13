@@ -8,12 +8,7 @@
         <FormStatusAlert :message="message" :type="messageType" />
 
         <v-form class="auth-form" @submit.prevent="submit">
-            <v-text-field
-                v-model="code"
-                :label="codeLabel"
-                autocomplete="one-time-code"
-                required
-            />
+            <v-text-field v-model="code" :label="codeLabel" autocomplete="one-time-code" required />
 
             <FormActions
                 submit-label="Verify"
@@ -79,9 +74,7 @@ const subtitle = computed(() => {
 });
 
 const codeLabel = computed(() => {
-    return session.pendingTwoFactorChannel === 'totp'
-        ? 'Authenticator or recovery code'
-        : 'Verification code';
+    return session.pendingTwoFactorChannel === 'totp' ? 'Authenticator or recovery code' : 'Verification code';
 });
 
 const submit = async () => {

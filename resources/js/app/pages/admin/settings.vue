@@ -8,11 +8,26 @@
 
         <AppSectionCard title="Brand">
             <dl class="settings-grid">
-                <div><dt>Name</dt><dd>{{ appConfig.brand.name }}</dd></div>
-                <div><dt>Short name</dt><dd>{{ appConfig.brand.short_name }}</dd></div>
-                <div><dt>Tagline</dt><dd>{{ appConfig.brand.tagline || '—' }}</dd></div>
-                <div><dt>Support email</dt><dd>{{ appConfig.brand.support_email || '—' }}</dd></div>
-                <div><dt>Footer</dt><dd>{{ appConfig.brand.footer || '—' }}</dd></div>
+                <div>
+                    <dt>Name</dt>
+                    <dd>{{ appConfig.brand.name }}</dd>
+                </div>
+                <div>
+                    <dt>Short name</dt>
+                    <dd>{{ appConfig.brand.short_name }}</dd>
+                </div>
+                <div>
+                    <dt>Tagline</dt>
+                    <dd>{{ appConfig.brand.tagline || '—' }}</dd>
+                </div>
+                <div>
+                    <dt>Support email</dt>
+                    <dd>{{ appConfig.brand.support_email || '—' }}</dd>
+                </div>
+                <div>
+                    <dt>Footer</dt>
+                    <dd>{{ appConfig.brand.footer || '—' }}</dd>
+                </div>
             </dl>
         </AppSectionCard>
 
@@ -27,15 +42,30 @@
                         />
                     </dd>
                 </div>
-                <div><dt>Environment</dt><dd>{{ appConfig.environment }}</dd></div>
+                <div>
+                    <dt>Environment</dt>
+                    <dd>{{ appConfig.environment }}</dd>
+                </div>
             </dl>
         </AppSectionCard>
 
-        <AppSectionCard title="Navigation" subtitle="Roles that put a session on the admin surface, and each surface's home route.">
+        <AppSectionCard
+            title="Navigation"
+            subtitle="Roles that put a session on the admin surface, and each surface's home route."
+        >
             <dl class="settings-grid">
-                <div><dt>Admin roles</dt><dd>{{ appConfig.navigation.admin_roles.join(', ') }}</dd></div>
-                <div><dt>Admin home</dt><dd>{{ appConfig.navigation.home_routes.admin }}</dd></div>
-                <div><dt>Customer home</dt><dd>{{ appConfig.navigation.home_routes.customer }}</dd></div>
+                <div>
+                    <dt>Admin roles</dt>
+                    <dd>{{ appConfig.navigation.admin_roles.join(', ') }}</dd>
+                </div>
+                <div>
+                    <dt>Admin home</dt>
+                    <dd>{{ appConfig.navigation.home_routes.admin }}</dd>
+                </div>
+                <div>
+                    <dt>Customer home</dt>
+                    <dd>{{ appConfig.navigation.home_routes.customer }}</dd>
+                </div>
             </dl>
         </AppSectionCard>
 

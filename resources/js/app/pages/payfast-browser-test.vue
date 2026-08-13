@@ -7,7 +7,10 @@
         >
             <template #metrics>
                 <AppStatusBadge status="active" label="Local v2" />
-                <AppStatusBadge :status="generatedForm.action ? 'active' : 'pending'" :label="generatedForm.action ? 'Form ready' : 'No form'" />
+                <AppStatusBadge
+                    :status="generatedForm.action ? 'active' : 'pending'"
+                    :label="generatedForm.action ? 'Form ready' : 'No form'"
+                />
             </template>
         </AppPageHeader>
 
@@ -32,7 +35,13 @@
                         <v-window v-model="mode" class="form-window">
                             <v-window-item value="one-time">
                                 <v-form class="form-grid" @submit.prevent="generateForm">
-                                    <AppTextField v-model="oneTime.amount" label="Amount" type="number" step="0.01" min="0.01" />
+                                    <AppTextField
+                                        v-model="oneTime.amount"
+                                        label="Amount"
+                                        type="number"
+                                        step="0.01"
+                                        min="0.01"
+                                    />
                                     <AppTextField v-model="oneTime.item_name" label="Item name" />
                                     <AppTextField v-model="oneTime.item_description" label="Item description" />
                                     <AppTextField v-model="oneTime.email_address" label="Email" type="email" />
@@ -41,10 +50,20 @@
                                     <AppTextField v-model="oneTime.m_payment_id" label="Merchant payment ID" />
 
                                     <div class="form-actions">
-                                        <v-btn color="primary" prepend-icon="mdi-file-code-outline" type="submit" :loading="loading">
+                                        <v-btn
+                                            color="primary"
+                                            prepend-icon="mdi-file-code-outline"
+                                            type="submit"
+                                            :loading="loading"
+                                        >
                                             Generate form
                                         </v-btn>
-                                        <v-btn variant="outlined" prepend-icon="mdi-refresh" type="button" @click="resetOneTime">
+                                        <v-btn
+                                            variant="outlined"
+                                            prepend-icon="mdi-refresh"
+                                            type="button"
+                                            @click="resetOneTime"
+                                        >
                                             Reset
                                         </v-btn>
                                     </div>
@@ -53,25 +72,57 @@
 
                             <v-window-item value="subscription">
                                 <v-form class="form-grid" @submit.prevent="generateForm">
-                                    <AppTextField v-model="subscription.amount" label="Initial amount" type="number" step="0.01" min="0.01" />
-                                    <AppTextField v-model="subscription.recurring_amount" label="Recurring amount" type="number" step="0.01" min="0.01" />
+                                    <AppTextField
+                                        v-model="subscription.amount"
+                                        label="Initial amount"
+                                        type="number"
+                                        step="0.01"
+                                        min="0.01"
+                                    />
+                                    <AppTextField
+                                        v-model="subscription.recurring_amount"
+                                        label="Recurring amount"
+                                        type="number"
+                                        step="0.01"
+                                        min="0.01"
+                                    />
                                     <AppTextField v-model="subscription.item_name" label="Item name" />
-                                    <AppTextField v-model="subscription.billing_date" label="Billing date" type="date" />
+                                    <AppTextField
+                                        v-model="subscription.billing_date"
+                                        label="Billing date"
+                                        type="date"
+                                    />
                                     <AppSelect
                                         v-model="subscription.frequency"
                                         :items="frequencyOptions"
                                         label="Frequency"
                                         :clearable="false"
                                     />
-                                    <AppTextField v-model="subscription.cycles" label="Cycles" type="number" min="0" step="1" />
+                                    <AppTextField
+                                        v-model="subscription.cycles"
+                                        label="Cycles"
+                                        type="number"
+                                        min="0"
+                                        step="1"
+                                    />
                                     <AppTextField v-model="subscription.email_address" label="Email" type="email" />
                                     <AppTextField v-model="subscription.m_payment_id" label="Merchant payment ID" />
 
                                     <div class="form-actions">
-                                        <v-btn color="primary" prepend-icon="mdi-file-code-outline" type="submit" :loading="loading">
+                                        <v-btn
+                                            color="primary"
+                                            prepend-icon="mdi-file-code-outline"
+                                            type="submit"
+                                            :loading="loading"
+                                        >
                                             Generate form
                                         </v-btn>
-                                        <v-btn variant="outlined" prepend-icon="mdi-refresh" type="button" @click="resetSubscription">
+                                        <v-btn
+                                            variant="outlined"
+                                            prepend-icon="mdi-refresh"
+                                            type="button"
+                                            @click="resetSubscription"
+                                        >
                                             Reset
                                         </v-btn>
                                     </div>
@@ -83,6 +134,10 @@
                     <div class="result-column">
                         <AppSectionCard title="Generated form" :subtitle="generatedForm.action || 'Awaiting payload'">
                             <div v-if="generatedForm.html" class="generated-form">
+                                <!-- generatedForm.html is our own backend's PayFastCheckoutService output
+                                     (never user-supplied) on a page that only exists in local/testing —
+                                     the whole point of this dev tool is inspecting the raw form markup. -->
+                                <!-- eslint-disable-next-line vue/no-v-html -->
                                 <div class="generated-form__preview" v-html="generatedForm.html" />
                                 <div class="generated-form__actions">
                                     <v-btn color="primary" prepend-icon="mdi-open-in-new" @click="submitGeneratedForm">
@@ -118,7 +173,13 @@
                 <div class="records-grid">
                     <AppSectionCard title="Payments" :subtitle="`${records.payments.length} recent records`">
                         <template #actions>
-                            <v-btn size="small" variant="outlined" prepend-icon="mdi-refresh" :loading="recordsLoading" @click="refreshRecords">
+                            <v-btn
+                                size="small"
+                                variant="outlined"
+                                prepend-icon="mdi-refresh"
+                                :loading="recordsLoading"
+                                @click="refreshRecords"
+                            >
                                 Refresh
                             </v-btn>
                         </template>
@@ -132,20 +193,46 @@
                                 <span>PayFast ID</span>
                                 <span>ITN</span>
                             </div>
-                            <div v-for="payment in records.payments" :key="payment.id" class="record-table__row record-table__row--payments">
+                            <div
+                                v-for="payment in records.payments"
+                                :key="payment.id"
+                                class="record-table__row record-table__row--payments"
+                            >
                                 <span class="mono">{{ payment.merchant_payment_id }}</span>
                                 <span>{{ payment.item_name }}</span>
                                 <span>{{ money(payment.amount_requested) }}</span>
                                 <AppStatusBadge :status="payment.status" />
                                 <span class="mono muted">{{ payment.payfast_payment_id || 'pending' }}</span>
                                 <div class="row-actions">
-                                    <v-btn size="x-small" color="success" variant="tonal" @click="simulateItn('payment', payment.id, 'COMPLETE')">Complete</v-btn>
-                                    <v-btn size="x-small" color="warning" variant="tonal" @click="simulateItn('payment', payment.id, 'PENDING')">Pending</v-btn>
-                                    <v-btn size="x-small" color="error" variant="tonal" @click="simulateItn('payment', payment.id, 'FAILED')">Fail</v-btn>
+                                    <v-btn
+                                        size="x-small"
+                                        color="success"
+                                        variant="tonal"
+                                        @click="simulateItn('payment', payment.id, 'COMPLETE')"
+                                        >Complete</v-btn
+                                    >
+                                    <v-btn
+                                        size="x-small"
+                                        color="warning"
+                                        variant="tonal"
+                                        @click="simulateItn('payment', payment.id, 'PENDING')"
+                                        >Pending</v-btn
+                                    >
+                                    <v-btn
+                                        size="x-small"
+                                        color="error"
+                                        variant="tonal"
+                                        @click="simulateItn('payment', payment.id, 'FAILED')"
+                                        >Fail</v-btn
+                                    >
                                 </div>
                             </div>
                         </div>
-                        <AppEmptyState v-else title="No payments" text="Generated one-time checkout records will appear here." />
+                        <AppEmptyState
+                            v-else
+                            title="No payments"
+                            text="Generated one-time checkout records will appear here."
+                        />
                     </AppSectionCard>
 
                     <AppSectionCard title="Subscriptions" :subtitle="`${records.subscriptions.length} recent records`">
@@ -158,20 +245,46 @@
                                 <span>Token</span>
                                 <span>ITN</span>
                             </div>
-                            <div v-for="subscriptionRecord in records.subscriptions" :key="subscriptionRecord.id" class="record-table__row record-table__row--subscriptions">
+                            <div
+                                v-for="subscriptionRecord in records.subscriptions"
+                                :key="subscriptionRecord.id"
+                                class="record-table__row record-table__row--subscriptions"
+                            >
                                 <span class="mono">{{ subscriptionRecord.merchant_payment_id }}</span>
                                 <span>{{ subscriptionRecord.item_name }}</span>
                                 <span>{{ money(subscriptionRecord.recurring_amount) }}</span>
                                 <AppStatusBadge :status="subscriptionRecord.status" />
                                 <span class="mono muted">{{ subscriptionRecord.token || 'pending' }}</span>
                                 <div class="row-actions">
-                                    <v-btn size="x-small" color="success" variant="tonal" @click="simulateItn('subscription', subscriptionRecord.id, 'COMPLETE')">Complete</v-btn>
-                                    <v-btn size="x-small" color="warning" variant="tonal" @click="simulateItn('subscription', subscriptionRecord.id, 'PENDING')">Pending</v-btn>
-                                    <v-btn size="x-small" color="error" variant="tonal" @click="simulateItn('subscription', subscriptionRecord.id, 'FAILED')">Fail</v-btn>
+                                    <v-btn
+                                        size="x-small"
+                                        color="success"
+                                        variant="tonal"
+                                        @click="simulateItn('subscription', subscriptionRecord.id, 'COMPLETE')"
+                                        >Complete</v-btn
+                                    >
+                                    <v-btn
+                                        size="x-small"
+                                        color="warning"
+                                        variant="tonal"
+                                        @click="simulateItn('subscription', subscriptionRecord.id, 'PENDING')"
+                                        >Pending</v-btn
+                                    >
+                                    <v-btn
+                                        size="x-small"
+                                        color="error"
+                                        variant="tonal"
+                                        @click="simulateItn('subscription', subscriptionRecord.id, 'FAILED')"
+                                        >Fail</v-btn
+                                    >
                                 </div>
                             </div>
                         </div>
-                        <AppEmptyState v-else title="No subscriptions" text="Generated subscription checkout records will appear here." />
+                        <AppEmptyState
+                            v-else
+                            title="No subscriptions"
+                            text="Generated subscription checkout records will appear here."
+                        />
                     </AppSectionCard>
                 </div>
             </v-window-item>
@@ -180,7 +293,13 @@
                 <div class="subscriptions-grid">
                     <AppSectionCard title="Subscriptions" :subtitle="`${records.subscriptions.length} recent records`">
                         <template #actions>
-                            <v-btn size="small" variant="outlined" prepend-icon="mdi-refresh" :loading="recordsLoading" @click="refreshRecords">
+                            <v-btn
+                                size="small"
+                                variant="outlined"
+                                prepend-icon="mdi-refresh"
+                                :loading="recordsLoading"
+                                @click="refreshRecords"
+                            >
                                 Refresh
                             </v-btn>
                         </template>
@@ -191,11 +310,15 @@
                                 :key="subscriptionRecord.id"
                                 type="button"
                                 class="subscription-list-item"
-                                :class="{ 'subscription-list-item--active': selectedSubscriptionId === subscriptionRecord.id }"
+                                :class="{
+                                    'subscription-list-item--active': selectedSubscriptionId === subscriptionRecord.id,
+                                }"
                                 @click="selectSubscription(subscriptionRecord.id)"
                             >
                                 <span>
-                                    <span class="subscription-list-item__title">{{ subscriptionRecord.item_name }}</span>
+                                    <span class="subscription-list-item__title">{{
+                                        subscriptionRecord.item_name
+                                    }}</span>
                                     <span class="mono muted">{{ subscriptionRecord.merchant_payment_id }}</span>
                                 </span>
                                 <span class="subscription-list-item__meta">
@@ -208,11 +331,19 @@
                                 </span>
                             </button>
                         </div>
-                        <AppEmptyState v-else title="No subscriptions" text="Generated subscription checkout records will appear here." />
+                        <AppEmptyState
+                            v-else
+                            title="No subscriptions"
+                            text="Generated subscription checkout records will appear here."
+                        />
                     </AppSectionCard>
 
                     <div class="subscription-detail-column">
-                        <AppSectionCard v-if="selectedSubscription" title="Subscription detail" :subtitle="selectedSubscription.merchant_payment_id">
+                        <AppSectionCard
+                            v-if="selectedSubscription"
+                            title="Subscription detail"
+                            :subtitle="selectedSubscription.merchant_payment_id"
+                        >
                             <div class="detail-grid">
                                 <div class="detail-cell">
                                     <span>Status</span>
@@ -248,7 +379,9 @@
                                 </div>
                                 <div class="detail-cell">
                                     <span>Initiated</span>
-                                    <strong>{{ dateTime(selectedSubscription.initiated_at || selectedSubscription.created_at) }}</strong>
+                                    <strong>{{
+                                        dateTime(selectedSubscription.initiated_at || selectedSubscription.created_at)
+                                    }}</strong>
                                 </div>
                                 <div class="detail-cell">
                                     <span>Activated</span>
@@ -261,86 +394,219 @@
                             </div>
                         </AppSectionCard>
 
-                        <AppSectionCard v-if="selectedSubscription" title="Local lifecycle actions" subtitle="Signed test ITNs">
+                        <AppSectionCard
+                            v-if="selectedSubscription"
+                            title="Local lifecycle actions"
+                            subtitle="Signed test ITNs"
+                        >
                             <div class="row-actions row-actions--wide">
-                                <v-btn size="small" color="success" variant="tonal" prepend-icon="mdi-check-circle-outline" @click="simulateItn('subscription', selectedSubscription.id, 'COMPLETE')">
+                                <v-btn
+                                    size="small"
+                                    color="success"
+                                    variant="tonal"
+                                    prepend-icon="mdi-check-circle-outline"
+                                    @click="simulateItn('subscription', selectedSubscription.id, 'COMPLETE')"
+                                >
                                     Complete
                                 </v-btn>
-                                <v-btn size="small" color="warning" variant="tonal" prepend-icon="mdi-timer-sand" @click="simulateItn('subscription', selectedSubscription.id, 'PENDING')">
+                                <v-btn
+                                    size="small"
+                                    color="warning"
+                                    variant="tonal"
+                                    prepend-icon="mdi-timer-sand"
+                                    @click="simulateItn('subscription', selectedSubscription.id, 'PENDING')"
+                                >
                                     Pending
                                 </v-btn>
-                                <v-btn size="small" color="error" variant="tonal" prepend-icon="mdi-alert-circle-outline" @click="simulateItn('subscription', selectedSubscription.id, 'FAILED')">
+                                <v-btn
+                                    size="small"
+                                    color="error"
+                                    variant="tonal"
+                                    prepend-icon="mdi-alert-circle-outline"
+                                    @click="simulateItn('subscription', selectedSubscription.id, 'FAILED')"
+                                >
                                     Fail
                                 </v-btn>
-                                <v-btn size="small" color="error" variant="outlined" prepend-icon="mdi-cancel" @click="simulateItn('subscription', selectedSubscription.id, 'CANCELLED')">
+                                <v-btn
+                                    size="small"
+                                    color="error"
+                                    variant="outlined"
+                                    prepend-icon="mdi-cancel"
+                                    @click="simulateItn('subscription', selectedSubscription.id, 'CANCELLED')"
+                                >
                                     Cancel
                                 </v-btn>
                             </div>
                         </AppSectionCard>
 
-                        <AppSectionCard v-if="selectedSubscription" title="Native PayFast actions" :subtitle="selectedSubscription.token || 'Token pending'">
+                        <AppSectionCard
+                            v-if="selectedSubscription"
+                            title="Native PayFast actions"
+                            :subtitle="selectedSubscription.token || 'Token pending'"
+                        >
                             <div class="native-actions">
                                 <div class="row-actions row-actions--wide">
-                                    <v-btn size="small" variant="tonal" prepend-icon="mdi-cloud-search-outline" :disabled="!selectedSubscription.token" :loading="isSubscriptionActionLoading('fetch')" @click="runSubscriptionAction('fetch')">
+                                    <v-btn
+                                        size="small"
+                                        variant="tonal"
+                                        prepend-icon="mdi-cloud-search-outline"
+                                        :disabled="!selectedSubscription.token"
+                                        :loading="isSubscriptionActionLoading('fetch')"
+                                        @click="runSubscriptionAction('fetch')"
+                                    >
                                         Fetch
                                     </v-btn>
-                                    <v-btn size="small" variant="tonal" prepend-icon="mdi-pause-circle-outline" :disabled="!selectedSubscription.token" :loading="isSubscriptionActionLoading('pause')" @click="runSubscriptionAction('pause')">
+                                    <v-btn
+                                        size="small"
+                                        variant="tonal"
+                                        prepend-icon="mdi-pause-circle-outline"
+                                        :disabled="!selectedSubscription.token"
+                                        :loading="isSubscriptionActionLoading('pause')"
+                                        @click="runSubscriptionAction('pause')"
+                                    >
                                         Pause
                                     </v-btn>
-                                    <v-btn size="small" variant="tonal" prepend-icon="mdi-play-circle-outline" :disabled="!selectedSubscription.token" :loading="isSubscriptionActionLoading('unpause')" @click="runSubscriptionAction('unpause')">
+                                    <v-btn
+                                        size="small"
+                                        variant="tonal"
+                                        prepend-icon="mdi-play-circle-outline"
+                                        :disabled="!selectedSubscription.token"
+                                        :loading="isSubscriptionActionLoading('unpause')"
+                                        @click="runSubscriptionAction('unpause')"
+                                    >
                                         Unpause
                                     </v-btn>
-                                    <v-btn size="small" color="error" variant="outlined" prepend-icon="mdi-cancel" :disabled="!selectedSubscription.token" :loading="isSubscriptionActionLoading('cancel')" @click="runSubscriptionAction('cancel')">
+                                    <v-btn
+                                        size="small"
+                                        color="error"
+                                        variant="outlined"
+                                        prepend-icon="mdi-cancel"
+                                        :disabled="!selectedSubscription.token"
+                                        :loading="isSubscriptionActionLoading('cancel')"
+                                        @click="runSubscriptionAction('cancel')"
+                                    >
                                         Cancel
                                     </v-btn>
-                                    <v-btn size="small" variant="outlined" prepend-icon="mdi-credit-card-refresh-outline" :disabled="!selectedSubscription.token" :loading="isSubscriptionActionLoading('card_update_link')" @click="runSubscriptionAction('card_update_link')">
+                                    <v-btn
+                                        size="small"
+                                        variant="outlined"
+                                        prepend-icon="mdi-credit-card-refresh-outline"
+                                        :disabled="!selectedSubscription.token"
+                                        :loading="isSubscriptionActionLoading('card_update_link')"
+                                        @click="runSubscriptionAction('card_update_link')"
+                                    >
                                         Card link
                                     </v-btn>
                                 </div>
 
                                 <div class="action-form-grid">
-                                    <AppTextField v-model="subscriptionActionForm.pause_cycles" label="Pause cycles" type="number" min="1" max="24" step="1" />
-                                    <AppTextField v-model="subscriptionActionForm.update_amount" label="Update amount" type="number" step="0.01" min="0.01" />
+                                    <AppTextField
+                                        v-model="subscriptionActionForm.pause_cycles"
+                                        label="Pause cycles"
+                                        type="number"
+                                        min="1"
+                                        max="24"
+                                        step="1"
+                                    />
+                                    <AppTextField
+                                        v-model="subscriptionActionForm.update_amount"
+                                        label="Update amount"
+                                        type="number"
+                                        step="0.01"
+                                        min="0.01"
+                                    />
                                     <AppSelect
                                         v-model="subscriptionActionForm.update_frequency"
                                         :items="frequencyOptions"
                                         label="Update frequency"
                                     />
-                                    <AppTextField v-model="subscriptionActionForm.update_cycles" label="Update cycles" type="number" min="0" step="1" />
-                                    <AppTextField v-model="subscriptionActionForm.update_run_date" label="Update run date" type="date" />
-                                    <AppTextField v-model="subscriptionActionForm.adhoc_amount" label="Ad hoc amount" type="number" step="0.01" min="0.01" />
-                                    <AppTextField v-model="subscriptionActionForm.adhoc_item_name" label="Ad hoc item" />
-                                    <AppTextField v-model="subscriptionActionForm.adhoc_item_description" label="Ad hoc description" />
+                                    <AppTextField
+                                        v-model="subscriptionActionForm.update_cycles"
+                                        label="Update cycles"
+                                        type="number"
+                                        min="0"
+                                        step="1"
+                                    />
+                                    <AppTextField
+                                        v-model="subscriptionActionForm.update_run_date"
+                                        label="Update run date"
+                                        type="date"
+                                    />
+                                    <AppTextField
+                                        v-model="subscriptionActionForm.adhoc_amount"
+                                        label="Ad hoc amount"
+                                        type="number"
+                                        step="0.01"
+                                        min="0.01"
+                                    />
+                                    <AppTextField
+                                        v-model="subscriptionActionForm.adhoc_item_name"
+                                        label="Ad hoc item"
+                                    />
+                                    <AppTextField
+                                        v-model="subscriptionActionForm.adhoc_item_description"
+                                        label="Ad hoc description"
+                                    />
                                 </div>
 
                                 <div class="row-actions row-actions--wide">
-                                    <v-btn size="small" variant="tonal" prepend-icon="mdi-pencil-outline" :disabled="!selectedSubscription.token" :loading="isSubscriptionActionLoading('update')" @click="runSubscriptionAction('update')">
+                                    <v-btn
+                                        size="small"
+                                        variant="tonal"
+                                        prepend-icon="mdi-pencil-outline"
+                                        :disabled="!selectedSubscription.token"
+                                        :loading="isSubscriptionActionLoading('update')"
+                                        @click="runSubscriptionAction('update')"
+                                    >
                                         Update
                                     </v-btn>
-                                    <v-btn size="small" variant="tonal" prepend-icon="mdi-cash-plus" :disabled="!selectedSubscription.token" :loading="isSubscriptionActionLoading('adhoc')" @click="runSubscriptionAction('adhoc')">
+                                    <v-btn
+                                        size="small"
+                                        variant="tonal"
+                                        prepend-icon="mdi-cash-plus"
+                                        :disabled="!selectedSubscription.token"
+                                        :loading="isSubscriptionActionLoading('adhoc')"
+                                        @click="runSubscriptionAction('adhoc')"
+                                    >
                                         Ad hoc charge
                                     </v-btn>
                                 </div>
 
                                 <div v-if="subscriptionActionResult" class="action-result">
-                                    <a v-if="subscriptionActionResult.url" :href="subscriptionActionResult.url" target="_blank" rel="noopener">Open card update link</a>
+                                    <a
+                                        v-if="subscriptionActionResult.url"
+                                        :href="subscriptionActionResult.url"
+                                        target="_blank"
+                                        rel="noopener"
+                                        >Open card update link</a
+                                    >
                                     <pre>{{ JSON.stringify(subscriptionActionResult, null, 2) }}</pre>
                                 </div>
                             </div>
                         </AppSectionCard>
 
-                        <AppSectionCard v-if="selectedSubscription" title="Subscription events" :subtitle="`${selectedSubscriptionEvents.length} events`">
+                        <AppSectionCard
+                            v-if="selectedSubscription"
+                            title="Subscription events"
+                            :subtitle="`${selectedSubscriptionEvents.length} events`"
+                        >
                             <div v-if="selectedSubscriptionEvents.length" class="event-list">
                                 <details v-for="event in selectedSubscriptionEvents" :key="event.id" class="event-item">
                                     <summary>
                                         <span class="event-item__type">{{ event.event_type }}</span>
-                                        <span class="mono">{{ event.event_ref || event.merchant_payment_id || 'no-ref' }}</span>
+                                        <span class="mono">{{
+                                            event.event_ref || event.merchant_payment_id || 'no-ref'
+                                        }}</span>
                                         <span class="muted">{{ dateTime(event.received_at || event.created_at) }}</span>
                                     </summary>
                                     <pre>{{ JSON.stringify(event.payload, null, 2) }}</pre>
                                 </details>
                             </div>
-                            <AppEmptyState v-else title="No subscription events" text="Subscription checkout and ITN events will appear here." />
+                            <AppEmptyState
+                                v-else
+                                title="No subscription events"
+                                text="Subscription checkout and ITN events will appear here."
+                            />
                         </AppSectionCard>
                     </div>
                 </div>
@@ -349,7 +615,13 @@
             <v-window-item value="events">
                 <AppSectionCard title="Payment events" :subtitle="`${records.events.length} recent events`">
                     <template #actions>
-                        <v-btn size="small" variant="outlined" prepend-icon="mdi-refresh" :loading="recordsLoading" @click="refreshRecords">
+                        <v-btn
+                            size="small"
+                            variant="outlined"
+                            prepend-icon="mdi-refresh"
+                            :loading="recordsLoading"
+                            @click="refreshRecords"
+                        >
                             Refresh
                         </v-btn>
                     </template>
@@ -461,23 +733,21 @@ const frequencyOptions = [
     { title: 'Annual', value: 6 },
 ];
 
-const endpoint = computed(() => (
-    mode.value === 'subscription'
-        ? '/payments/payfast/subscriptions/initiate'
-        : '/payments/payfast/initiate'
-));
+const endpoint = computed(() =>
+    mode.value === 'subscription' ? '/payments/payfast/subscriptions/initiate' : '/payments/payfast/initiate'
+);
 
 const payload = computed(() => {
     const source = mode.value === 'subscription' ? subscription : oneTime;
 
-    return Object.fromEntries(
-        Object.entries(source).filter(([, value]) => value !== null && value !== '')
-    );
+    return Object.fromEntries(Object.entries(source).filter(([, value]) => value !== null && value !== ''));
 });
 
-const selectedSubscription = computed(() => (
-    records.subscriptions.find((subscriptionRecord) => subscriptionRecord.id === selectedSubscriptionId.value) || null
-));
+const selectedSubscription = computed(
+    () =>
+        records.subscriptions.find((subscriptionRecord) => subscriptionRecord.id === selectedSubscriptionId.value) ||
+        null
+);
 
 const selectedSubscriptionEvents = computed(() => {
     if (!selectedSubscription.value) {
@@ -609,13 +879,15 @@ const subscriptionActionPayload = (action) => {
     if (action === 'update') {
         body.update_amount = subscriptionActionForm.update_amount || undefined;
         body.update_frequency = subscriptionActionForm.update_frequency || undefined;
-        body.update_cycles = subscriptionActionForm.update_cycles === '' ? undefined : subscriptionActionForm.update_cycles;
+        body.update_cycles =
+            subscriptionActionForm.update_cycles === '' ? undefined : subscriptionActionForm.update_cycles;
         body.update_run_date = subscriptionActionForm.update_run_date || undefined;
     }
 
     if (action === 'adhoc') {
         body.adhoc_amount = subscriptionActionForm.adhoc_amount || selectedSubscription.value.recurring_amount;
-        body.adhoc_item_name = subscriptionActionForm.adhoc_item_name || `${selectedSubscription.value.item_name} ad hoc`;
+        body.adhoc_item_name =
+            subscriptionActionForm.adhoc_item_name || `${selectedSubscription.value.item_name} ad hoc`;
         body.adhoc_item_description = subscriptionActionForm.adhoc_item_description || undefined;
     }
 
@@ -793,9 +1065,8 @@ function hydrateBrowserResult() {
 
     view.value = 'records';
     messageType.value = result === 'cancel' ? 'warning' : 'success';
-    message.value = result === 'cancel'
-        ? 'PayFast returned through the cancel URL.'
-        : 'PayFast returned through the return URL.';
+    message.value =
+        result === 'cancel' ? 'PayFast returned through the cancel URL.' : 'PayFast returned through the return URL.';
 }
 
 onMounted(() => {
@@ -1010,11 +1281,15 @@ onMounted(() => {
 }
 
 .record-table__row--payments {
-    grid-template-columns: minmax(150px, 0.9fr) minmax(160px, 1fr) minmax(90px, 0.55fr) minmax(92px, 0.55fr) minmax(120px, 0.7fr) minmax(220px, 1fr);
+    grid-template-columns:
+        minmax(150px, 0.9fr) minmax(160px, 1fr) minmax(90px, 0.55fr) minmax(92px, 0.55fr) minmax(120px, 0.7fr)
+        minmax(220px, 1fr);
 }
 
 .record-table__row--subscriptions {
-    grid-template-columns: minmax(150px, 0.9fr) minmax(170px, 1fr) minmax(90px, 0.55fr) minmax(92px, 0.55fr) minmax(140px, 0.8fr) minmax(220px, 1fr);
+    grid-template-columns:
+        minmax(150px, 0.9fr) minmax(170px, 1fr) minmax(90px, 0.55fr) minmax(92px, 0.55fr) minmax(140px, 0.8fr)
+        minmax(220px, 1fr);
 }
 
 .row-actions {

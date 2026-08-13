@@ -1,15 +1,12 @@
 <template>
     <div class="about">
-
         <section class="about-hero">
             <p class="eyebrow">About this starter</p>
-            <h1 class="about-hero__title">
-                Everything a secure production app<br>needs on day one.
-            </h1>
+            <h1 class="about-hero__title">Everything a secure production app<br />needs on day one.</h1>
             <p class="about-hero__text">
-                Rainwaves Starter is an internal baseline for Laravel 13 + Vue apps.
-                It ships with auth, roles, media, and payments wired up so new projects
-                start at a higher floor instead of rebuilding the same plumbing every time.
+                Rainwaves Starter is an internal baseline for Laravel 13 + Vue apps. It ships with auth, roles, media,
+                and payments wired up so new projects start at a higher floor instead of rebuilding the same plumbing
+                every time.
             </p>
             <div class="about-hero__cta">
                 <RouterLink to="/auth/login" class="cta-primary">Sign in</RouterLink>
@@ -18,11 +15,7 @@
         </section>
 
         <section class="about-features">
-            <div
-                v-for="feature in features"
-                :key="feature.title"
-                class="feature-card"
-            >
+            <div v-for="feature in features" :key="feature.title" class="feature-card">
                 <div class="feature-card__icon">
                     <v-icon :color="feature.iconColor" size="20">{{ feature.icon }}</v-icon>
                 </div>
@@ -47,7 +40,6 @@
                 </div>
             </div>
         </section>
-
     </div>
 </template>
 
@@ -137,18 +129,18 @@ const features = [
 ];
 
 const stack = [
-    { name: 'Laravel',            version: '13', role: 'Backend framework' },
-    { name: 'Sanctum',            version: '4',  role: 'Session / API auth' },
-    { name: 'lara-auth-suite',    version: '2',  role: 'Auth, 2FA, password reset' },
-    { name: 'payfast-payment',    version: '1',  role: 'PayFast checkout' },
-    { name: 'laravel-permission', version: '7',  role: 'Roles & permissions' },
+    { name: 'Laravel', version: '13', role: 'Backend framework' },
+    { name: 'Sanctum', version: '4', role: 'Session / API auth' },
+    { name: 'lara-auth-suite', version: '2', role: 'Auth, 2FA, password reset' },
+    { name: 'payfast-payment', version: '1', role: 'PayFast checkout' },
+    { name: 'laravel-permission', version: '7', role: 'Roles & permissions' },
     { name: 'laravel-medialibrary', version: '11', role: 'File / media management' },
     { name: 'laravel-activitylog', version: '5', role: 'Audit trail' },
-    { name: 'Horizon',            version: '5',  role: 'Queue monitoring' },
-    { name: 'Vue',                version: '3',  role: 'Frontend framework' },
-    { name: 'Vuetify',            version: '3',  role: 'UI component library' },
-    { name: 'Pinia',              version: '2',  role: 'State management' },
-    { name: 'Vite',               version: '6',  role: 'Build tool' },
+    { name: 'Horizon', version: '5', role: 'Queue monitoring' },
+    { name: 'Vue', version: '3', role: 'Frontend framework' },
+    { name: 'Vuetify', version: '3', role: 'UI component library' },
+    { name: 'Pinia', version: '2', role: 'State management' },
+    { name: 'Vite', version: '6', role: 'Build tool' },
 ];
 </script>
 
@@ -223,7 +215,9 @@ const stack = [
     border-radius: 0.625rem;
     text-decoration: none;
     border: 1px solid rgba(255, 255, 255, 0.15);
-    transition: border-color 0.14s, color 0.14s;
+    transition:
+        border-color 0.14s,
+        color 0.14s;
 }
 
 .cta-ghost:hover {
@@ -246,7 +240,9 @@ const stack = [
     backdrop-filter: blur(4px);
     display: grid;
     gap: 0.6rem;
-    transition: background 0.15s, border-color 0.15s;
+    transition:
+        background 0.15s,
+        border-color 0.15s;
 }
 
 .feature-card:hover {

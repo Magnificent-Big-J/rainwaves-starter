@@ -7,9 +7,9 @@
         <div class="legal-page__body">
             <p>
                 This is boilerplate content shipped with {{ appConfig.brand.name }} so the
-                <code>/legal/terms</code> route resolves to something real instead of a 404. It is not legal
-                advice and must be replaced with your organization's actual terms of service before this app
-                accepts real users or payments.
+                <code>/legal/terms</code> route resolves to something real instead of a 404. It is not legal advice and
+                must be replaced with your organization's actual terms of service before this app accepts real users or
+                payments.
             </p>
 
             <h2>What to cover</h2>
@@ -23,7 +23,8 @@
 
             <p>
                 Questions about these terms can be sent to
-                <a :href="`mailto:${appConfig.brand.support_email}`">{{ appConfig.brand.support_email }}</a>.
+                <a :href="`mailto:${appConfig.brand.support_email}`">{{ appConfig.brand.support_email }}</a
+                >.
             </p>
         </div>
     </div>

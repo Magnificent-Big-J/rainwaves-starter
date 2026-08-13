@@ -162,7 +162,9 @@ watch(
     text-decoration: none;
     font-weight: 600;
     font-size: 0.92rem;
-    transition: background 0.16s ease, color 0.16s ease;
+    transition:
+        background 0.16s ease,
+        color 0.16s ease;
 }
 
 .customer-nav__link:hover,

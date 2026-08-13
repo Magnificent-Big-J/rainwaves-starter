@@ -38,7 +38,11 @@ export const useAdminRolesStore = defineStore('adminRoles', {
 
                 return { ok: true };
             } catch (error) {
-                return { ok: false, message: normalizeErrorMessage(error, 'Unable to update role permissions.'), errors: validationErrors(error) };
+                return {
+                    ok: false,
+                    message: normalizeErrorMessage(error, 'Unable to update role permissions.'),
+                    errors: validationErrors(error),
+                };
             }
         },
     },

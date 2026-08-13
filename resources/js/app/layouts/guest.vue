@@ -137,7 +137,9 @@ const appConfig = useAppConfigStore();
     font-size: 0.72rem;
     font-weight: 800;
     letter-spacing: 0.05em;
-    box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.4);
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.08),
+        0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .guest-logo__name {
@@ -161,7 +163,9 @@ const appConfig = useAppConfigStore();
     color: rgba(255, 255, 255, 0.5);
     border-radius: 0.5rem;
     text-decoration: none;
-    transition: background 0.12s, color 0.12s;
+    transition:
+        background 0.12s,
+        color 0.12s;
 }
 
 .guest-links__item:hover {
@@ -178,7 +182,9 @@ const appConfig = useAppConfigStore();
     border: 1px solid rgba(0, 135, 95, 0.4);
     border-radius: 0.5rem;
     text-decoration: none;
-    transition: background 0.12s, border-color 0.12s;
+    transition:
+        background 0.12s,
+        border-color 0.12s;
 }
 
 .guest-links__cta:hover {

@@ -1,10 +1,5 @@
 <template>
-    <v-alert
-        v-if="message"
-        :type="type"
-        variant="tonal"
-        rounded="xl"
-    >
+    <v-alert v-if="message" :type="type" variant="tonal" rounded="xl">
         {{ message }}
     </v-alert>
 </template>

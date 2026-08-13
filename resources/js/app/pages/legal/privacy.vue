@@ -7,9 +7,9 @@
         <div class="legal-page__body">
             <p>
                 This is boilerplate content shipped with {{ appConfig.brand.name }} so the
-                <code>/legal/privacy</code> route referenced from the footer and account settings resolves to
-                something real instead of a 404. It is not legal advice and must be replaced with your
-                organization's actual privacy policy before this app handles real user data.
+                <code>/legal/privacy</code> route referenced from the footer and account settings resolves to something
+                real instead of a 404. It is not legal advice and must be replaced with your organization's actual
+                privacy policy before this app handles real user data.
             </p>
 
             <h2>What to cover</h2>
@@ -17,13 +17,16 @@
                 <li>What personal data is collected (account details, usage data, payment data via PayFast)</li>
                 <li>Why it's collected and the legal basis for processing it</li>
                 <li>How long it's retained and how users can request deletion</li>
-                <li>Third parties data is shared with (PayFast for payments, your mail provider, MinIO/S3 for media)</li>
+                <li>
+                    Third parties data is shared with (PayFast for payments, your mail provider, MinIO/S3 for media)
+                </li>
                 <li>How to contact you about privacy questions</li>
             </ul>
 
             <p>
                 Questions about this policy can be sent to
-                <a :href="`mailto:${appConfig.brand.support_email}`">{{ appConfig.brand.support_email }}</a>.
+                <a :href="`mailto:${appConfig.brand.support_email}`">{{ appConfig.brand.support_email }}</a
+                >.
             </p>
         </div>
     </div>

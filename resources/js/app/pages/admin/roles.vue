@@ -26,8 +26,14 @@
                             <AppStatusBadge v-if="row.is_locked" status="active" label="Locked" />
                         </div>
                     </td>
-                    <td><span class="text-muted">{{ row.users_count }}</span></td>
-                    <td><span class="text-muted">{{ row.permissions.length }} of {{ store.options.permissions.length }}</span></td>
+                    <td>
+                        <span class="text-muted">{{ row.users_count }}</span>
+                    </td>
+                    <td>
+                        <span class="text-muted"
+                            >{{ row.permissions.length }} of {{ store.options.permissions.length }}</span
+                        >
+                    </td>
                     <td>
                         <v-btn
                             :icon="row.is_locked ? 'mdi-lock-outline' : 'mdi-pencil-outline'"

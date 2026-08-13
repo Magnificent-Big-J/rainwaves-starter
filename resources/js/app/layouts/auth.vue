@@ -135,7 +135,9 @@ const appConfig = useAppConfigStore();
     font-size: 0.72rem;
     font-weight: 800;
     letter-spacing: 0.05em;
-    box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.4);
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.08),
+        0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .auth-logo__name {

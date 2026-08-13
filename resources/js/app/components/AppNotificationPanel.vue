@@ -1,10 +1,5 @@
 <template>
-    <v-menu
-        v-model="open"
-        :close-on-content-click="false"
-        location="bottom end"
-        offset="12"
-    >
+    <v-menu v-model="open" :close-on-content-click="false" location="bottom end" offset="12">
         <template #activator="{ props }">
             <v-btn v-bind="props" icon variant="text" class="notification-trigger">
                 <v-badge
