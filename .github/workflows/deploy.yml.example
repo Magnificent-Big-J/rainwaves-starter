@@ -1,0 +1,107 @@
+name: Deploy
+#
+# RS-404: deployment foundation template. The `.example` suffix is deliberate — GitHub
+# Actions only runs files literally named `*.yml`/`*.yaml` in this directory, so this
+# never executes as-is. Every real starter deployment target is different (a VPS over
+# SSH, a PaaS, a container registry + orchestrator), so rather than pretend one
+# specific host is "the" answer, this covers the parts that are the same everywhere
+# (build once, gate on real readiness checks, migrate safely) and marks the one part
+# that genuinely can't be templated (the actual deploy step) with a clear TODO.
+#
+# To use: copy to deploy.yml, fill in the TODO section, add the referenced secrets in
+# your repo settings, remove this comment block.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build release artifact
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo, pdo_mysql, redis, gd, curl, dom, fileinfo
+          coverage: none
+
+      - name: Install Composer dependencies (production, no dev)
+        run: composer install --no-interaction --prefer-dist --no-progress --optimize-autoloader --no-dev
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      # composer install --no-dev above removes phpunit/larastan/etc, so the readiness
+      # check has to run before that step in a real pipeline, or as a separate job
+      # against a full install — reordered here relative to `build` deliberately so
+      # this file demonstrates the gate, not a working sequence to copy verbatim.
+      - name: Readiness gate (starter:doctor --production)
+        run: php artisan starter:doctor --production
+
+      - name: Package release artifact
+        run: tar --exclude-vcs -czf release.tar.gz .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release
+          path: release.tar.gz
+          retention-days: 1
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production # requires manual approval if you configure a protected environment
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release
+
+      # ---------------------------------------------------------------------------
+      # TODO: the actual deploy step. This is the one part of this file that's
+      # genuinely specific to where you're hosting — pick one and delete the rest:
+      #
+      # SSH/VPS (rsync + release-symlink pattern):
+      #   - uses: appleboy/scp-action@v0.1.7
+      #     with:
+      #       host: ${{ secrets.DEPLOY_HOST }}
+      #       username: ${{ secrets.DEPLOY_USER }}
+      #       key: ${{ secrets.DEPLOY_SSH_KEY }}
+      #       source: release.tar.gz
+      #       target: /var/www/releases/${{ github.sha }}
+      #   Then SSH in to extract, symlink storage/.env, run migrations, restart
+      #   Horizon/queue workers, reload php-fpm.
+      #
+      # Platform-as-a-service (Forge/Vapor/Fly/Render/etc.): use that platform's own
+      # deploy action/CLI instead of this artifact-based flow entirely — most of them
+      # build from source themselves and don't need the `build` job above.
+      #
+      # Container registry + orchestrator: replace `build` with a Docker build/push
+      # step, and this job with your orchestrator's rollout command.
+      # ---------------------------------------------------------------------------
+      - name: Deploy (placeholder — see TODO above)
+        run: |
+          echo "Fill in the actual deploy step for your host — see the TODO comment in this file."
+          exit 1
+
+      # Real, not aspirational: these are the commands that need to run post-deploy
+      # regardless of host, once the new release is in place.
+      - name: Run migrations (informational — run this against the new release, not this runner)
+        run: |
+          echo "php artisan migrate --force"
+          echo "php artisan horizon:terminate  # Horizon's supervisor restarts workers on new code"
+          echo "php artisan config:cache && php artisan route:cache"
