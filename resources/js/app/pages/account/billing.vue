@@ -101,7 +101,7 @@
         >
             <FormStatusAlert :message="formError" type="error" />
 
-            <v-form @submit.prevent="submit">
+            <v-form class="checkout-form" @submit.prevent="submit">
                 <v-row dense>
                     <v-col cols="12" sm="4">
                         <AppSelect
@@ -283,6 +283,11 @@ onMounted(async () => {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+}
+
+.checkout-form {
+    display: grid;
+    gap: 1.25rem;
 }
 
 .billing-page__grid {
