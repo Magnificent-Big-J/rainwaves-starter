@@ -5,7 +5,9 @@ namespace App\Services;
 use App\Contracts\UserAdminServiceInterface;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -17,6 +19,11 @@ class UserAdminService implements UserAdminServiceInterface
 {
     private const SORTABLE_COLUMNS = ['name', 'email', 'created_at'];
 
+    // Exports are a synchronous request/response, not a queued job — this keeps a
+    // pathological export (someone filtering nothing on a huge table) from tying up
+    // a worker indefinitely. Comfortably above anything the starter itself seeds.
+    private const EXPORT_ROW_LIMIT = 10000;
+
     public function paginate(
         int $perPage = 15,
         ?string $search = null,
@@ -25,6 +32,30 @@ class UserAdminService implements UserAdminServiceInterface
         ?string $sortBy = null,
         string $sortDirection = 'asc',
     ): LengthAwarePaginator {
+        return $this->filteredQuery($search, $role, $status, $sortBy, $sortDirection)->paginate($perPage);
+    }
+
+    /** Same filters as paginate(), unpaginated — backs the CSV/XLSX export endpoint. */
+    public function filtered(
+        ?string $search = null,
+        ?string $role = null,
+        ?string $status = null,
+        ?string $sortBy = null,
+        string $sortDirection = 'asc',
+    ): Collection {
+        return $this->filteredQuery($search, $role, $status, $sortBy, $sortDirection)
+            ->with('roles')
+            ->limit(self::EXPORT_ROW_LIMIT)
+            ->get();
+    }
+
+    private function filteredQuery(
+        ?string $search,
+        ?string $role,
+        ?string $status,
+        ?string $sortBy,
+        string $sortDirection,
+    ): Builder {
         $query = match ($status) {
             'archived' => User::onlyTrashed(),
             'all' => User::withTrashed(),
@@ -49,8 +80,7 @@ class UserAdminService implements UserAdminServiceInterface
                 in_array($sortBy, self::SORTABLE_COLUMNS, true),
                 fn ($query) => $query->orderBy($sortBy, $sortDirection === 'desc' ? 'desc' : 'asc'),
                 fn ($query) => $query->latest('id'),
-            )
-            ->paginate($perPage);
+            );
     }
 
     public function create(array $data): User

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Contracts\UserAdminServiceInterface;
+use App\Exports\CollectionExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreUserRequest;
 use App\Http\Requests\Admin\UpdateUserRequest;
@@ -11,7 +12,9 @@ use App\Http\Responses\Envelope;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class UserAdminController extends Controller
 {
@@ -36,6 +39,32 @@ class UserAdminController extends Controller
                 'permissions' => $this->service->availablePermissions(),
             ],
         ]);
+    }
+
+    public function export(Request $request): BinaryFileResponse
+    {
+        $search = $request->string('search')->toString() ?: null;
+        $role = $request->string('role')->toString() ?: null;
+        $status = $request->string('status')->toString() ?: null;
+        $sortBy = $request->string('sort_by')->toString() ?: null;
+        $sortDirection = $request->string('sort_direction')->toString() ?: 'asc';
+
+        $users = $this->service->filtered($search, $role, $status, $sortBy, $sortDirection);
+
+        return Excel::download(
+            new CollectionExport(
+                $users,
+                ['Name', 'Email', 'Roles', 'Status', 'Joined'],
+                fn (User $user) => [
+                    $user->name,
+                    $user->email,
+                    $user->roles->pluck('name')->implode(', '),
+                    $user->trashed() ? 'Archived' : 'Active',
+                    $user->created_at?->toDateString(),
+                ],
+            ),
+            'users.xlsx',
+        );
     }
 
     public function store(StoreUserRequest $request): JsonResponse

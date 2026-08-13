@@ -89,7 +89,7 @@ import AppTextField from '../../components/AppTextField.vue';
 import FormActions from '../../components/FormActions.vue';
 import FormStatusAlert from '../../components/FormStatusAlert.vue';
 import { api } from '../../utils/api';
-import { csrfCookie, getXsrfToken, AUTH_BASE } from '../../stores/auth-shared';
+import { csrfCookie, getXsrfToken, AUTH_BASE, normalizeErrorMessage, validationErrors } from '../../stores/auth-shared';
 
 const router = useRouter();
 
@@ -130,8 +130,8 @@ const submit = async () => {
             return;
         }
 
-        errors.value = data?.errors ?? {};
-        formMessage.value = data?.message || 'Unable to create account. Please try again.';
+        errors.value = validationErrors(error);
+        formMessage.value = normalizeErrorMessage(error, 'Unable to create account. Please try again.');
     } finally {
         loading.value = false;
     }

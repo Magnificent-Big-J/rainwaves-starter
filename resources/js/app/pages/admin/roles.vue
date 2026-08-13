@@ -12,6 +12,7 @@
 
         <AppSectionCard title="Roles">
             <AppDataTable
+                table-id="admin-roles"
                 title="All roles"
                 :columns="columns"
                 :rows="store.rows"
@@ -20,21 +21,21 @@
                 empty-text="Seed roles via RolesAndPermissionsSeeder."
             >
                 <template #row="{ row }">
-                    <td>
+                    <td data-label="">
                         <div class="role-cell">
                             <span class="role-cell__name">{{ row.name }}</span>
                             <AppStatusBadge v-if="row.is_locked" status="active" label="Locked" />
                         </div>
                     </td>
-                    <td>
+                    <td data-label="Users">
                         <span class="text-muted">{{ row.users_count }}</span>
                     </td>
-                    <td>
+                    <td data-label="Permissions">
                         <span class="text-muted"
                             >{{ row.permissions.length }} of {{ store.options.permissions.length }}</span
                         >
                     </td>
-                    <td>
+                    <td data-label="">
                         <v-btn
                             :icon="row.is_locked ? 'mdi-lock-outline' : 'mdi-pencil-outline'"
                             size="small"
@@ -102,8 +103,8 @@ const saving = ref(false);
 
 const columns = [
     { key: 'name', label: 'Role' },
-    { key: 'users', label: 'Users' },
-    { key: 'permissions', label: 'Permissions' },
+    { key: 'users', label: 'Users', hideable: true },
+    { key: 'permissions', label: 'Permissions', hideable: true },
     { key: 'actions', label: '', class: 'text-right' },
 ];
 

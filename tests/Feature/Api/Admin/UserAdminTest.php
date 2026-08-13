@@ -2,8 +2,10 @@
 
 namespace Tests\Feature\Api\Admin;
 
+use App\Exports\CollectionExport;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Maatwebsite\Excel\Facades\Excel;
 use Tests\TestCase;
 
 class UserAdminTest extends TestCase
@@ -131,5 +133,41 @@ class UserAdminTest extends TestCase
         $response = $this->actingAs($owner)->getJson('/api/v1/users?status=archived');
 
         $response->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.email', 'ops@rainwaves.test');
+    }
+
+    public function test_export_requires_users_view_permission(): void
+    {
+        $customer = User::where('email', 'customer@rainwaves.test')->firstOrFail();
+
+        $this->actingAs($customer)
+            ->get('/api/v1/users/export')
+            ->assertStatus(403);
+    }
+
+    public function test_export_downloads_an_xlsx_file(): void
+    {
+        Excel::fake();
+
+        $owner = User::where('email', 'owner@rainwaves.test')->firstOrFail();
+
+        $this->actingAs($owner)->get('/api/v1/users/export')->assertOk();
+
+        Excel::assertDownloaded('users.xlsx');
+    }
+
+    public function test_export_respects_the_status_filter(): void
+    {
+        Excel::fake();
+
+        $owner = User::where('email', 'owner@rainwaves.test')->firstOrFail();
+        $ops = User::where('email', 'ops@rainwaves.test')->firstOrFail();
+        $ops->delete();
+
+        $this->actingAs($owner)->get('/api/v1/users/export?status=archived')->assertOk();
+
+        Excel::assertDownloaded(
+            'users.xlsx',
+            fn (CollectionExport $export) => $export->collection()->pluck('email')->all() === ['ops@rainwaves.test'],
+        );
     }
 }

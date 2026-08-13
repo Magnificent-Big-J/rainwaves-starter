@@ -245,6 +245,41 @@ Until this was added, the *only* place in the SPA that ever called `/payments/pa
   - **Bulk actions**: `selectable` + `v-model:selected` (array of row ids) renders a checkbox column; while anything is selected, the toolbar is replaced by a bulk-action bar rendering the `#bulk-actions` slot (`{ selected, clear }`).
 - `admin/users.vue` is the reference implementation of both: sortable columns, bulk-select + bulk-archive, a Status filter (Active/Archived/All), and per-row Archive/Restore actions. `stores/admin-users.js::bulkArchive()` fans out to the single-item endpoint via `Promise.allSettled` rather than a dedicated bulk endpoint — reasonable for a lightweight, roughly-idempotent action; a module with heavier bulk semantics (partial-failure reporting, transactions) would want a real endpoint instead.
 
+### Exports (RS-107)
+
+`app/Exports/CollectionExport.php` is the one generic export class every admin table export reuses — construct it with a `Collection`, a headings array, and a row-mapping closure rather than writing a dedicated Export class per resource (`rainwaves/laravel-excel` convention already established for this project — see the "Excel exports" rule). `Maatwebsite\Excel\Facades\Excel::download($export, $filename)` handles the actual `.xlsx` streaming.
+
+Both `UserAdminService::filtered()` and `ActivityLogController`'s private `filteredQuery()` share the exact same filter logic as their paginated counterparts (`paginate()`/`index()`) — an export is "the same query, unpaginated, capped at 10,000 rows" rather than a separate hand-rolled query, so it can never silently drift out of sync with what the table is actually showing. The row cap exists because export is a synchronous request/response, not a queued job — it protects against a pathological unfiltered export on a huge table tying up a worker.
+
+`AppDataTable`'s optional `export-href` prop renders a plain `<a download>` "Export" button in the toolbar — no client-side blob/fetch handling needed, the browser handles the file download from the response's `Content-Disposition` header, cookies included automatically (same-origin Sanctum session). The parent page builds the URL itself from its own current filter/search/sort state (`admin/users.vue`, `admin/audit-log.vue` are the two reference implementations) — `AppDataTable` only ever sees one page of rows, so it has no way to build a filtered export URL on its own.
+
+Export endpoints (`GET /v1/users/export`, `GET /v1/activity-log/export`) sit behind the same permission as their index counterpart (`users.view`, `activity.view`) — exporting isn't a separate capability from viewing.
+
+### Saved views
+
+Scoped down to the useful 80%: `resources/js/app/composables/usePersistedFilters.js` remembers the last filter/search/sort state a user left a table in — per table, in localStorage, no backend model — so returning to `admin/users.vue` or `admin/audit-log.vue` doesn't silently reset to defaults. Call it once, right after the page's `filters = reactive({...})`, before the initial fetch:
+
+```js
+const filters = reactive({ search: '', status: '', page: 1, sortBy: '', sortDirection: 'asc' });
+usePersistedFilters('admin-users', filters, { exclude: ['page'] });
+```
+
+`exclude` keeps fields like `page` out of both the restore and the write — a saved view should always land on page 1, not wherever you last paginated to. Restoring happens synchronously during `setup()`, before `onMounted` fires, so the page's initial fetch already sees the restored values.
+
+What this deliberately isn't: named/multiple presets a user can save, switch between, or share with teammates. That's real scope — its own backing model and management UI — worth a proper design pass if a future module needs it, not a quick add-on to this pass.
+
+While wiring this up, fixed a real (if minor) latent bug it would otherwise have made visible: `audit-log.vue`'s initial `onMounted(() => store.fetch())` never passed `filters.search`/`filters.logName` at all, so a pre-filled filter (now: a *restored* one) would show in the UI as selected but not actually be applied until the user touched a field again. Now passes them.
+
+### Unsaved-change protection
+
+`resources/js/app/composables/useUnsavedChanges.js` — `useUnsavedChanges(isDirty)` takes a `Ref`/`ComputedRef<boolean>` the page computes however makes sense for its own form(s), and wires it to the two places a user can actually lose unsaved input: an in-app route change (blocked with `ConfirmDialog`, via a `onBeforeRouteLeave` guard) and a tab close/refresh (blocked with the browser's native `beforeunload` prompt — the only kind browsers allow; the message text passed to `event.returnValue` is never actually shown, browsers render their own). The composable itself is generic and owns no form-specific logic — pages own what "dirty" means and reset it after a successful save.
+
+Two reference implementations:
+- `profile.vue` — `isDirty` compares the profile name/email fields plus avatar state against a baseline snapshot (`profileBaseline`, reset by `syncProfileForm()` on load and again after a successful save), OR'd with the password fields being non-empty (password fields don't need a baseline — clearing them to `''` after a successful save already makes them read as clean).
+- `account/billing.vue` — `isDirty` is simply "any checkout field has content". The one real gotcha: a successful checkout calls `startPayFastCheckout()`, which navigates the browser away to PayFast — the exact same `beforeunload` event as an accidental tab close would fire. A `leavingForCheckout` ref is set the instant `billing.checkout()` resolves `{ ok: true }`, before the guard would otherwise see the still-populated form as dirty, so a user who genuinely finishes checkout never sees a spurious "leave site?" prompt on their way out. Verified live against the real PayFast sandbox: the guard blocks in-app nav while the form has unsaved input, and does not interfere with the real submit-and-redirect.
+
+Dialog-based forms (the `admin/users.vue` create/edit dialog, `admin/roles.vue` permission editor) don't use this — it guards route/tab navigation, not a dialog's own Cancel/close button, and wiring the same pattern there is a separate, smaller piece of work if it's ever needed.
+
 ### Subscription management
 
 `SubscriptionController` (`GET /api/v1/subscriptions`, `POST /api/v1/subscriptions/{subscription}/cancel`) is the production-safe counterpart to `PayFastController::subscriptionAction` (routes/payfast-local.php) — that dev tool has zero ownership checks by design (admin-only, local/testing-only); this controller enforces `$subscription->user_id === $request->user()->id` before allowing a cancel. `PayFastCheckoutService::cancelSubscription()` calls PayFast's native subscription API (a real network round-trip, unlike checkout initiation which just builds a form) — wrap calls to it in `try/catch (Throwable)`, since a transport failure or non-JSON response throws rather than returning a `successful: false` result. Found this the hard way: cancelling a subscription whose token was fabricated by local dev tooling (never actually issued by PayFast) throws `PayFast API returned unsupported content type: text/html`, which without the catch surfaced as an uncaught 500 instead of a normal 422.

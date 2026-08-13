@@ -66,6 +66,9 @@ jobs:
       - name: Prettier
         run: npm run format:check
 
+      - name: Vitest
+        run: npm run test:unit
+
       - name: Build
         run: npm run build
 

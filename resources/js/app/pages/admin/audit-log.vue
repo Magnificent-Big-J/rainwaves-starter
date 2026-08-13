@@ -26,6 +26,7 @@
             </AppFilterBar>
 
             <AppDataTable
+                table-id="admin-audit-log"
                 title="Recent activity"
                 :columns="columns"
                 :rows="store.rows"
@@ -33,19 +34,20 @@
                 :loading="store.loading"
                 empty-title="No activity recorded"
                 empty-text="Security and account events will appear here as they happen."
+                :export-href="exportHref"
                 @page-change="onPage"
             >
                 <template #row="{ row }">
-                    <td>
+                    <td data-label="">
                         <div class="activity-cell">
                             <span class="activity-cell__description">{{ row.description }}</span>
                             <AppStatusBadge v-if="row.log_name" status="processing" :label="row.log_name" />
                         </div>
                     </td>
-                    <td>
+                    <td data-label="By">
                         <span class="text-muted">{{ row.causer?.name ?? 'System' }}</span>
                     </td>
-                    <td>
+                    <td data-label="When">
                         <span class="text-muted text-sm">{{ formatDate(row.created_at) }}</span>
                     </td>
                 </template>
@@ -66,7 +68,7 @@
 </route>
 
 <script setup>
-import { onMounted, reactive } from 'vue';
+import { computed, onMounted, reactive } from 'vue';
 
 import AppDataTable from '../../components/AppDataTable.vue';
 import AppFilterBar from '../../components/AppFilterBar.vue';
@@ -75,6 +77,7 @@ import AppSectionCard from '../../components/AppSectionCard.vue';
 import AppSelect from '../../components/AppSelect.vue';
 import AppStatusBadge from '../../components/AppStatusBadge.vue';
 import AppTextField from '../../components/AppTextField.vue';
+import { usePersistedFilters } from '../../composables/usePersistedFilters';
 import { useAdminActivityLogStore } from '../../stores/admin-activity-log';
 
 const store = useAdminActivityLogStore();
@@ -86,6 +89,7 @@ const columns = [
 ];
 
 const filters = reactive({ search: '', logName: '' });
+usePersistedFilters('admin-audit-log', filters);
 
 let filterTimer = null;
 const onFilterChange = () => {
@@ -95,9 +99,18 @@ const onFilterChange = () => {
 
 const onPage = (page) => store.fetch({ page, search: filters.search, logName: filters.logName });
 
+const exportHref = computed(() => {
+    const params = new URLSearchParams();
+
+    if (filters.search) params.set('search', filters.search);
+    if (filters.logName) params.set('log_name', filters.logName);
+
+    return `/api/v1/activity-log/export?${params}`;
+});
+
 const formatDate = (iso) => (iso ? new Date(iso).toLocaleString() : '—');
 
-onMounted(() => store.fetch());
+onMounted(() => store.fetch({ search: filters.search, logName: filters.logName }));
 </script>
 
 <style scoped>

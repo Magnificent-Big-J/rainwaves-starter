@@ -4,6 +4,7 @@ namespace App\Contracts;
 
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 interface UserAdminServiceInterface
 {
@@ -19,6 +20,15 @@ interface UserAdminServiceInterface
         ?string $sortBy = null,
         string $sortDirection = 'asc',
     ): LengthAwarePaginator;
+
+    /** Same filters as paginate(), unpaginated (capped) — backs the export endpoint. */
+    public function filtered(
+        ?string $search = null,
+        ?string $role = null,
+        ?string $status = null,
+        ?string $sortBy = null,
+        string $sortDirection = 'asc',
+    ): Collection;
 
     public function create(array $data): User;
 

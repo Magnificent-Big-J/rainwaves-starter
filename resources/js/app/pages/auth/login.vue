@@ -45,6 +45,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 import AppTextField from '../../components/AppTextField.vue';
 import { useSessionStore } from '../../stores/session';
+import { normalizeErrorMessage } from '../../stores/auth-shared';
 
 const router = useRouter();
 const route = useRoute();
@@ -73,7 +74,7 @@ const submit = async () => {
 
         await router.push(session.homeRoute);
     } catch (error) {
-        formMessage.value = error?.data?.message || 'Unable to sign in with those credentials.';
+        formMessage.value = normalizeErrorMessage(error, 'Unable to sign in with those credentials.');
     }
 };
 </script>
