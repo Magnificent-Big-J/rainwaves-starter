@@ -369,7 +369,17 @@ Backend: `composer lint` (Pint, check-only), `composer lint:fix` (Pint, writes),
 
 `phpstan-baseline.neon` (committed, generated the day Larastan was added) suppresses 81 pre-existing findings — all one root cause: Eloquent model properties/casts (`Subscription::$status`, `Device::$uuid`, `PersonalAccessToken::$personal_access_token_id`, etc.) aren't visible to static analysis without generated model docblocks, so Larastan sees `string`/`Model` where the real runtime type is a backed enum or a specific model. None of them are real bugs — confirmed by cross-referencing against the passing test suite. **Don't just re-run `--generate-baseline` to silence a new finding** — that hides real regressions behind the same file. The actual fix is adding `barryvdh/laravel-ide-helper` (`php artisan ide-helper:models`) to generate accurate model docblocks, then regenerating a much smaller (ideally empty) baseline; not done yet, left as follow-up.
 
-Frontend: `npm run lint` / `npm run lint:fix` (ESLint 9 flat config, `eslint.config.js`), `npm run format` / `npm run format:check` (Prettier, `.prettierrc.json`).
+Frontend: `npm run lint` / `npm run lint:fix` (ESLint 9 flat config, `eslint.config.js`), `npm run format` / `npm run format:check` (Prettier, `.prettierrc.json`), `npm run test:unit` (Vitest + Vue Test Utils component tests, `resources/js/**/*.spec.js`).
+
+## E2E smoke tests (RS-403)
+
+`npm run test:e2e` (Playwright, `playwright.config.js`, specs in `tests/e2e/`) — critical-path browser tests: guest homepage + nav, login (valid/invalid credentials, sign-out), admin user CRUD (create/archive/restore, non-admin denied), the users export button producing a real file download, and the unsaved-changes guard blocking/allowing navigation correctly. These are smoke tests, not exhaustive coverage — one or two representative flows per area, enough to catch "the app doesn't actually work" regressions that unit tests can't see (routing, real HTTP round-trips, Vuetify component interaction).
+
+Two different targets depending on where you run it from, both handled by `playwright.config.js`:
+- **Local dev**: defaults to `http://localhost` — your already-running Sail instance, with its real dev DB. Nothing extra to boot; run `npm run test:e2e` (or `npm run test:e2e:ui` for the interactive UI) while `sail up` is running and the frontend is built.
+- **CI**: `scripts/e2e-server.sh` boots a throwaway, fully self-contained instance — a fresh sqlite file DB (migrated + seeded with the real `StarterUsersSeeder` accounts, never touching a real database), served by `php artisan serve` against the already-built frontend (no Vite dev server involved). Config comes from `.env.testing` (committed — the `APP_KEY` in it is a fixed, throwaway value for this always-rebuilt-from-scratch DB, safe to commit). Triggered automatically when `CI=true` — see the `e2e` job in `.github/workflows/ci.yml`.
+
+A few Vuetify-specific selector gotchas worth knowing before adding more specs: `AppSelect`/`AppTextField`'s clear icon (`aria-label="Clear X"`) means `getByLabel(...)` on a clearable field often resolves to 2 elements — use `getByRole('combobox'/'textbox', { name: ... })` instead, or (for a Vuetify select specifically, where even the combobox role can have its click intercepted by an internal `v-field__input` overlay) click the wrapping element by its own class instead of the input. `admin/users.vue`'s `openCreate()` also opens a second "use seeded accounts?" info dialog stacked on top of the real create-user form whenever seeded users already exist — dismiss it first (see `tests/e2e/admin-users.spec.js`) or the real form's buttons are unreachable.
 
 ## starter:init
 
