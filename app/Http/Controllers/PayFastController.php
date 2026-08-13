@@ -223,14 +223,15 @@ class PayFastController extends Controller
         ], $result->successful() ? 200 : 422);
     }
 
+    /**
+     * Purely cosmetic redirect for the buyer's browser. PayFast's server-to-server ITN
+     * call (self::itn) is the only path that is ever allowed to change payment/subscription
+     * state — a buyer can edit this URL freely (wrong id, wrong outcome, replay) and it must
+     * not be able to mark anything paid, returned, or cancelled.
+     */
     public function handleReturn(Request $request): RedirectResponse
     {
-        $this->checkout->markReturn(
-            $request->query('m_payment_id'),
-            $request->query('token')
-        );
-
-        return redirect('/payfast-browser-test?'.http_build_query([
+        return redirect($this->resultRedirectTarget().'?'.http_build_query([
             'payfast_result' => 'return',
             'm_payment_id' => $request->query('m_payment_id'),
             'token' => $request->query('token'),
@@ -239,16 +240,16 @@ class PayFastController extends Controller
 
     public function handleCancel(Request $request): RedirectResponse
     {
-        $this->checkout->markCancelled(
-            $request->query('m_payment_id'),
-            $request->query('token')
-        );
-
-        return redirect('/payfast-browser-test?'.http_build_query([
+        return redirect($this->resultRedirectTarget().'?'.http_build_query([
             'payfast_result' => 'cancel',
             'm_payment_id' => $request->query('m_payment_id'),
             'token' => $request->query('token'),
         ]));
+    }
+
+    private function resultRedirectTarget(): string
+    {
+        return app()->environment(['local', 'testing']) ? '/payfast-browser-test' : '/dashboard';
     }
 
     private function paymentItnPayload(Payment $payment, string $status): array

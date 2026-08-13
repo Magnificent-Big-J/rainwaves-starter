@@ -212,42 +212,6 @@ class PayFastCheckoutService implements PayFastCheckoutServiceInterface
         });
     }
 
-    public function markReturn(?string $merchantPaymentId = null, ?string $token = null): void
-    {
-        if ($token) {
-            Subscription::query()
-                ->where('token', $token)
-                ->orWhere('merchant_payment_id', $merchantPaymentId ?? '')
-                ->update(['status' => SubscriptionStatus::Returned]);
-
-            return;
-        }
-
-        if ($merchantPaymentId) {
-            Payment::query()
-                ->where('merchant_payment_id', $merchantPaymentId)
-                ->update(['status' => PaymentStatus::Returned]);
-        }
-    }
-
-    public function markCancelled(?string $merchantPaymentId = null, ?string $token = null): void
-    {
-        if ($token) {
-            Subscription::query()
-                ->where('token', $token)
-                ->orWhere('merchant_payment_id', $merchantPaymentId ?? '')
-                ->update(['status' => SubscriptionStatus::Cancelled, 'cancelled_at' => now()]);
-
-            return;
-        }
-
-        if ($merchantPaymentId) {
-            Payment::query()
-                ->where('merchant_payment_id', $merchantPaymentId)
-                ->update(['status' => PaymentStatus::Cancelled]);
-        }
-    }
-
     private function makeOneTimePaymentForm(array $input): string
     {
         $client = new PayFast($this->payFastConfig());

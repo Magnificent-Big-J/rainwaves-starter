@@ -193,7 +193,7 @@ class PayFastV2CompatibilityTest extends TestCase
         ]);
     }
 
-    public function test_return_and_cancel_redirect_back_to_browser_test_page(): void
+    public function test_return_and_cancel_are_cosmetic_redirects_that_cannot_mutate_state(): void
     {
         Payment::query()->create([
             'merchant_payment_id' => 'RW-RETURN-CANCEL',
@@ -207,9 +207,11 @@ class PayFastV2CompatibilityTest extends TestCase
         $this->get('/payments/payfast/return?m_payment_id=RW-RETURN-CANCEL')
             ->assertRedirect('/payfast-browser-test?payfast_result=return&m_payment_id=RW-RETURN-CANCEL');
 
+        // A buyer freely controls this URL (wrong id, replayed, forged token) — it must
+        // never be able to move a payment out of the state the signed ITN call put it in.
         $this->assertDatabaseHas('payments', [
             'merchant_payment_id' => 'RW-RETURN-CANCEL',
-            'status' => PaymentStatus::Returned->value,
+            'status' => PaymentStatus::Initiated->value,
         ]);
 
         $this->get('/payments/payfast/cancel?m_payment_id=RW-RETURN-CANCEL')
@@ -217,8 +219,42 @@ class PayFastV2CompatibilityTest extends TestCase
 
         $this->assertDatabaseHas('payments', [
             'merchant_payment_id' => 'RW-RETURN-CANCEL',
-            'status' => PaymentStatus::Cancelled->value,
+            'status' => PaymentStatus::Initiated->value,
         ]);
+    }
+
+    public function test_return_and_cancel_cannot_mutate_state_for_an_unrelated_payment_id(): void
+    {
+        Payment::query()->create([
+            'merchant_payment_id' => 'RW-REAL-PAYMENT',
+            'provider' => 'payfast',
+            'item_name' => 'Real Plan',
+            'amount_requested' => 500.00,
+            'status' => PaymentStatus::Initiated,
+            'initiated_at' => now(),
+        ]);
+
+        // Forged/guessed id — the endpoint doesn't even look the record up, so this is
+        // simply proving there's nothing here for an attacker to target.
+        $this->get('/payments/payfast/return?m_payment_id=RW-DOES-NOT-EXIST')
+            ->assertRedirect('/payfast-browser-test?payfast_result=return&m_payment_id=RW-DOES-NOT-EXIST');
+
+        $this->assertDatabaseHas('payments', [
+            'merchant_payment_id' => 'RW-REAL-PAYMENT',
+            'status' => PaymentStatus::Initiated->value,
+        ]);
+    }
+
+    public function test_return_redirects_to_dashboard_outside_local_and_testing(): void
+    {
+        app()->detectEnvironment(fn () => 'production');
+
+        try {
+            $this->get('/payments/payfast/return?m_payment_id=RW-ANY')
+                ->assertRedirect('/dashboard?payfast_result=return&m_payment_id=RW-ANY');
+        } finally {
+            app()->detectEnvironment(fn () => 'testing');
+        }
     }
 
     public function test_subscription_native_actions_require_token_and_record_card_update_link(): void

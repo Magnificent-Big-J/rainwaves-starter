@@ -137,13 +137,25 @@ Database notifications with a mobile payload contract. Extend `App\Notifications
 
 ## Web routes (PayFast)
 
+Production route table (always registered):
+
 | Method | Endpoint | Notes |
 |---|---|---|
-| POST | `/payments/payfast/initiate` | Returns PayFast HTML form for one-time payment |
-| POST | `/payments/payfast/subscriptions/initiate` | Returns PayFast HTML form for subscription |
-| POST | `/payments/payfast/itn` | ITN webhook — CSRF excluded |
-| GET | `/payments/payfast/return` | PayFast return redirect |
-| GET | `/payments/payfast/cancel` | PayFast cancel redirect |
+| POST | `/payments/payfast/initiate` | Returns PayFast HTML form for one-time payment; throttled `payfast-initiate` |
+| POST | `/payments/payfast/subscriptions/initiate` | Returns PayFast HTML form for subscription; throttled `payfast-initiate` |
+| POST | `/payments/payfast/itn` | ITN webhook — CSRF excluded. **The only path allowed to mutate payment/subscription state.** |
+| GET | `/payments/payfast/return` | Cosmetic redirect only — reads query params for display, never writes to the DB |
+| GET | `/payments/payfast/cancel` | Cosmetic redirect only — same as above |
+
+`handleReturn`/`handleCancel` redirect to `/payfast-browser-test` in local/testing and `/dashboard` everywhere else. A buyer fully controls this URL (wrong id, forged token, replay) so it must never be trusted — see `tests/Feature/PayFastV2CompatibilityTest.php`.
+
+Local/testing-only (registered from `routes/payfast-local.php`, included from `routes/web.php` only when `app()->environment(['local', 'testing'])` — never present in the production route table, proven by `tests/Feature/ProductionRouteHardeningTest.php`):
+
+| Method | Endpoint | Notes |
+|---|---|---|
+| GET | `/payments/payfast/records` | Dumps recent payments/subscriptions/events as JSON |
+| POST | `/payments/payfast/simulate-itn` | Builds and replays a signed ITN payload for a given record |
+| POST | `/payments/payfast/subscriptions/action` | Native subscription actions (fetch/pause/unpause/cancel/card-update-link/update/adhoc) |
 
 ## Enums
 
@@ -164,8 +176,7 @@ Service: `PayFastCheckoutService` (bound via `PayFastCheckoutServiceInterface`)
 
 - `initiateOneTimePayment` — creates `Payment` record, returns HTML checkout form
 - `initiateSubscriptionPayment` — creates `Subscription` record, returns HTML checkout form
-- `processItn` — validates payment, updates record, idempotent via `PaymentEvent` event_ref unique constraint
-- `markReturn` / `markCancelled` — updates status from redirect
+- `processItn` — validates payment, updates record, idempotent via `PaymentEvent` event_ref unique constraint. This is the **only** method that ever changes `status` on a `Payment`/`Subscription` — there is deliberately no `markReturn`/`markCancelled`; the browser return/cancel routes are cosmetic redirects only.
 
 Config: `config/payfast.php` — reads merchant ID, key, pass phrase, env, URLs from `.env`.
 
