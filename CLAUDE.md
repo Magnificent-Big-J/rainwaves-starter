@@ -36,6 +36,10 @@ app/
   Models/             # User, Payment, Subscription, PaymentEvent
   Services/           # UserAdminService, PayFastCheckoutService
   Providers/          # AppServiceProvider — binds service interfaces
+    Modules/          # BillingServiceProvider — one per module, conditionally
+                       # registered in bootstrap/providers.php
+  Modules/            # ModuleManifest, ModuleRegistry, Billing/BillingModule — see
+                       # "Module registry" below
 
 resources/js/app/
   components/         # AppDataTable, AppSectionCard, MediaUploader, FormActions, FormStatusAlert, BusyOverlay, AppToastHost, AuthCard
@@ -156,6 +160,33 @@ Offline-first sync ships as a framework; apps register resources in `config/sync
 
 Database notifications with a mobile payload contract. Extend `App\Notifications\AppNotification` and implement `type()`, `title()`, `body()`, `deepLink()` (`{route, params}` the app opens on tap). Channels come from `config/mobile.php` `notification_channels` — add an FCM/APNs channel there later without touching subclasses. `SystemAnnouncementNotification` is the reference implementation.
 
+## Module registry (RS-301)
+
+Advanced capabilities are optional modules rather than baseline coupling — Billing (PayFast) is the first, and the reference implementation for Mobile/SaaS/Governance modules later. Disabling a module removes its routes, migrations, and frontend nav/UI; nothing needs to be deleted from the codebase to ship without it.
+
+**The on/off switch is one env var per module**, read directly by `bootstrap/providers.php` (this runs before the container/config exist, so it can't use `config()`):
+
+```php
+// bootstrap/providers.php
+return array_filter([
+    AppServiceProvider::class,
+    HorizonServiceProvider::class,
+    env('MODULE_BILLING_ENABLED', true) ? BillingServiceProvider::class : null,
+]);
+```
+
+A disabled module's `ServiceProvider` is simply never instantiated — no internal enabled-check needed inside it. Defaults to `true`, so every existing install/branch is unaffected unless the var is explicitly set.
+
+**`App\Modules\ModuleManifest`** (interface) — `name()`, `permissions()` (owned permission strings, documentation/introspection only — see the billing note below), `dependencies()`, `conflicts()` (other module names). **`App\Modules\Billing\BillingModule`** is the reference implementation. **`App\Modules\ModuleRegistry`** (singleton) reads `config('modules.modules')`/`config('modules.enabled')` (the same env var, read the normal way for anything running after boot), exposes `isEnabled(string $name): bool`, and validates every *enabled* module's dependencies/conflicts at construction time — throws a clear `RuntimeException` if an enabled module needs another that isn't enabled, or conflicts with one that is.
+
+**A module's `ServiceProvider` owns its own routes/migrations/rate-limiters** — `App\Providers\Modules\BillingServiceProvider` is the pattern: `loadRoutesFrom()` for `routes/modules/billing.php` (web) and `routes/modules/billing-api.php` (api — re-declares the `auth:sanctum`+`idempotency` group *and* wraps itself in `Route::prefix('api')->middleware('api')`, since `loadRoutesFrom()` from an arbitrary provider doesn't inherit the automatic `/api` prefix + `api` middleware group that `bootstrap/app.php`'s `withRouting(api: ...)` gives the one file passed there — verified empirically against `route:list`, not assumed), `loadMigrationsFrom(database_path('migrations/modules/billing'))` (the 3 subscriptions/payments/payment_events migrations physically live there, not in the flat `database/migrations/` — Laravel's default migrator always scans that flat directory regardless of any `loadMigrationsFrom()` call, so gating requires actually moving the files out; matches "already migrated" by filename not path, so this was safe for an already-migrated database), and the `payfast-initiate` rate limiter (moved here from `AppServiceProvider`).
+
+**Frontend visibility**: `GET /api/v1/web-config` gains a `modules` key (`{ billing: true|false }`), exposed via `appConfig.modules` (safe fallback: `{ billing: true }`, so a transient fetch failure never hides real functionality). A nav item declares the module it belongs to (`'module' => 'billing'` in `config/navigation.php`); `default.vue` and `customer.vue` each filter on it via a `hasModule()` predicate alongside their existing `hasPermission`/`inEnvironment` ones (both layouts filter nav independently — there's no single shared nav-filtering util). `dashboard.vue`/`customer/home.vue` wrap their billing widgets in `v-if="appConfig.modules.billing"` and skip calling `billing.fetch()` when disabled.
+
+**What this deliberately doesn't do yet** (real, separate, larger follow-up — RS-302): no physical relocation of `PayFastController`/`BillingController`/`SubscriptionController`/models/services/resources into a `modules/Billing/` directory with its own namespace — those stay in their normal `app/` locations, since only routes and migrations are things Laravel discovers by directory convention rather than PSR-4 autoloading, so only those two actually need to move for enable/disable to work. `RolesAndPermissionsSeeder` also still seeds `payments.*` unconditionally regardless of module state — harmless today since (separately, a real pre-existing gap) nothing in the codebase actually enforces those permissions anywhere yet.
+
+Proven with `tests/Unit/Modules/ModuleRegistryTest.php` (dependency/conflict validation) and `tests/Feature/ModuleDisableTest.php` — a subprocess-boundary test, same pattern as `ProductionRouteHardeningTest` below (route/provider registration happens once at boot, so it can't be exercised by flipping config mid-process): spawns real `route:list`/`migrate:fresh` processes with `MODULE_BILLING_ENABLED` set both ways, asserts routes and tables are actually present/absent accordingly, not just that the default doesn't regress.
+
 ## Web routes (PayFast)
 
 Production route table (always registered):
@@ -170,7 +201,7 @@ Production route table (always registered):
 
 `handleReturn`/`handleCancel` redirect to `/payfast-browser-test` in local/testing and `/dashboard` everywhere else. A buyer fully controls this URL (wrong id, forged token, replay) so it must never be trusted — see `tests/Feature/PayFastV2CompatibilityTest.php`.
 
-Local/testing-only (registered from `routes/payfast-local.php`, included from `routes/web.php` only when `app()->environment(['local', 'testing'])` — never present in the production route table, proven by `tests/Feature/ProductionRouteHardeningTest.php`):
+Local/testing-only (registered from `routes/payfast-local.php`, loaded by `App\Providers\Modules\BillingServiceProvider` only when `app()->environment(['local', 'testing'])` — never present in the production route table, proven by `tests/Feature/ProductionRouteHardeningTest.php`):
 
 | Method | Endpoint | Notes |
 |---|---|---|

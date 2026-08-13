@@ -58,9 +58,11 @@ const notifications = useNotificationsStore();
 const route = useRoute();
 const router = useRouter();
 
+const hasModule = (module) => !module || appConfig.modules[module] !== false;
+
 const customerNav = computed(() =>
     (appConfig.navigation.main ?? [])
-        .filter((item) => !item.surfaces || item.surfaces.includes('customer'))
+        .filter((item) => (!item.surfaces || item.surfaces.includes('customer')) && hasModule(item.module))
         .map((item) => ({ label: item.label, to: item.to }))
 );
 
