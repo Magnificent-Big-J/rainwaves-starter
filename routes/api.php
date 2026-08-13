@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\MobileAuthController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SyncController;
+use App\Http\Controllers\Api\WebConfigController;
 use App\Http\Resources\AuthUserResource;
 use App\Http\Responses\Envelope;
 use Illuminate\Http\Request;
@@ -14,6 +15,9 @@ use Illuminate\Support\Facades\Route;
 
 // Public mobile bootstrap.
 Route::get('/v1/meta', [MetaController::class, 'show'])->middleware('throttle:60,1');
+
+// Public SPA bootstrap: brand + navigation + feature flags (RS-101/RS-102).
+Route::get('/v1/web-config', [WebConfigController::class, 'show'])->middleware('throttle:60,1');
 
 // Mobile token auth (guest) — cookie SPA auth lives under /auth/session/*.
 Route::prefix('v1/auth')->middleware('throttle:mobile-auth')->group(function () {

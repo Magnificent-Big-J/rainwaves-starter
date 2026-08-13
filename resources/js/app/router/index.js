@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { handleHotUpdate, routes } from 'vue-router/auto-routes';
+import { useAppConfigStore } from '../stores/app-config';
 import { useSessionStore } from '../stores/session';
 
 const router = createRouter({
@@ -9,8 +10,11 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
     const session = useSessionStore();
+    const appConfig = useAppConfigStore();
 
-    await session.ensureLoaded();
+    // Both are needed before isAdminSurface/homeRoute (which read navigation.admin_roles
+    // and navigation.home_routes) can be trusted, so load them together.
+    await Promise.all([session.ensureLoaded(), appConfig.ensureLoaded()]);
 
     if (to.meta.requiresAuth && !session.isAuthenticated) {
         return '/auth/login';
