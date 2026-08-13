@@ -78,9 +78,15 @@ defineEmits(['select']);
     color: #0369a1;
 }
 
+/* Capped, not the row itself — .notification-item__meta/__footer both use
+   space-between (title/timestamp, category/action), which would spread apart
+   across a full fluid-width row exactly the way the page-level boxing bug
+   this file's parent page used to have. The icon column stays full-bleed;
+   only the text column reads better at a bounded width. */
 .notification-item__copy {
     display: grid;
     gap: 0.3rem;
+    max-width: 720px;
 }
 
 .notification-item__meta,
