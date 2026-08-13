@@ -63,6 +63,7 @@ Route::middleware(['auth:sanctum', 'idempotency'])->group(function () {
 
     Route::middleware('can:users.view')->group(function () {
         Route::get('/v1/users', [UserAdminController::class, 'index']);
+        Route::get('/v1/users/export', [UserAdminController::class, 'export']);
         Route::middleware('can:users.create')->post('/v1/users', [UserAdminController::class, 'store']);
         Route::middleware('can:users.update')->patch('/v1/users/{user}', [UserAdminController::class, 'update']);
         Route::middleware('can:users.delete')->delete('/v1/users/{user}', [UserAdminController::class, 'destroy']);
@@ -74,5 +75,8 @@ Route::middleware(['auth:sanctum', 'idempotency'])->group(function () {
         Route::middleware('can:roles.manage')->put('/v1/roles/{role}/permissions', [RoleAdminController::class, 'updatePermissions']);
     });
 
-    Route::middleware('can:activity.view')->get('/v1/activity-log', [ActivityLogController::class, 'index']);
+    Route::middleware('can:activity.view')->group(function () {
+        Route::get('/v1/activity-log', [ActivityLogController::class, 'index']);
+        Route::get('/v1/activity-log/export', [ActivityLogController::class, 'export']);
+    });
 });

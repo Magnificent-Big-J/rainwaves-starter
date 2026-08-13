@@ -50,7 +50,7 @@ import { onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { api } from '../../utils/api';
-import { PASSWORD_BASE } from '../../stores/auth-shared';
+import { PASSWORD_BASE, normalizeErrorMessage } from '../../stores/auth-shared';
 
 const router = useRouter();
 const submitting = ref(false);
@@ -89,7 +89,7 @@ const submit = async () => {
         }, 400);
     } catch (error) {
         messageType.value = 'error';
-        message.value = error?.data?.message || 'Unable to reset the password.';
+        message.value = normalizeErrorMessage(error, 'Unable to reset the password.');
     } finally {
         submitting.value = false;
     }

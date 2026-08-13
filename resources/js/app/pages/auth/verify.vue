@@ -56,6 +56,7 @@ import { useRouter } from 'vue-router';
 
 import { useSessionStore } from '../../stores/session';
 import { useTwoFactorStore } from '../../stores/two-factor';
+import { normalizeErrorMessage } from '../../stores/auth-shared';
 
 const router = useRouter();
 const session = useSessionStore();
@@ -90,7 +91,7 @@ const submit = async () => {
         await router.push(session.homeRoute);
     } catch (error) {
         messageType.value = 'error';
-        message.value = error?.data?.message || 'Verification failed.';
+        message.value = normalizeErrorMessage(error, 'Verification failed.');
     }
 };
 
@@ -102,7 +103,7 @@ const submitRecovery = async () => {
         await router.push(session.homeRoute);
     } catch (error) {
         messageType.value = 'error';
-        message.value = error?.data?.message || 'Recovery code verification failed.';
+        message.value = normalizeErrorMessage(error, 'Recovery code verification failed.');
     }
 };
 
@@ -115,7 +116,7 @@ const resend = async () => {
         message.value = 'A new verification code has been sent.';
     } catch (error) {
         messageType.value = 'error';
-        message.value = error?.data?.message || 'Unable to resend the verification code.';
+        message.value = normalizeErrorMessage(error, 'Unable to resend the verification code.');
     }
 };
 </script>

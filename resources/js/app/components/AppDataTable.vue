@@ -7,7 +7,10 @@
             <v-btn variant="text" size="small" @click="clearSelection">Clear</v-btn>
         </div>
 
-        <div v-else-if="$slots.toolbar || searchable || title" class="data-table__toolbar">
+        <div
+            v-else-if="$slots.toolbar || searchable || title || hideableColumns.length || props.exportHref"
+            class="data-table__toolbar"
+        >
             <div v-if="title" class="data-table__title">
                 <span>{{ title }}</span>
                 <v-chip v-if="meta" size="small" variant="tonal" color="primary">
@@ -28,68 +31,119 @@
                 @update:model-value="onSearch"
             />
             <slot name="toolbar" />
+            <v-btn
+                v-if="props.exportHref"
+                :href="props.exportHref"
+                variant="text"
+                size="small"
+                prepend-icon="mdi-file-export-outline"
+                download
+            >
+                Export
+            </v-btn>
+            <v-menu v-if="hideableColumns.length" :close-on-content-click="false">
+                <template #activator="{ props: menuProps }">
+                    <v-btn
+                        v-bind="menuProps"
+                        icon="mdi-view-column-outline"
+                        variant="text"
+                        size="small"
+                        title="Show/hide columns"
+                        aria-label="Show or hide columns"
+                    />
+                </template>
+                <v-list density="compact">
+                    <v-list-item v-for="col in hideableColumns" :key="col.key">
+                        <v-checkbox-btn
+                            :model-value="!hiddenColumns.has(col.key)"
+                            :label="col.label"
+                            density="compact"
+                            @update:model-value="toggleColumn(col.key)"
+                        />
+                    </v-list-item>
+                </v-list>
+            </v-menu>
         </div>
 
-        <v-table density="comfortable" class="data-table__table">
-            <thead>
-                <tr>
-                    <th v-if="selectable" class="data-table__select-col">
-                        <v-checkbox-btn
-                            :model-value="allOnPageSelected"
-                            :indeterminate="hasSelection && !allOnPageSelected"
-                            density="compact"
-                            @update:model-value="toggleSelectAll"
-                        />
-                    </th>
-                    <th
-                        v-for="col in columns"
-                        :key="col.key"
-                        :class="[col.class, col.sortable && 'data-table__th--sortable']"
-                        @click="col.sortable && toggleSort(col.sortKey || col.key)"
-                    >
-                        <span class="data-table__th-inner">
-                            {{ col.label }}
-                            <v-icon
-                                v-if="col.sortable"
-                                size="15"
-                                :icon="sortIcon(col.sortKey || col.key)"
-                                :class="[
-                                    'data-table__sort-icon',
-                                    sortBy === (col.sortKey || col.key) && 'data-table__sort-icon--active',
-                                ]"
+        <div class="data-table__scroll">
+            <v-table density="comfortable" class="data-table__table">
+                <colgroup>
+                    <col v-if="selectable" />
+                    <col v-for="col in columns" :key="col.key" :style="columnStyle(col)" />
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th v-if="selectable" class="data-table__select-col">
+                            <v-checkbox-btn
+                                :model-value="allOnPageSelected"
+                                :indeterminate="hasSelection && !allOnPageSelected"
+                                density="compact"
+                                aria-label="Select all rows on this page"
+                                @update:model-value="toggleSelectAll"
                             />
-                        </span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-if="loading">
-                    <td :colspan="columnCount" class="data-table__loader">
-                        <v-progress-linear indeterminate color="primary" />
-                    </td>
-                </tr>
-                <tr v-else-if="!rows.length">
-                    <td :colspan="columnCount" class="data-table__empty">
-                        <AppEmptyState :title="emptyTitle" :text="emptyText" icon="mdi-database-search-outline" />
-                    </td>
-                </tr>
-                <tr
-                    v-for="row in rows"
-                    :key="row.id ?? row"
-                    :class="['data-table__row', isSelected(row) && 'data-table__row--selected']"
-                    @click="$emit('row-click', row)"
-                >
-                    <td v-if="selectable" class="data-table__select-col" @click.stop>
-                        <v-checkbox-btn
-                            :model-value="isSelected(row)"
-                            density="compact"
-                            @update:model-value="toggleRow(row)"
-                        />
-                    </td>
-                    <slot name="row" :row="row" />
-                </tr>
-            </tbody>
-        </v-table>
+                        </th>
+                        <th
+                            v-for="col in columns"
+                            :key="col.key"
+                            :class="[col.class, col.sortable && 'data-table__th--sortable']"
+                            :tabindex="col.sortable ? 0 : undefined"
+                            :role="col.sortable ? 'button' : undefined"
+                            :aria-sort="ariaSort(col)"
+                            @click="col.sortable && toggleSort(col.sortKey || col.key)"
+                            @keydown.enter.space.prevent="col.sortable && toggleSort(col.sortKey || col.key)"
+                        >
+                            <span class="data-table__th-inner">
+                                {{ col.label }}
+                                <v-icon
+                                    v-if="col.sortable"
+                                    size="15"
+                                    :icon="sortIcon(col.sortKey || col.key)"
+                                    :class="[
+                                        'data-table__sort-icon',
+                                        sortBy === (col.sortKey || col.key) && 'data-table__sort-icon--active',
+                                    ]"
+                                />
+                            </span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-if="loading">
+                        <td :colspan="columnCount" class="data-table__loader">
+                            <v-progress-linear indeterminate color="primary" />
+                        </td>
+                    </tr>
+                    <tr v-else-if="!rows.length">
+                        <td :colspan="columnCount" class="data-table__empty">
+                            <AppEmptyState :title="emptyTitle" :text="emptyText" icon="mdi-database-search-outline" />
+                        </td>
+                    </tr>
+                    <tr
+                        v-for="row in rows"
+                        :key="row.id ?? row"
+                        :class="[
+                            'data-table__row',
+                            isSelected(row) && 'data-table__row--selected',
+                            clickableRows && 'data-table__row--clickable',
+                        ]"
+                        :tabindex="clickableRows ? 0 : undefined"
+                        :role="clickableRows ? 'button' : undefined"
+                        @click="$emit('row-click', row)"
+                        @keydown.enter.space.prevent="clickableRows && $emit('row-click', row)"
+                    >
+                        <td v-if="selectable" class="data-table__select-col" @click.stop>
+                            <v-checkbox-btn
+                                :model-value="isSelected(row)"
+                                density="compact"
+                                :aria-label="`Select row ${rowIdentity(row)}`"
+                                @update:model-value="toggleRow(row)"
+                            />
+                        </td>
+                        <slot name="row" :row="row" />
+                    </tr>
+                </tbody>
+            </v-table>
+        </div>
 
         <div v-if="meta && meta.last_page > 1" class="data-table__pagination">
             <AppPaginationBar :meta="meta" @update:page="$emit('page-change', $event)" />
@@ -98,7 +152,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const props = defineProps({
     title: { type: String, default: null },
@@ -120,6 +174,21 @@ const props = defineProps({
     selectable: { type: Boolean, default: false },
     selected: { type: Array, default: () => [] },
     rowKey: { type: String, default: 'id' },
+    // Set when the parent listens to @row-click, so keyboard users get the same
+    // affordance (tabindex + role=button + Enter/Space) mouse users get for free.
+    // Not inferred automatically — Vue has no clean way to detect "is this emit
+    // listened to" from inside the child, and guessing wrong would make every
+    // AppDataTable row a confusing no-op keyboard stop for tables that don't use it.
+    clickableRows: { type: Boolean, default: false },
+    // Persists column visibility to localStorage under `datatable:{tableId}:hidden-columns`.
+    // Omit it and the feature still works, just doesn't survive a reload.
+    tableId: { type: String, default: null },
+    // Renders a toolbar "Export" button as a plain <a href> (browser handles the
+    // download via the response's Content-Disposition, cookies included automatically
+    // — no need to fetch + blob it ourselves). The parent builds this URL from its own
+    // current filter/sort state, since AppDataTable itself only ever sees one page of
+    // rows and export needs the full filtered set from the backend.
+    exportHref: { type: String, default: null },
 });
 
 const emit = defineEmits(['search', 'page-change', 'row-click', 'sort', 'update:selected']);
@@ -141,6 +210,20 @@ const sortIcon = (key) => {
     }
 
     return props.sortDirection === 'desc' ? 'mdi-arrow-down' : 'mdi-arrow-up';
+};
+
+const ariaSort = (col) => {
+    if (!col.sortable) {
+        return undefined;
+    }
+
+    const key = col.sortKey || col.key;
+
+    if (props.sortBy !== key) {
+        return 'none';
+    }
+
+    return props.sortDirection === 'desc' ? 'descending' : 'ascending';
 };
 
 const toggleSort = (key) => {
@@ -180,6 +263,56 @@ const toggleSelectAll = () => {
 };
 
 const clearSelection = () => emit('update:selected', []);
+
+// ── Column visibility ──────────────────────────────────────────────
+const storageKey = computed(() => (props.tableId ? `datatable:${props.tableId}:hidden-columns` : null));
+
+const loadHiddenColumns = () => {
+    if (!storageKey.value) {
+        return new Set();
+    }
+
+    try {
+        const raw = window.localStorage.getItem(storageKey.value);
+
+        return raw ? new Set(JSON.parse(raw)) : new Set();
+    } catch (_error) {
+        return new Set();
+    }
+};
+
+const hiddenColumns = ref(loadHiddenColumns());
+
+watch(
+    () => props.tableId,
+    () => {
+        hiddenColumns.value = loadHiddenColumns();
+    }
+);
+
+const hideableColumns = computed(() => props.columns.filter((col) => col.hideable));
+
+const toggleColumn = (key) => {
+    const next = new Set(hiddenColumns.value);
+
+    if (next.has(key)) {
+        next.delete(key);
+    } else {
+        next.add(key);
+    }
+
+    hiddenColumns.value = next;
+
+    if (storageKey.value) {
+        window.localStorage.setItem(storageKey.value, JSON.stringify([...next]));
+    }
+};
+
+// A <col> with visibility:collapse hides that entire column (header *and* every
+// row's cell at that position) without AppDataTable needing to know or touch what
+// markup the #row slot renders for it — the alternative (a per-column cell slot
+// API) would mean rewriting every existing page's row template just for this.
+const columnStyle = (col) => (hiddenColumns.value.has(col.key) ? 'visibility: collapse' : '');
 
 defineExpose({ clearSelection });
 </script>
@@ -225,8 +358,20 @@ defineExpose({ clearSelection });
     flex: 1 1 auto;
 }
 
+.data-table__scroll {
+    overflow-x: auto;
+}
+
 .data-table__table {
     background: transparent;
+}
+
+/* A visibility:collapse'd <col> correctly zeroes its <th>/<td> width, but doesn't
+   clip their content by itself — without this, a collapsed sortable column's icon
+   visually overflows into its neighbour's space instead of disappearing. */
+.data-table__table :deep(th),
+.data-table__table :deep(td) {
+    overflow: hidden;
 }
 
 .data-table__select-col {
@@ -236,6 +381,12 @@ defineExpose({ clearSelection });
 .data-table__th--sortable {
     cursor: pointer;
     user-select: none;
+}
+
+.data-table__th--sortable:focus-visible,
+.data-table__row--clickable:focus-visible {
+    outline: 2px solid var(--rw-600, #059669);
+    outline-offset: -2px;
 }
 
 .data-table__th-inner {
@@ -260,8 +411,11 @@ defineExpose({ clearSelection });
     padding: 0 !important;
 }
 
-.data-table__row {
+.data-table__row--clickable {
     cursor: pointer;
+}
+
+.data-table__row {
     transition: background 0.15s;
 }
 
@@ -276,5 +430,56 @@ defineExpose({ clearSelection });
 .data-table__pagination {
     padding: 0.9rem 1.25rem;
     border-top: 1px solid rgba(17, 34, 51, 0.06);
+}
+
+/* ── Mobile: stack each row into a labelled card ─────────────────────
+   Relies on the #row slot's <td> elements carrying data-label="Column Name" —
+   see CLAUDE.md "AppDataTable mobile layout" for the convention. Cells without a
+   data-label (or with one that's an empty string, e.g. an actions column) render
+   without the inline label. */
+@media (max-width: 720px) {
+    .data-table__scroll {
+        overflow-x: visible;
+    }
+
+    .data-table__table :deep(thead) {
+        display: none;
+    }
+
+    .data-table__table :deep(tbody),
+    .data-table__table :deep(tr) {
+        display: block;
+        width: 100%;
+    }
+
+    .data-table__table :deep(tr.data-table__row) {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid rgba(17, 34, 51, 0.08);
+    }
+
+    .data-table__table :deep(td) {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.4rem 0 !important;
+        border: none !important;
+        text-align: right;
+    }
+
+    .data-table__table :deep(td[data-label]:not([data-label='']))::before {
+        content: attr(data-label);
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--rw-dim, #94a3b8);
+        text-align: left;
+        margin-right: auto;
+    }
+
+    .data-table__select-col {
+        justify-content: flex-end !important;
+    }
 }
 </style>

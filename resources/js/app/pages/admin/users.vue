@@ -82,6 +82,7 @@
 
                 <AppDataTable
                     ref="table"
+                    table-id="admin-users"
                     title="All users"
                     :columns="columns"
                     :rows="store.rows"
@@ -90,9 +91,11 @@
                     empty-title="No users found"
                     empty-text="Seed starter accounts or create the first admin user from this table."
                     selectable
+                    clickable-rows
                     :selected="selected"
                     :sort-by="filters.sortBy"
                     :sort-direction="filters.sortDirection"
+                    :export-href="exportHref"
                     @update:selected="selected = $event"
                     @sort="onSort"
                     @page-change="onPage"
@@ -111,7 +114,7 @@
                     </template>
 
                     <template #row="{ row }">
-                        <td>
+                        <td data-label="">
                             <div class="user-cell">
                                 <v-avatar size="34" color="primary" variant="tonal">
                                     <span class="user-cell__initials">{{ initials(row.name) }}</span>
@@ -125,16 +128,16 @@
                                 </div>
                             </div>
                         </td>
-                        <td>
+                        <td data-label="Roles">
                             <div class="role-chips">
                                 <AppStatusBadge v-for="role in row.roles" :key="role" :status="role" :label="role" />
                                 <span v-if="!row.roles?.length" class="text-muted">—</span>
                             </div>
                         </td>
-                        <td>
+                        <td data-label="Joined">
                             <span class="text-muted text-sm">{{ formatDate(row.created_at) }}</span>
                         </td>
-                        <td class="text-right">
+                        <td class="text-right" data-label="">
                             <v-btn
                                 v-if="row.archived_at"
                                 icon="mdi-backup-restore"
@@ -288,7 +291,7 @@
 </route>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 
 import AppFilterBar from '../../components/AppFilterBar.vue';
 import AppModal from '../../components/AppModal.vue';
@@ -297,20 +300,22 @@ import AppSectionCard from '../../components/AppSectionCard.vue';
 import AppStatCard from '../../components/AppStatCard.vue';
 import AppSkeleton from '../../components/AppSkeleton.vue';
 import AppTextField from '../../components/AppTextField.vue';
+import { usePersistedFilters } from '../../composables/usePersistedFilters';
 import { useAdminUsersStore } from '../../stores/admin-users';
 import { useAppErrorsStore } from '../../stores/app-errors';
-import { normalizeErrorMessage } from '../../stores/auth-shared';
+import { normalizeErrorMessage, validationErrors } from '../../stores/auth-shared';
 
 const store = useAdminUsersStore();
 
 const columns = [
     { key: 'user', label: 'User', sortable: true, sortKey: 'name' },
-    { key: 'roles', label: 'Roles' },
-    { key: 'created_at', label: 'Joined', sortable: true },
+    { key: 'roles', label: 'Roles', hideable: true },
+    { key: 'created_at', label: 'Joined', sortable: true, hideable: true },
     { key: 'actions', label: '', class: 'text-right' },
 ];
 
 const filters = reactive({ search: '', role: '', status: '', page: 1, sortBy: '', sortDirection: 'asc' });
+usePersistedFilters('admin-users', filters, { exclude: ['page'] });
 const selected = ref([]);
 const archiveTarget = ref(null);
 const archiving = ref(false);
@@ -340,6 +345,21 @@ const load = () =>
         sortBy: filters.sortBy,
         sortDirection: filters.sortDirection,
     });
+
+const exportHref = computed(() => {
+    const params = new URLSearchParams();
+
+    if (filters.search) params.set('search', filters.search);
+    if (filters.role) params.set('role', filters.role);
+    if (filters.status) params.set('status', filters.status);
+
+    if (filters.sortBy) {
+        params.set('sort_by', filters.sortBy);
+        params.set('sort_direction', filters.sortDirection);
+    }
+
+    return `/api/v1/users/export?${params}`;
+});
 
 const onSearch = (val) => {
     filters.search = val;
@@ -423,10 +443,8 @@ const submitDialog = async () => {
         closeDialog();
         await load();
     } catch (error) {
-        const data = error?.data;
-
-        dialog.errors = data?.errors ?? {};
-        dialog.message = data?.message || 'Something went wrong.';
+        dialog.errors = validationErrors(error);
+        dialog.message = normalizeErrorMessage(error);
         dialog.messageType = 'error';
     }
 };

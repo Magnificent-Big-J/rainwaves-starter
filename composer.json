@@ -12,6 +12,7 @@
         "laravel/sanctum": "^4.3",
         "laravel/tinker": "^3.0",
         "league/flysystem-aws-s3-v3": "^3.32",
+        "maatwebsite/excel": "^3.1",
         "predis/predis": "^3.4",
         "rainwaves/lara-auth-suite": "^2.1.1",
         "rainwaves/payfast-payment": "^2.0.1",

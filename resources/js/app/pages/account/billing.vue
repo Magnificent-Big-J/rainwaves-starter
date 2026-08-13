@@ -146,6 +146,17 @@
             @cancel="cancelTarget = null"
             @confirm="confirmCancel"
         />
+
+        <ConfirmDialog
+            :model-value="showLeaveConfirm"
+            title="Discard unsaved checkout details?"
+            text="You've started filling in a checkout, but haven't submitted it yet. Leaving now will discard it."
+            confirm-label="Discard"
+            confirm-color="error"
+            @update:model-value="cancelLeave"
+            @cancel="cancelLeave"
+            @confirm="confirmLeave"
+        />
     </div>
 </template>
 
@@ -160,7 +171,7 @@
 </route>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 
 import AppEmptyState from '../../components/AppEmptyState.vue';
 import AppPageHeader from '../../components/AppPageHeader.vue';
@@ -175,6 +186,7 @@ import FormStatusAlert from '../../components/FormStatusAlert.vue';
 import PaymentEventList from '../../components/PaymentEventList.vue';
 import PaymentStatusCard from '../../components/PaymentStatusCard.vue';
 import SubscriptionStatusCard from '../../components/SubscriptionStatusCard.vue';
+import { useUnsavedChanges } from '../../composables/useUnsavedChanges';
 import { useBillingStore } from '../../stores/billing';
 import { useSessionStore } from '../../stores/session';
 
@@ -190,6 +202,16 @@ const form = reactive({
     amount: '',
     billing_date: '',
 });
+
+// Set once checkout genuinely succeeds — startPayFastCheckout navigates the browser
+// away to PayFast, which fires the same beforeunload event as an accidental tab
+// close. Without this, a user who intentionally finishes checkout would still see
+// the "leave site, unsaved changes?" browser prompt on their way out.
+const leavingForCheckout = ref(false);
+const isFormDirty = computed(
+    () => !leavingForCheckout.value && Boolean(form.item_name || form.amount || form.billing_date)
+);
+const { showLeaveConfirm, confirmLeave, cancelLeave } = useUnsavedChanges(isFormDirty);
 
 const timelineEvents = ref([]);
 
@@ -220,9 +242,13 @@ const submit = async () => {
 
     const result = await billing.checkout(form.mode, payload);
 
-    if (!result.ok) {
-        formError.value = result.message;
+    if (result.ok) {
+        leavingForCheckout.value = true;
+
+        return;
     }
+
+    formError.value = result.message;
 };
 
 const confirmCancel = async () => {

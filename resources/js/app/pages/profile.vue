@@ -197,6 +197,17 @@
                 />
             </div>
         </div>
+
+        <ConfirmDialog
+            :model-value="showLeaveConfirm"
+            title="Discard unsaved changes?"
+            text="You have unsaved profile or password changes. Leaving now will discard them."
+            confirm-label="Discard changes"
+            confirm-color="error"
+            @update:model-value="cancelLeave"
+            @cancel="cancelLeave"
+            @confirm="confirmLeave"
+        />
     </div>
 </template>
 
@@ -211,7 +222,7 @@
 </route>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 
 import AppBanner from '../components/AppBanner.vue';
 import AppPageHeader from '../components/AppPageHeader.vue';
@@ -219,11 +230,14 @@ import AppSectionCard from '../components/AppSectionCard.vue';
 import AppStatCard from '../components/AppStatCard.vue';
 import AppStatusBadge from '../components/AppStatusBadge.vue';
 import AppTextField from '../components/AppTextField.vue';
+import ConfirmDialog from '../components/ConfirmDialog.vue';
 import FormActions from '../components/FormActions.vue';
 import FormStatusAlert from '../components/FormStatusAlert.vue';
 import MediaUploader from '../components/MediaUploader.vue';
 import RecoveryCodesPanel from '../components/RecoveryCodesPanel.vue';
 import TwoFactorSetupPanel from '../components/TwoFactorSetupPanel.vue';
+import { useUnsavedChanges } from '../composables/useUnsavedChanges';
+import { normalizeErrorMessage, validationErrors } from '../stores/auth-shared';
 import { useProfileStore } from '../stores/profile';
 import { useSessionStore } from '../stores/session';
 import { useTwoFactorStore } from '../stores/two-factor';
@@ -233,6 +247,7 @@ const profileStore = useProfileStore();
 const twoFactor = useTwoFactorStore();
 
 const profileForm = reactive({ name: '', email: '', avatarFile: null, removeAvatar: false });
+const profileBaseline = reactive({ name: '', email: '' });
 const profileErrors = ref({});
 const profileMsg = ref('');
 const profileMsgType = ref('success');
@@ -241,6 +256,20 @@ const passwordForm = reactive({ current_password: '', password: '', password_con
 const passwordErrors = ref({});
 const passwordMsg = ref('');
 const passwordMsgType = ref('success');
+
+const isProfileDirty = computed(
+    () =>
+        profileForm.name !== profileBaseline.name ||
+        profileForm.email !== profileBaseline.email ||
+        Boolean(profileForm.avatarFile) ||
+        profileForm.removeAvatar
+);
+const isPasswordDirty = computed(() =>
+    Boolean(passwordForm.current_password || passwordForm.password || passwordForm.password_confirmation)
+);
+const isDirty = computed(() => isProfileDirty.value || isPasswordDirty.value);
+
+const { showLeaveConfirm, confirmLeave, cancelLeave } = useUnsavedChanges(isDirty);
 
 const twoFaMsgType = ref('success');
 const twoFaMsg = ref('');
@@ -252,6 +281,8 @@ const showDisableConfirm = ref(false);
 const syncProfileForm = () => {
     profileForm.name = session.user?.name || '';
     profileForm.email = session.user?.email || '';
+    profileBaseline.name = profileForm.name;
+    profileBaseline.email = profileForm.email;
 };
 
 const saveProfile = async () => {
@@ -266,11 +297,13 @@ const saveProfile = async () => {
         });
         profileForm.avatarFile = null;
         profileForm.removeAvatar = false;
+        profileBaseline.name = profileForm.name;
+        profileBaseline.email = profileForm.email;
         profileMsg.value = 'Profile updated.';
         profileMsgType.value = 'success';
     } catch (error) {
-        profileErrors.value = error?.data?.errors ?? {};
-        profileMsg.value = error?.data?.message || 'Unable to update profile.';
+        profileErrors.value = validationErrors(error);
+        profileMsg.value = normalizeErrorMessage(error, 'Unable to update profile.');
         profileMsgType.value = 'error';
     }
 };
@@ -286,8 +319,8 @@ const savePassword = async () => {
         passwordMsg.value = 'Password changed.';
         passwordMsgType.value = 'success';
     } catch (error) {
-        passwordErrors.value = error?.data?.errors ?? {};
-        passwordMsg.value = error?.data?.message || 'Unable to change password.';
+        passwordErrors.value = validationErrors(error);
+        passwordMsg.value = normalizeErrorMessage(error, 'Unable to change password.');
         passwordMsgType.value = 'error';
     }
 };
@@ -313,7 +346,7 @@ const verifyEmailSetup = async () => {
         emailCode.value = '';
         setTwoFaMsg('success', 'Email OTP enabled. You will be asked for a code at each login.');
     } catch (error) {
-        setTwoFaMsg('error', error?.data?.message || 'Invalid code — try again.');
+        setTwoFaMsg('error', normalizeErrorMessage(error, 'Invalid code — try again.'));
     }
 };
 
@@ -327,7 +360,7 @@ const startTotpSetup = async () => {
         await twoFactor.enableTotp('', session.user?.email || '');
         setTwoFaMsg('success', 'Scan the QR code then enter the 6-digit code to complete setup.');
     } catch (error) {
-        setTwoFaMsg('error', error?.data?.message || 'Unable to start authenticator setup.');
+        setTwoFaMsg('error', normalizeErrorMessage(error, 'Unable to start authenticator setup.'));
     }
 };
 
@@ -338,7 +371,7 @@ const verifyTotp = async () => {
         await twoFactor.getStatus();
         setTwoFaMsg('success', 'Authenticator app enabled. Save your recovery codes.');
     } catch (error) {
-        setTwoFaMsg('error', error?.data?.message || 'Invalid code — try again.');
+        setTwoFaMsg('error', normalizeErrorMessage(error, 'Invalid code — try again.'));
     }
 };
 
@@ -347,7 +380,7 @@ const sendEmailCode = async () => {
     try {
         await twoFactor.resendLoginCode('');
     } catch (error) {
-        setTwoFaMsg('error', error?.data?.message || 'Unable to send code.');
+        setTwoFaMsg('error', normalizeErrorMessage(error, 'Unable to send code.'));
     }
 };
 
@@ -356,7 +389,7 @@ const regenerateCodes = async () => {
         await twoFactor.regenerateRecoveryCodes(twoFaPassword.value);
         setTwoFaMsg('success', 'Recovery codes regenerated.');
     } catch (error) {
-        setTwoFaMsg('error', error?.data?.message || 'Unable to regenerate codes.');
+        setTwoFaMsg('error', normalizeErrorMessage(error, 'Unable to regenerate codes.'));
     }
 };
 
@@ -368,7 +401,7 @@ const disableTwoFactor = async () => {
         showDisableConfirm.value = false;
         setTwoFaMsg('success', 'Two-factor authentication disabled.');
     } catch (error) {
-        setTwoFaMsg('error', error?.data?.message || 'Unable to disable 2FA.');
+        setTwoFaMsg('error', normalizeErrorMessage(error, 'Unable to disable 2FA.'));
     }
 };
 

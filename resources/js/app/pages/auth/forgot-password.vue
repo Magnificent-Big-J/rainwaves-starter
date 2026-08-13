@@ -34,7 +34,7 @@
 import { ref } from 'vue';
 
 import { api } from '../../utils/api';
-import { PASSWORD_BASE } from '../../stores/auth-shared';
+import { PASSWORD_BASE, normalizeErrorMessage } from '../../stores/auth-shared';
 
 const email = ref('');
 const message = ref('');
@@ -57,7 +57,7 @@ const submit = async () => {
         message.value = 'If the account exists, reset instructions have been sent.';
     } catch (error) {
         messageType.value = 'error';
-        message.value = error?.data?.message || 'Unable to start password recovery.';
+        message.value = normalizeErrorMessage(error, 'Unable to start password recovery.');
     } finally {
         submitting.value = false;
     }

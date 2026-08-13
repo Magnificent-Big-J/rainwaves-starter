@@ -2,8 +2,10 @@
 
 namespace Tests\Feature\Api\Admin;
 
+use App\Exports\CollectionExport;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Maatwebsite\Excel\Facades\Excel;
 use Tests\TestCase;
 
 class ActivityLogTest extends TestCase
@@ -54,5 +56,31 @@ class ActivityLogTest extends TestCase
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.description', 'Security event');
+    }
+
+    public function test_export_requires_activity_view_permission(): void
+    {
+        $customer = User::where('email', 'customer@rainwaves.test')->firstOrFail();
+
+        $this->actingAs($customer)
+            ->get('/api/v1/activity-log/export')
+            ->assertStatus(403);
+    }
+
+    public function test_export_respects_the_log_name_filter(): void
+    {
+        Excel::fake();
+
+        $owner = User::where('email', 'owner@rainwaves.test')->firstOrFail();
+
+        activity('security')->causedBy($owner)->log('Security event');
+        activity('other')->causedBy($owner)->log('Other event');
+
+        $this->actingAs($owner)->get('/api/v1/activity-log/export?log_name=security')->assertOk();
+
+        Excel::assertDownloaded(
+            'audit-log.xlsx',
+            fn (CollectionExport $export) => $export->collection()->pluck('description')->all() === ['Security event'],
+        );
     }
 }
