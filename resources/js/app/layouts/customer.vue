@@ -22,6 +22,33 @@
                 </nav>
 
                 <div class="customer-actions">
+                    <div v-if="showTeamSwitcher" class="team-switcher">
+                        <v-menu v-if="team.teams.length">
+                            <template #activator="{ props: menuProps }">
+                                <button class="team-switcher__button" v-bind="menuProps">
+                                    <v-icon size="16" class="team-switcher__icon">mdi-account-multiple-outline</v-icon>
+                                    <span class="team-switcher__name">{{ team.team?.name ?? 'Select a team' }}</span>
+                                    <v-icon size="16">mdi-unfold-more-horizontal</v-icon>
+                                </button>
+                            </template>
+                            <v-list density="compact">
+                                <v-list-item
+                                    v-for="teamOption in team.teams"
+                                    :key="teamOption.id"
+                                    :title="teamOption.name"
+                                    :active="teamOption.id === team.team?.id"
+                                    @click="onSwitchTeam(teamOption.id)"
+                                />
+                                <v-divider />
+                                <v-list-item title="Create new team" prepend-icon="mdi-plus" to="/account/team" />
+                            </v-list>
+                        </v-menu>
+                        <RouterLink v-else to="/account/team" class="team-switcher__empty">
+                            <v-icon size="16">mdi-plus</v-icon>
+                            Create a team
+                        </RouterLink>
+                    </div>
+
                     <AppNotificationPanel />
 
                     <RouterLink to="/profile" class="customer-profile">
@@ -51,14 +78,17 @@ import AppNotificationPanel from '../components/AppNotificationPanel.vue';
 import { useAppConfigStore } from '../stores/app-config';
 import { useNotificationsStore } from '../stores/notifications';
 import { useSessionStore } from '../stores/session';
+import { useTeamStore } from '../stores/team';
 
 const session = useSessionStore();
 const appConfig = useAppConfigStore();
 const notifications = useNotificationsStore();
+const team = useTeamStore();
 const route = useRoute();
 const router = useRouter();
 
 const hasModule = (module) => !module || appConfig.modules[module] !== false;
+const showTeamSwitcher = computed(() => appConfig.modules.teams !== false);
 
 const customerNav = computed(() =>
     (appConfig.navigation.main ?? [])
@@ -82,11 +112,25 @@ const logout = async () => {
     router.push('/auth/login');
 };
 
+const onSwitchTeam = async (teamId) => {
+    if (teamId === team.team?.id) {
+        return;
+    }
+
+    const result = await team.switchTeam(teamId);
+
+    if (result.ok) {
+        router.push('/account/team');
+    }
+};
+
 watch(
     () => session.isAuthenticated,
     (authenticated) => {
         if (authenticated) {
             notifications.fetch();
+            team.fetch();
+            team.fetchTeams();
         }
     },
     { immediate: true }
@@ -179,6 +223,63 @@ watch(
     display: inline-flex;
     align-items: center;
     gap: 0.75rem;
+}
+
+.team-switcher {
+    display: inline-flex;
+}
+
+.team-switcher__button {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    max-width: 160px;
+    padding: 0.4rem 0.7rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--rw-ink);
+    cursor: pointer;
+    transition: background 0.12s;
+}
+
+.team-switcher__button:hover {
+    background: rgba(255, 255, 255, 1);
+}
+
+.team-switcher__icon {
+    flex-shrink: 0;
+    opacity: 0.75;
+}
+
+.team-switcher__name {
+    min-width: 0;
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.team-switcher__empty {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.7rem;
+    border: 1px dashed rgba(15, 23, 42, 0.16);
+    border-radius: 999px;
+    color: var(--rw-dim);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+        background 0.12s,
+        color 0.12s;
+}
+
+.team-switcher__empty:hover {
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--rw-ink);
 }
 
 .customer-profile {

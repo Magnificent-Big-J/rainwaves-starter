@@ -30,6 +30,16 @@ export const validationErrors = (error) => {
     return error?.data?.errors || {};
 };
 
+// Used by login/register/verify to return the user to wherever they were headed
+// before the auth flow interrupted them (e.g. a team invite link) — no other
+// mechanism for this exists in the router today, so each of those pages checks
+// route.query.redirect independently rather than session.homeRoute always winning.
+// Only ever a same-origin relative path: a leading "/" but not "//" (protocol-
+// relative, e.g. "//evil.com") rules out sending a signed-in user off-site.
+export const safeRedirectPath = (redirect) => {
+    return typeof redirect === 'string' && redirect.startsWith('/') && !redirect.startsWith('//') ? redirect : null;
+};
+
 export const loadPendingTwoFactorState = () => {
     const raw = window.localStorage.getItem(PENDING_TWO_FACTOR_STORAGE_KEY);
 

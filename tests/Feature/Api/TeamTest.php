@@ -29,6 +29,20 @@ class TeamTest extends TestCase
             ->assertJsonPath('data.my_role', null);
     }
 
+    public function test_index_lists_only_teams_the_caller_belongs_to(): void
+    {
+        $user = User::factory()->create();
+        $mine = $this->createTeamFor($user);
+        $other = User::factory()->create();
+        $this->createTeamFor($other);
+
+        $response = $this->actingAs($user)->getJson('/api/v1/teams')->assertOk();
+
+        $ids = collect($response->json('data'))->pluck('id')->all();
+
+        $this->assertSame([$mine->id], $ids);
+    }
+
     public function test_creating_a_team_makes_the_caller_its_owner_and_active_team(): void
     {
         $user = User::factory()->create();

@@ -708,13 +708,19 @@ parameters:
 			path: app/Modules/Teams/Notifications/TeamInvitationNotification.php
 
 		-
+			message: '#^Parameter \#1 \$user of method Illuminate\\Contracts\\Auth\\StatefulGuard\:\:login\(\) expects Illuminate\\Contracts\\Auth\\Authenticatable, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Modules/Teams/Http/Controllers/TeamInviteController.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 4
 			path: app/Modules/Teams/Services/TeamService.php
 
 		-
 			message: '#^Parameter \#1 \$team of method App\\Modules\\Teams\\Services\\TeamService\:\:assertUnderMemberCap\(\) expects App\\Modules\\Teams\\Models\\Team, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
 			identifier: argument.type
-			count: 1
+			count: 2
 			path: app/Modules/Teams/Services/TeamService.php

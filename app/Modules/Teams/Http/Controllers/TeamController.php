@@ -19,6 +19,12 @@ class TeamController extends Controller
         private readonly TeamServiceInterface $teams
     ) {}
 
+    /** Every team the caller belongs to — powers the sidebar team switcher. */
+    public function index(Request $request): JsonResponse
+    {
+        return Envelope::success(TeamResource::collection($this->teams->teamsFor($request->user())));
+    }
+
     /** The caller's active team — null data if they don't have one yet, not a 404. */
     public function show(Request $request): JsonResponse
     {

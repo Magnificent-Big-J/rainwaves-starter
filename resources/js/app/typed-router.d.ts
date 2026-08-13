@@ -65,6 +65,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/account/team': RouteRecordInfo<
+      '/account/team',
+      '/account/team',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/account/team-members': RouteRecordInfo<
+      '/account/team-members',
+      '/account/team-members',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/admin/audit-log': RouteRecordInfo<
       '/admin/audit-log',
       '/admin/audit-log',
@@ -198,6 +212,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/team-invites/[token]': RouteRecordInfo<
+      '/team-invites/[token]',
+      '/team-invites/:token',
+      { token: ParamValue<true> },
+      { token: ParamValue<false> },
+      | never
+    >,
   }
 
   /**
@@ -238,6 +259,18 @@ declare module 'vue-router/auto-routes' {
     'resources/js/app/pages/account/sessions.vue': {
       routes:
         | '/account/sessions'
+      views:
+        | never
+    }
+    'resources/js/app/pages/account/team.vue': {
+      routes:
+        | '/account/team'
+      views:
+        | never
+    }
+    'resources/js/app/pages/account/team-members.vue': {
+      routes:
+        | '/account/team-members'
       views:
         | never
     }
@@ -352,6 +385,12 @@ declare module 'vue-router/auto-routes' {
     'resources/js/app/pages/support.vue': {
       routes:
         | '/support'
+      views:
+        | never
+    }
+    'resources/js/app/pages/team-invites/[token].vue': {
+      routes:
+        | '/team-invites/[token]'
       views:
         | never
     }

@@ -8,10 +8,14 @@ use App\Modules\Teams\Models\Team;
 use App\Modules\Teams\Models\TeamInvite;
 use App\Modules\Teams\Models\TeamMembership;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 interface TeamServiceInterface
 {
     public function create(User $owner, string $name): Team;
+
+    /** Every team $user is a member of, not just their current active one — powers the sidebar team switcher. */
+    public function teamsFor(User $user): Collection;
 
     /** The caller's membership row for $team, or null if they aren't a member — the shared authorization lookup every team controller needs. */
     public function membershipFor(Team $team, User $user): ?TeamMembership;
@@ -50,6 +54,18 @@ interface TeamServiceInterface
      *                           the team is at its member cap
      */
     public function acceptInvite(string $token, User $user): TeamMembership;
+
+    /**
+     * For an invitee who has no account yet — bypasses the general registration gate
+     * entirely (own path, not routed through lara-auth-suite's RegistrationController)
+     * since a valid invite token, delivered to a real inbox, is its own authorization
+     * to create an account, independent of whether public self-registration is open.
+     *
+     * @throws \RuntimeException if the token is unknown/expired/already accepted, an
+     *                           account with that email already exists, or the team
+     *                           is at its member cap
+     */
+    public function registerAndAcceptInvite(string $token, string $name, string $password): TeamMembership;
 
     /** Platform-wide overview — every team regardless of the caller's membership. */
     public function paginateAllTeams(

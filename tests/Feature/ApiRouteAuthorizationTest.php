@@ -18,6 +18,10 @@ class ApiRouteAuthorizationTest extends TestCase
     private const PUBLIC_MUTATING_ROUTES = [
         'api/v1/auth/login',
         'api/v1/auth/two-factor',
+        // An invitee accepting a team invite has no account yet — see
+        // TeamService::registerAndAcceptInvite(), which deliberately bypasses the
+        // general registration gate rather than requiring it to be open.
+        'api/v1/team-invites/{token}/register',
     ];
 
     public function test_every_mutating_api_v1_route_requires_authentication_unless_explicitly_public(): void
