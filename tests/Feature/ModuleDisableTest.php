@@ -7,11 +7,12 @@ use Symfony\Component\Process\Process;
 use Tests\TestCase;
 
 /**
- * RS-301 evidence: toggling MODULE_BILLING_ENABLED actually changes what's registered
- * — not just that the default (enabled) behaves like before. Both the provider
- * registration (bootstrap/providers.php) and migration path decisions happen once at
- * boot, so — same reasoning as ProductionRouteHardeningTest — this exercises real
- * subprocesses rather than flipping config mid-process.
+ * RS-301 evidence: toggling MODULE_BILLING_ENABLED/MODULE_MOBILE_ENABLED actually
+ * changes what's registered — not just that the default (enabled) behaves like
+ * before. Both the provider registration (bootstrap/providers.php) and migration
+ * path decisions happen once at boot, so — same reasoning as
+ * ProductionRouteHardeningTest — this exercises real subprocesses rather than
+ * flipping config mid-process.
  */
 class ModuleDisableTest extends TestCase
 {
@@ -65,6 +66,62 @@ class ModuleDisableTest extends TestCase
         }
     }
 
+    public function test_mobile_routes_are_absent_when_the_module_is_disabled(): void
+    {
+        $uris = array_column($this->routesFor(['MODULE_MOBILE_ENABLED' => 'false']), 'uri');
+
+        foreach ($this->mobileUris() as $uri) {
+            $this->assertNotContains($uri, $uris, "Mobile route [{$uri}] must not be registered when the module is disabled.");
+        }
+
+        // /v1/ping and /v1/me are generic authenticated-envelope endpoints owned by
+        // core routes/api.php, not the mobile module — must survive the module being
+        // disabled, proving this is a scoped removal, not a broken route table.
+        $this->assertContains('api/v1/ping', $uris);
+        $this->assertContains('api/v1/me', $uris);
+    }
+
+    public function test_mobile_routes_are_present_when_the_module_is_enabled(): void
+    {
+        $uris = array_column($this->routesFor(['MODULE_MOBILE_ENABLED' => 'true']), 'uri');
+
+        foreach ($this->mobileUris() as $uri) {
+            $this->assertContains($uri, $uris, "Mobile route [{$uri}] must be registered when the module is enabled.");
+        }
+    }
+
+    public function test_mobile_routes_are_present_by_default(): void
+    {
+        // No MODULE_MOBILE_ENABLED override at all — proves the default (unset env)
+        // preserves pre-module-registry behaviour, not just the explicit "true" case.
+        $uris = array_column($this->routesFor([]), 'uri');
+
+        foreach ($this->mobileUris() as $uri) {
+            $this->assertContains($uri, $uris, "Mobile route [{$uri}] must be registered by default.");
+        }
+    }
+
+    public function test_migrate_fresh_does_not_create_mobile_tables_when_the_module_is_disabled(): void
+    {
+        $tables = $this->tablesAfterMigrateFresh(['MODULE_MOBILE_ENABLED' => 'false']);
+
+        foreach (['devices', 'sync_operations', 'sync_tombstones'] as $table) {
+            $this->assertNotContains($table, $tables, "Table [{$table}] must not exist when the mobile module is disabled.");
+        }
+
+        // Non-mobile tables must still exist — proves this is a scoped, not a broken, migration run.
+        $this->assertContains('users', $tables);
+    }
+
+    public function test_migrate_fresh_creates_mobile_tables_when_the_module_is_enabled(): void
+    {
+        $tables = $this->tablesAfterMigrateFresh(['MODULE_MOBILE_ENABLED' => 'true']);
+
+        foreach (['devices', 'sync_operations', 'sync_tombstones'] as $table) {
+            $this->assertContains($table, $tables);
+        }
+    }
+
     /** @return list<string> */
     private function billingUris(): array
     {
@@ -77,6 +134,21 @@ class ModuleDisableTest extends TestCase
             'api/v1/billing',
             'api/v1/subscriptions',
             'api/v1/subscriptions/{subscription}/cancel',
+        ];
+    }
+
+    /** @return list<string> */
+    private function mobileUris(): array
+    {
+        return [
+            'api/v1/meta',
+            'api/v1/auth/login',
+            'api/v1/auth/two-factor',
+            'api/v1/auth/logout',
+            'api/v1/devices',
+            'api/v1/devices/{uuid}',
+            'api/v1/sync/operations',
+            'api/v1/sync/delta',
         ];
     }
 

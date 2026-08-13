@@ -3,51 +3,31 @@
 use App\Http\Controllers\Api\Admin\ActivityLogController;
 use App\Http\Controllers\Api\Admin\RoleAdminController;
 use App\Http\Controllers\Api\Admin\UserAdminController;
-use App\Http\Controllers\Api\DeviceController;
-use App\Http\Controllers\Api\MetaController;
-use App\Http\Controllers\Api\MobileAuthController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SessionController;
-use App\Http\Controllers\Api\SyncController;
 use App\Http\Controllers\Api\WebConfigController;
 use App\Http\Resources\AuthUserResource;
 use App\Http\Responses\Envelope;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// Public mobile bootstrap.
-Route::get('/v1/meta', [MetaController::class, 'show'])->middleware('throttle:60,1');
-
 // Public SPA bootstrap: brand + navigation + feature flags (RS-101/RS-102).
 Route::get('/v1/web-config', [WebConfigController::class, 'show'])->middleware('throttle:60,1');
-
-// Mobile token auth (guest) — cookie SPA auth lives under /auth/session/*.
-Route::prefix('v1/auth')->middleware('throttle:mobile-auth')->group(function () {
-    Route::post('/login', [MobileAuthController::class, 'login']);
-    Route::post('/two-factor', [MobileAuthController::class, 'twoFactor']);
-});
 
 // idempotency only engages on mutating requests carrying an Idempotency-Key.
 //
 // Billing/subscription routes (/v1/billing, /v1/subscriptions*) live in
 // routes/modules/billing-api.php, loaded by App\Providers\Modules\BillingServiceProvider
-// — see RS-301/config/modules.php. That file re-declares this same auth:sanctum +
-// idempotency wrapper locally, since loadRoutesFrom() doesn't inherit an outer group
-// from a different file.
+// — see RS-301/config/modules.php. Mobile bootstrap/auth/devices/sync routes
+// (/v1/meta, /v1/auth/login|two-factor|logout, /v1/devices*, /v1/sync/*) live in
+// routes/modules/mobile-api.php, loaded by App\Providers\Modules\MobileServiceProvider.
+// Both module route files re-declare this same auth:sanctum + idempotency wrapper
+// locally, since loadRoutesFrom() doesn't inherit an outer group from a different file.
 Route::middleware(['auth:sanctum', 'idempotency'])->group(function () {
-    Route::post('/v1/auth/logout', [MobileAuthController::class, 'logout']);
-
     Route::get('/v1/ping', fn () => Envelope::success(['status' => 'ok']));
 
     Route::get('/v1/me', fn (Request $request) => Envelope::success(new AuthUserResource($request->user())));
-
-    Route::get('/v1/devices', [DeviceController::class, 'index']);
-    Route::post('/v1/devices', [DeviceController::class, 'store']);
-    Route::delete('/v1/devices/{uuid}', [DeviceController::class, 'destroy']);
-
-    Route::post('/v1/sync/operations', [SyncController::class, 'operations']);
-    Route::get('/v1/sync/delta', [SyncController::class, 'delta']);
 
     Route::get('/v1/notifications', [NotificationController::class, 'index']);
     Route::post('/v1/notifications/read-all', [NotificationController::class, 'markAllRead']);

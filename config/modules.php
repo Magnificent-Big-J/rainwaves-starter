@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Billing\BillingModule;
+use App\Modules\Mobile\MobileModule;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,9 +20,11 @@ use App\Modules\Billing\BillingModule;
 return [
     'modules' => [
         BillingModule::class,
+        MobileModule::class,
     ],
 
     'enabled' => [
         'billing' => env('MODULE_BILLING_ENABLED', true),
+        'mobile' => env('MODULE_MOBILE_ENABLED', true),
     ],
 ];
