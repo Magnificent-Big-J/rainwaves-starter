@@ -65,6 +65,8 @@ Route::middleware(['auth:sanctum', 'idempotency'])->group(function () {
         Route::get('/v1/users', [UserAdminController::class, 'index']);
         Route::middleware('can:users.create')->post('/v1/users', [UserAdminController::class, 'store']);
         Route::middleware('can:users.update')->patch('/v1/users/{user}', [UserAdminController::class, 'update']);
+        Route::middleware('can:users.delete')->delete('/v1/users/{user}', [UserAdminController::class, 'destroy']);
+        Route::middleware('can:users.delete')->post('/v1/users/{user}/restore', [UserAdminController::class, 'restore'])->withTrashed();
     });
 
     Route::middleware('can:roles.view')->group(function () {

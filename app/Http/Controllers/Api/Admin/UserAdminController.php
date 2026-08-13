@@ -11,6 +11,7 @@ use App\Http\Responses\Envelope;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use RuntimeException;
 
 class UserAdminController extends Controller
 {
@@ -23,8 +24,11 @@ class UserAdminController extends Controller
         $perPage = max(1, min((int) $request->integer('per_page', 10), 100));
         $search = $request->string('search')->toString() ?: null;
         $role = $request->string('role')->toString() ?: null;
+        $status = $request->string('status')->toString() ?: null;
+        $sortBy = $request->string('sort_by')->toString() ?: null;
+        $sortDirection = $request->string('sort_direction')->toString() ?: 'asc';
 
-        $users = $this->service->paginate($perPage, $search, $role);
+        $users = $this->service->paginate($perPage, $search, $role, $status, $sortBy, $sortDirection);
 
         return Envelope::success(UserAdminResource::collection($users), '', [
             'options' => [
@@ -46,5 +50,27 @@ class UserAdminController extends Controller
         $updated = $this->service->update($user, $request->validated());
 
         return Envelope::success(new UserAdminResource($updated), 'User updated.');
+    }
+
+    public function destroy(Request $request, User $user): JsonResponse
+    {
+        if ($user->is($request->user())) {
+            return Envelope::error('You cannot archive your own account.', [], 422);
+        }
+
+        try {
+            $archived = $this->service->archive($user);
+        } catch (RuntimeException $exception) {
+            return Envelope::error($exception->getMessage(), [], 422);
+        }
+
+        return Envelope::success(new UserAdminResource($archived), 'User archived.');
+    }
+
+    public function restore(User $user): JsonResponse
+    {
+        $restored = $this->service->restore($user);
+
+        return Envelope::success(new UserAdminResource($restored), 'User restored.');
     }
 }

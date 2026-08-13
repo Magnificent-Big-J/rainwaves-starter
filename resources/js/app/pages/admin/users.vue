@@ -65,11 +65,23 @@
                         ]"
                         label="Filter by role"
                         class="admin-users__role-filter"
-                        @update:model-value="onRoleFilter"
+                        @update:model-value="onFilterChange"
+                    />
+                    <AppSelect
+                        v-model="filters.status"
+                        :items="[
+                            { title: 'Active', value: '' },
+                            { title: 'Archived', value: 'archived' },
+                            { title: 'All', value: 'all' },
+                        ]"
+                        label="Status"
+                        class="admin-users__status-filter"
+                        @update:model-value="onFilterChange"
                     />
                 </AppFilterBar>
 
                 <AppDataTable
+                    ref="table"
                     title="All users"
                     :columns="columns"
                     :rows="store.rows"
@@ -77,9 +89,27 @@
                     :loading="store.loading"
                     empty-title="No users found"
                     empty-text="Seed starter accounts or create the first admin user from this table."
+                    selectable
+                    :selected="selected"
+                    :sort-by="filters.sortBy"
+                    :sort-direction="filters.sortDirection"
+                    @update:selected="selected = $event"
+                    @sort="onSort"
                     @page-change="onPage"
                     @row-click="openEdit"
                 >
+                    <template #bulk-actions="{ selected: selectedIds, clear }">
+                        <v-btn
+                            variant="tonal"
+                            size="small"
+                            color="error"
+                            prepend-icon="mdi-archive-arrow-down-outline"
+                            @click="confirmBulkArchive(selectedIds, clear)"
+                        >
+                            Archive selected
+                        </v-btn>
+                    </template>
+
                     <template #row="{ row }">
                         <td>
                             <div class="user-cell">
@@ -87,7 +117,10 @@
                                     <span class="user-cell__initials">{{ initials(row.name) }}</span>
                                 </v-avatar>
                                 <div>
-                                    <div class="user-cell__name">{{ row.name }}</div>
+                                    <div class="user-cell__name">
+                                        {{ row.name }}
+                                        <AppStatusBadge v-if="row.archived_at" status="inactive" label="Archived" />
+                                    </div>
                                     <div class="user-cell__email">{{ row.email }}</div>
                                 </div>
                             </div>
@@ -101,8 +134,30 @@
                         <td>
                             <span class="text-muted text-sm">{{ formatDate(row.created_at) }}</span>
                         </td>
-                        <td>
-                            <v-btn icon="mdi-pencil-outline" size="small" variant="text" @click.stop="openEdit(row)" />
+                        <td class="text-right">
+                            <v-btn
+                                v-if="row.archived_at"
+                                icon="mdi-backup-restore"
+                                size="small"
+                                variant="text"
+                                title="Restore"
+                                @click.stop="restoreUser(row)"
+                            />
+                            <template v-else>
+                                <v-btn
+                                    icon="mdi-pencil-outline"
+                                    size="small"
+                                    variant="text"
+                                    @click.stop="openEdit(row)"
+                                />
+                                <v-btn
+                                    icon="mdi-archive-arrow-down-outline"
+                                    size="small"
+                                    variant="text"
+                                    title="Archive"
+                                    @click.stop="archiveTarget = row"
+                                />
+                            </template>
                         </td>
                     </template>
                 </AppDataTable>
@@ -195,6 +250,29 @@
             @confirm="confirmSeed.open = false"
             @cancel="confirmSeed.open = false"
         />
+
+        <ConfirmDialog
+            :model-value="Boolean(archiveTarget)"
+            title="Archive this user?"
+            :text="`${archiveTarget?.name ?? ''} will no longer be able to sign in. You can restore them at any time from the Archived filter.`"
+            confirm-label="Archive"
+            confirm-color="error"
+            :loading="archiving"
+            @update:model-value="archiveTarget = null"
+            @cancel="archiveTarget = null"
+            @confirm="confirmArchive"
+        />
+
+        <ConfirmDialog
+            v-model="bulkArchiveDialog.open"
+            title="Archive selected users?"
+            :text="`${bulkArchiveDialog.ids.length} user(s) will no longer be able to sign in.`"
+            confirm-label="Archive"
+            confirm-color="error"
+            :loading="archiving"
+            @confirm="runBulkArchive"
+            @cancel="bulkArchiveDialog.open = false"
+        />
     </div>
 </template>
 
@@ -210,7 +288,7 @@
 </route>
 
 <script setup>
-import { onMounted, reactive } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 
 import AppFilterBar from '../../components/AppFilterBar.vue';
 import AppModal from '../../components/AppModal.vue';
@@ -220,17 +298,24 @@ import AppStatCard from '../../components/AppStatCard.vue';
 import AppSkeleton from '../../components/AppSkeleton.vue';
 import AppTextField from '../../components/AppTextField.vue';
 import { useAdminUsersStore } from '../../stores/admin-users';
+import { useAppErrorsStore } from '../../stores/app-errors';
+import { normalizeErrorMessage } from '../../stores/auth-shared';
 
 const store = useAdminUsersStore();
 
 const columns = [
-    { key: 'user', label: 'User' },
+    { key: 'user', label: 'User', sortable: true, sortKey: 'name' },
     { key: 'roles', label: 'Roles' },
-    { key: 'created_at', label: 'Joined' },
+    { key: 'created_at', label: 'Joined', sortable: true },
     { key: 'actions', label: '', class: 'text-right' },
 ];
 
-const filters = reactive({ search: '', role: '', page: 1 });
+const filters = reactive({ search: '', role: '', status: '', page: 1, sortBy: '', sortDirection: 'asc' });
+const selected = ref([]);
+const archiveTarget = ref(null);
+const archiving = ref(false);
+const bulkArchiveDialog = reactive({ open: false, ids: [], clear: null });
+const table = ref(null);
 
 const dialog = reactive({
     open: false,
@@ -246,7 +331,15 @@ const confirmSeed = reactive({
     open: false,
 });
 
-const load = () => store.fetch({ page: filters.page, search: filters.search, role: filters.role });
+const load = () =>
+    store.fetch({
+        page: filters.page,
+        search: filters.search,
+        role: filters.role,
+        status: filters.status,
+        sortBy: filters.sortBy,
+        sortDirection: filters.sortDirection,
+    });
 
 const onSearch = (val) => {
     filters.search = val;
@@ -259,8 +352,15 @@ const onPage = (page) => {
     load();
 };
 
-const onRoleFilter = () => {
+const onFilterChange = () => {
     filters.page = 1;
+    selected.value = [];
+    load();
+};
+
+const onSort = ({ sortBy, sortDirection }) => {
+    filters.sortBy = sortBy;
+    filters.sortDirection = sortDirection;
     load();
 };
 
@@ -331,6 +431,59 @@ const submitDialog = async () => {
     }
 };
 
+const confirmArchive = async () => {
+    if (!archiveTarget.value) {
+        return;
+    }
+
+    archiving.value = true;
+
+    try {
+        await store.archive(archiveTarget.value.id);
+        archiveTarget.value = null;
+        await load();
+    } catch (error) {
+        useAppErrorsStore().show({ message: normalizeErrorMessage(error, 'Unable to archive that user.') });
+    } finally {
+        archiving.value = false;
+    }
+};
+
+const restoreUser = async (row) => {
+    try {
+        await store.restore(row.id);
+        await load();
+    } catch (error) {
+        useAppErrorsStore().show({ message: normalizeErrorMessage(error, 'Unable to restore that user.') });
+    }
+};
+
+const confirmBulkArchive = (ids, clear) => {
+    bulkArchiveDialog.open = true;
+    bulkArchiveDialog.ids = ids;
+    bulkArchiveDialog.clear = clear;
+};
+
+const runBulkArchive = async () => {
+    archiving.value = true;
+
+    try {
+        const { succeeded, failed } = await store.bulkArchive(bulkArchiveDialog.ids);
+
+        if (failed > 0) {
+            useAppErrorsStore().show({
+                message: `${succeeded} user(s) archived, ${failed} could not be archived (e.g. the last super-admin).`,
+            });
+        }
+
+        bulkArchiveDialog.clear?.();
+        bulkArchiveDialog.open = false;
+        await load();
+    } finally {
+        archiving.value = false;
+    }
+};
+
 onMounted(load);
 </script>
 
@@ -352,8 +505,13 @@ onMounted(load);
     gap: 0.9rem;
 }
 
-.admin-users__role-filter {
-    min-width: 220px;
+.admin-users__role-filter,
+.admin-users__status-filter {
+    min-width: 180px;
+}
+
+.text-right {
+    text-align: right;
 }
 
 .admin-users__search {
@@ -373,6 +531,9 @@ onMounted(load);
 }
 
 .user-cell__name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-weight: 600;
     font-size: 0.9rem;
 }

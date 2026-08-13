@@ -121,6 +121,12 @@ parameters:
 			path: app/Http/Resources/Admin/UserAdminResource.php
 
 		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\Admin\\UserAdminResource\:\:\$deleted_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/Admin/UserAdminResource.php
+
+		-
 			message: '#^Access to an undefined property App\\Http\\Resources\\Admin\\UserAdminResource\:\:\$email\.$#'
 			identifier: property.notFound
 			count: 1
