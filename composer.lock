@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "847a8c492c55ed4d26837d52e4a6b27b",
+    "content-hash": "e71579b0d374af65e60dd163da1bbf93",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -1902,16 +1902,16 @@
         },
         {
             "name": "league/commonmark",
-            "version": "2.8.3",
+            "version": "2.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/commonmark.git",
-                "reference": "1902f60f984235023acbe03db6ad614a37b3c3e7"
+                "reference": "d2d1aa8b35e072966c89bc0c66cf926e56767dc4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/1902f60f984235023acbe03db6ad614a37b3c3e7",
-                "reference": "1902f60f984235023acbe03db6ad614a37b3c3e7",
+                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/d2d1aa8b35e072966c89bc0c66cf926e56767dc4",
+                "reference": "d2d1aa8b35e072966c89bc0c66cf926e56767dc4",
                 "shasum": ""
             },
             "require": {
@@ -1948,7 +1948,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "2.9-dev"
+                    "dev-main": "2.11-dev"
                 }
             },
             "autoload": {
@@ -2005,7 +2005,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-07-12T15:29:16+00:00"
+            "time": "2026-08-11T16:06:25+00:00"
         },
         {
             "name": "league/config",
@@ -3800,11 +3800,17 @@
         },
         {
             "name": "rainwaves/lara-auth-suite",
-            "version": "2.1.1",
-            "dist": {
-                "type": "path",
-                "url": "/home/eclaims/package-development/rainwaves/lara-auth-suite",
+            "version": "v2.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Magnificent-Big-J/lara-auth-suite.git",
                 "reference": "8121072558f3ca2ce99a9e986b60dd990094b470"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Magnificent-Big-J/lara-auth-suite/zipball/8121072558f3ca2ce99a9e986b60dd990094b470",
+                "reference": "8121072558f3ca2ce99a9e986b60dd990094b470",
+                "shasum": ""
             },
             "require": {
                 "laravel/framework": "^11.0|^12.0|^13.0",
@@ -3836,27 +3842,30 @@
                     "Rainwaves\\LaraAuthSuite\\": "src/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Rainwaves\\LaraAuthSuite\\Tests\\": "tests/"
-                }
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
             "description": "Laravel API auth suite: Sanctum tokens & session modes, password reset, and 2FA.",
-            "transport-options": {
-                "symlink": false,
-                "relative": false
-            }
+            "support": {
+                "issues": "https://github.com/Magnificent-Big-J/lara-auth-suite/issues",
+                "source": "https://github.com/Magnificent-Big-J/lara-auth-suite/tree/v2.1.1"
+            },
+            "time": "2026-07-28T20:00:12+00:00"
         },
         {
             "name": "rainwaves/payfast-payment",
-            "version": "dev-main",
+            "version": "v2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Magnificent-Big-J/payfast-payment.git",
+                "reference": "741ef67a52f7b15bc48854e5462c8c81b204f69f"
+            },
             "dist": {
-                "type": "path",
-                "url": "/home/eclaims/package-development/rainwaves/payfast-payment",
-                "reference": "7ebffb32a8b66bdeb14da26f65637d7fb3fd8c76"
+                "type": "zip",
+                "url": "https://api.github.com/repos/Magnificent-Big-J/payfast-payment/zipball/741ef67a52f7b15bc48854e5462c8c81b204f69f",
+                "reference": "741ef67a52f7b15bc48854e5462c8c81b204f69f",
+                "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
@@ -3871,11 +3880,11 @@
             "type": "library",
             "extra": {
                 "laravel": {
-                    "providers": [
-                        "rainwaves\\PayfastPayment\\PayFastServiceProvider"
-                    ],
                     "config": [
                         "payfast.php"
+                    ],
+                    "providers": [
+                        "rainwaves\\PayfastPayment\\PayFastServiceProvider"
                     ]
                 }
             },
@@ -3884,11 +3893,7 @@
                     "rainwaves\\PayfastPayment\\": "src/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "rainwaves\\PayfastPayment\\Tests\\": "tests/"
-                }
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -3899,10 +3904,11 @@
                 }
             ],
             "description": "This is a PHP package for integrating with the PayFast.co.za payment gateway. It provides a convenient way to handle one-time payments and recurring billing in your PHP applications, with support for both vanilla PHP and Laravel.",
-            "transport-options": {
-                "symlink": false,
-                "relative": false
-            }
+            "support": {
+                "issues": "https://github.com/Magnificent-Big-J/payfast-payment/issues",
+                "source": "https://github.com/Magnificent-Big-J/payfast-payment/tree/v2.0.1"
+            },
+            "time": "2026-08-03T02:18:02+00:00"
         },
         {
             "name": "ralouphie/getallheaders",
@@ -9882,9 +9888,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "rainwaves/payfast-payment": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
