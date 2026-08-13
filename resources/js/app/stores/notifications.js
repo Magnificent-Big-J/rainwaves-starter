@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 
+import { v1 } from '../utils/api';
+
 const iconMap = {
     success: 'mdi-check-circle-outline',
     error: 'mdi-alert-circle-outline',
@@ -16,16 +18,59 @@ const colorMap = {
 
 const fingerprintFor = (payload) => `${payload.type}:${payload.title}:${payload.message}`;
 
+const relativeTime = (iso) => {
+    if (!iso) return '';
+
+    const diffMs = Date.now() - new Date(iso).getTime();
+    const minutes = Math.round(diffMs / 60000);
+
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+
+    const hours = Math.round(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+
+    const days = Math.round(hours / 24);
+    if (days < 7) return `${days}d ago`;
+
+    return new Date(iso).toLocaleDateString();
+};
+
+// Maps the real GET /api/v1/notifications payload (App\Http\Resources\NotificationResource:
+// id, type, title, body, route, params, read_at, created_at) onto the shape
+// AppNotificationItem.vue renders (icon/message/category/timeLabel/actionLabel/readAt).
+// `type` is a free-form string set by whatever App\Notifications\AppNotification
+// subclass fired it (see CLAUDE.md "Notifications") — anything unrecognised falls
+// back to the generic "info" treatment rather than a broken icon.
+export const toDisplayItem = (raw) => ({
+    id: raw.id,
+    title: raw.title || 'Notification',
+    message: raw.body || '',
+    type: colorMap[raw.type] ? raw.type : 'info',
+    color: colorMap[raw.type] || colorMap.info,
+    icon: iconMap[raw.type] || iconMap.info,
+    category: raw.type || 'system',
+    timeLabel: relativeTime(raw.created_at),
+    readAt: raw.read_at,
+    // route/params are the mobile deep-link contract (a named mobile route, not a
+    // web path) — kept for parity with the API response but not used for web
+    // navigation. See AppNotificationPanel.vue.
+    route: raw.route,
+    params: raw.params ?? {},
+});
+
 export const useNotificationsStore = defineStore('notifications', {
     state: () => ({
         toasts: [],
         items: [],
+        unreadCount: 0,
+        loading: false,
+        loaded: false,
+        pagination: null,
         lastFingerprint: '',
         lastShownAt: 0,
-        seededFor: '',
     }),
     getters: {
-        unreadCount: (state) => state.items.filter((item) => !item.readAt).length,
         activeToast: (state) => state.toasts[0] ?? null,
     },
     actions: {
@@ -65,104 +110,64 @@ export const useNotificationsStore = defineStore('notifications', {
         dismissToast(id) {
             this.toasts = this.toasts.filter((toast) => toast.id !== id);
         },
-        addNotification(payload) {
-            const message = String(payload?.message || '').trim();
-
-            if (!message) {
-                return;
-            }
-
-            this.items.unshift({
-                id: Date.now() + Math.random(),
-                title: payload?.title || 'Notification',
-                message,
-                type: payload?.type || 'info',
-                color: payload?.color || colorMap[payload?.type || 'info'] || 'info',
-                icon: payload?.icon || iconMap[payload?.type || 'info'] || iconMap.info,
-                category: payload?.category || 'system',
-                timeLabel: payload?.timeLabel || 'Just now',
-                readAt: payload?.readAt || null,
-                actionLabel: payload?.actionLabel || null,
-            });
-        },
         notify(payload) {
-            this.addNotification(payload);
             this.pushToast(payload);
         },
-        markAsRead(id) {
-            const item = this.items.find((entry) => entry.id === id);
+        async fetch({ unread = false, page = 1, perPage = 20 } = {}) {
+            this.loading = true;
 
-            if (item && !item.readAt) {
-                item.readAt = new Date().toISOString();
+            try {
+                const response = await v1('notifications', {
+                    params: { unread: unread ? 1 : undefined, page, per_page: perPage },
+                });
+
+                this.items = (response?.data ?? []).map(toDisplayItem);
+                this.unreadCount = response?.meta?.unread_count ?? 0;
+                this.pagination = response?.meta?.pagination ?? null;
+                this.loaded = true;
+            } catch (_error) {
+                // Leave whatever was previously loaded in place; the panel/page can
+                // still render a stale list rather than hard-failing.
+            } finally {
+                this.loading = false;
             }
         },
-        markAllAsRead() {
-            const now = new Date().toISOString();
-
-            this.items = this.items.map((item) => ({
-                ...item,
-                readAt: item.readAt || now,
-            }));
-        },
-        clearAll() {
-            this.items = [];
-        },
-        ensureSeeded(context = 'guest') {
-            if (this.seededFor === context && this.items.length) {
+        async ensureLoaded() {
+            if (this.loaded || this.loading) {
                 return;
             }
 
-            this.seededFor = context;
-            this.items = [
-                {
-                    id: 1,
-                    title: context === 'customer'
-                        ? 'Your customer account is ready'
-                        : 'Starter seeded accounts ready',
-                    message: context === 'customer'
-                        ? 'Your account area can surface orders, subscriptions, invoices, and profile controls from this shell.'
-                        : 'Owner, ops, and customer accounts are available for local testing.',
-                    type: 'success',
-                    color: 'success',
-                    icon: iconMap.success,
-                    category: context === 'customer' ? 'account' : 'system',
-                    timeLabel: 'Today',
-                    readAt: null,
-                    actionLabel: context === 'customer' ? 'Open profile' : 'Review users',
-                },
-                {
-                    id: 2,
-                    title: context === 'customer'
-                        ? 'Subscription billing active'
-                        : 'PayFast sandbox setup',
-                    message: context === 'customer'
-                        ? 'Use the customer shell to surface invoices, renewals, upgrades, and billing-history notifications.'
-                        : 'Configure merchant keys before testing checkout and ITN handling.',
-                    type: 'warning',
-                    color: 'warning',
-                    icon: iconMap.warning,
-                    category: 'billing',
-                    timeLabel: 'Today',
-                    readAt: null,
-                    actionLabel: context === 'customer' ? 'View billing' : 'Open billing docs',
-                },
-                {
-                    id: 3,
-                    title: 'Two-factor protection enabled',
-                    message: context === 'admin'
-                        ? 'Admin starter flows should verify TOTP, email OTP, and recovery-code handling.'
-                        : context === 'customer'
-                            ? 'Customer account flows should keep profile, notifications, and security actions inside the customer shell.'
-                        : 'Remember to verify the 2FA flows before shipping a new product baseline.',
-                    type: 'info',
-                    color: 'info',
-                    icon: iconMap.info,
-                    category: 'security',
-                    timeLabel: 'Earlier',
-                    readAt: context === 'guest' ? new Date().toISOString() : null,
-                    actionLabel: context === 'customer' ? 'Manage security' : 'View security',
-                },
-            ];
+            await this.fetch();
+        },
+        async markRead(id) {
+            const item = this.items.find((entry) => entry.id === id);
+
+            if (item?.readAt) {
+                return;
+            }
+
+            try {
+                const response = await v1(`notifications/${id}/read`, { method: 'POST' });
+
+                if (item) {
+                    item.readAt = new Date().toISOString();
+                }
+
+                this.unreadCount = response?.meta?.unread_count ?? Math.max(0, this.unreadCount - 1);
+            } catch (_error) {
+                // No-op — the item stays unread and the count stays accurate.
+            }
+        },
+        async markAllRead() {
+            try {
+                await v1('notifications/read-all', { method: 'POST' });
+
+                const now = new Date().toISOString();
+                this.items = this.items.map((item) => ({ ...item, readAt: item.readAt || now }));
+                this.unreadCount = 0;
+            } catch (_error) {
+                // No-op.
+            }
         },
     },
 });

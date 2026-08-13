@@ -188,9 +188,11 @@ const logout = async () => {
 };
 
 watch(
-    () => session.activeSurface,
-    (surface) => {
-        notifications.ensureSeeded(surface === 'admin' ? 'admin' : 'guest');
+    () => session.isAuthenticated,
+    (authenticated) => {
+        if (authenticated) {
+            notifications.fetch();
+        }
     },
     { immediate: true }
 );

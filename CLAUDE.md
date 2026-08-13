@@ -188,6 +188,10 @@ Service: `PayFastCheckoutService` (bound via `PayFastCheckoutServiceInterface`)
 
 Config: `config/payfast.php` — reads merchant ID, key, pass phrase, env, URLs from `.env`.
 
+### Gotcha: spatie/laravel-permission's dynamic-guard relations crash inside `auth:sanctum` routes
+
+`Role->users()` / `Permission->roles()` (and anything built on them, e.g. `Role::withCount('users')`) resolve their target model via `config('auth.defaults.guard')` when called on a fresh (attribute-less) model instance — which is exactly how Eloquent builds a relation for `withCount`/`loadCount`. `Illuminate\Auth\Middleware\Authenticate::authenticate()` calls `AuthManager::shouldUse('sanctum')` for every request that authenticates via `auth:sanctum`, which **mutates that same `auth.defaults.guard` config value for the rest of the request**. `'sanctum'` has no `config('auth.guards.sanctum')` entry (Sanctum registers its guard programmatically), so `Guard::getModelForGuard('sanctum')` returns `null` and the relation build fatals with `Error: Class name must be a valid object or a string` — a controller-only failure that never reproduces calling the same query directly in a test body or tinker (see `RoleAdminController::withUserCounts()` for the workaround: count the `model_has_roles`/`model_has_permissions` pivot table directly instead of using the relation).
+
 ## Roles & permissions
 
 Roles: `super-admin`, `admin`, `staff`, `customer`
