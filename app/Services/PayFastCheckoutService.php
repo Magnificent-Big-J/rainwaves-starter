@@ -152,6 +152,11 @@ class PayFastCheckoutService implements PayFastCheckoutServiceInterface
 
                 $rawStatus = (string) ($payload['payment_status'] ?? '');
                 $resolvedStatus = $this->resolveSubscriptionStatus($rawStatus);
+
+                if ($this->isStaleSubscriptionTransition($subscription->status, $resolvedStatus)) {
+                    return $this->rejectItn(reason: 'stale_itn_after_final_status', payload: $payload, eventRef: $eventRef, subscriptionId: $subscription->id);
+                }
+
                 $subscription->fill([
                     'token' => $payload['token'] ?? $subscription->token,
                     'payment_status' => $rawStatus ?: $subscription->payment_status,
@@ -189,6 +194,11 @@ class PayFastCheckoutService implements PayFastCheckoutServiceInterface
 
             $rawStatus = (string) ($payload['payment_status'] ?? '');
             $resolvedStatus = $this->resolvePaymentStatus($rawStatus);
+
+            if ($payment->status->isTerminal() && $resolvedStatus !== $payment->status) {
+                return $this->rejectItn(reason: 'stale_itn_after_final_status', payload: $payload, eventRef: $eventRef, paymentId: $payment->id);
+            }
+
             $payment->fill([
                 'payfast_payment_id' => isset($payload['pf_payment_id']) ? (string) $payload['pf_payment_id'] : $payment->payfast_payment_id,
                 'payment_status' => $rawStatus ?: $payment->payment_status,
@@ -259,6 +269,21 @@ class PayFastCheckoutService implements PayFastCheckoutServiceInterface
             'PENDING' => SubscriptionStatus::Pending,
             default => SubscriptionStatus::Processing,
         };
+    }
+
+    /**
+     * A delayed or out-of-order ITN must never regress a payment/subscription out of a
+     * final state (e.g. a late PENDING notification arriving after COMPLETE already
+     * landed). Subscription::isTerminal() also reports Active as terminal — that's
+     * correct for "no automatic housekeeping needed" but wrong here, since an Active
+     * subscription legitimately still transitions to Cancelled/Failed later. So this
+     * only treats Cancelled/Failed as final for subscriptions.
+     */
+    private function isStaleSubscriptionTransition(SubscriptionStatus $current, SubscriptionStatus $incoming): bool
+    {
+        $final = [SubscriptionStatus::Cancelled, SubscriptionStatus::Failed];
+
+        return in_array($current, $final, true) && $incoming !== $current;
     }
 
     private function itnValidationFailure(array $payload, string $rawBody): ?string
