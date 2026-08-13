@@ -727,3 +727,18 @@ const NavItem = defineComponent({
     }
 }
 </style>
+
+<style>
+/* Global, unscoped on purpose: Vuetify teleports dialog scrims to a container
+   outside this component's DOM tree, so scoped styles can't reach them.
+   By default the scrim dims the full viewport, which washes out the
+   persistent sidebar — that's global chrome, not backdrop content a dialog
+   is replacing, so it shouldn't read as "gone" every time a modal opens.
+   Only applied at the desktop breakpoint where the sidebar is a static
+   column; below 960px it's a mobile drawer the scrim should still cover. */
+@media (min-width: 960px) {
+    .v-overlay__scrim {
+        left: var(--rw-sidebar) !important;
+    }
+}
+</style>
