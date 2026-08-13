@@ -82,16 +82,25 @@
 
 <script setup>
 import { reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 import AuthCard from '../../components/AuthCard.vue';
 import AppTextField from '../../components/AppTextField.vue';
 import FormActions from '../../components/FormActions.vue';
 import FormStatusAlert from '../../components/FormStatusAlert.vue';
 import { api } from '../../utils/api';
-import { csrfCookie, getXsrfToken, AUTH_BASE, normalizeErrorMessage, validationErrors } from '../../stores/auth-shared';
+import {
+    csrfCookie,
+    getXsrfToken,
+    AUTH_BASE,
+    normalizeErrorMessage,
+    safeRedirectPath,
+    validationErrors,
+} from '../../stores/auth-shared';
 
 const router = useRouter();
+const route = useRoute();
+const redirect = safeRedirectPath(route.query.redirect);
 
 const loading = ref(false);
 const disabled = ref(false);
@@ -101,7 +110,7 @@ const errors = ref({});
 
 const form = reactive({
     name: '',
-    email: '',
+    email: typeof route.query.email === 'string' ? route.query.email : '',
     password: '',
     password_confirmation: '',
 });
@@ -120,7 +129,10 @@ const submit = async () => {
             headers: { 'X-XSRF-TOKEN': getXsrfToken() },
         });
 
-        await router.push({ path: '/auth/login', query: { registered: '1' } });
+        await router.push({
+            path: '/auth/login',
+            query: { registered: '1', ...(redirect ? { redirect } : {}), email: form.email },
+        });
     } catch (error) {
         const status = error?.response?.status ?? error?.status;
         const data = error?.data;

@@ -45,14 +45,15 @@ import { useRoute, useRouter } from 'vue-router';
 
 import AppTextField from '../../components/AppTextField.vue';
 import { useSessionStore } from '../../stores/session';
-import { normalizeErrorMessage } from '../../stores/auth-shared';
+import { normalizeErrorMessage, safeRedirectPath } from '../../stores/auth-shared';
 
 const router = useRouter();
 const route = useRoute();
 const session = useSessionStore();
+const redirect = safeRedirectPath(route.query.redirect);
 
 const form = reactive({
-    email: '',
+    email: typeof route.query.email === 'string' ? route.query.email : '',
     password: '',
 });
 
@@ -67,12 +68,12 @@ const submit = async () => {
         const response = await session.login(form);
 
         if (response?.status === '2fa_required') {
-            await router.push('/auth/verify');
+            await router.push({ path: '/auth/verify', query: redirect ? { redirect } : {} });
 
             return;
         }
 
-        await router.push(session.homeRoute);
+        await router.push(redirect ?? session.homeRoute);
     } catch (error) {
         formMessage.value = normalizeErrorMessage(error, 'Unable to sign in with those credentials.');
     }

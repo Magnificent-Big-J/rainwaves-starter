@@ -52,15 +52,17 @@
 
 <script setup>
 import { computed, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 import { useSessionStore } from '../../stores/session';
 import { useTwoFactorStore } from '../../stores/two-factor';
-import { normalizeErrorMessage } from '../../stores/auth-shared';
+import { normalizeErrorMessage, safeRedirectPath } from '../../stores/auth-shared';
 
 const router = useRouter();
+const route = useRoute();
 const session = useSessionStore();
 const twoFactor = useTwoFactorStore();
+const redirect = safeRedirectPath(route.query.redirect);
 
 const code = ref('');
 const message = ref('');
@@ -88,7 +90,7 @@ const submit = async () => {
             await twoFactor.verifyLoginCode(code.value);
         }
 
-        await router.push(session.homeRoute);
+        await router.push(redirect ?? session.homeRoute);
     } catch (error) {
         messageType.value = 'error';
         message.value = normalizeErrorMessage(error, 'Verification failed.');
@@ -100,7 +102,7 @@ const submitRecovery = async () => {
 
     try {
         await twoFactor.verifyRecoveryCode(code.value);
-        await router.push(session.homeRoute);
+        await router.push(redirect ?? session.homeRoute);
     } catch (error) {
         messageType.value = 'error';
         message.value = normalizeErrorMessage(error, 'Recovery code verification failed.');

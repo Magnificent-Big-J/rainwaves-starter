@@ -10,9 +10,12 @@ use App\Modules\Teams\Models\TeamInvite;
 use App\Modules\Teams\Models\TeamMembership;
 use App\Modules\Teams\Notifications\TeamInvitationNotification;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
+use Rainwaves\LaraAuthSuite\Domain\Events\UserRegistered;
 use RuntimeException;
 
 class TeamService implements TeamServiceInterface
@@ -37,6 +40,16 @@ class TeamService implements TeamServiceInterface
 
             return $team;
         });
+    }
+
+    public function teamsFor(User $user): Collection
+    {
+        return Team::query()
+            ->whereHas('memberships', fn ($query) => $query->where('user_id', $user->id))
+            ->with('owner')
+            ->withCount('members')
+            ->orderBy('name')
+            ->get();
     }
 
     public function membershipFor(Team $team, User $user): ?TeamMembership
@@ -217,6 +230,48 @@ class TeamService implements TeamServiceInterface
             }
 
             return $membership;
+        });
+    }
+
+    public function registerAndAcceptInvite(string $token, string $name, string $password): TeamMembership
+    {
+        return DB::transaction(function () use ($token, $name, $password) {
+            $invite = TeamInvite::query()->where('token', $token)->lockForUpdate()->first();
+
+            if (! $invite || ! $invite->isPending()) {
+                throw new RuntimeException('This invitation is no longer valid.');
+            }
+
+            if (User::query()->where('email', $invite->email)->exists()) {
+                throw new RuntimeException('An account with this email already exists — sign in to accept this invitation instead.');
+            }
+
+            $team = $invite->team;
+            $this->assertUnderMemberCap($team);
+
+            $user = User::query()->create([
+                'name' => $name,
+                'email' => $invite->email,
+                'password' => Hash::make($password),
+            ]);
+
+            // The invite link itself, delivered to a real inbox, is the verification —
+            // no separate email-confirmation step needed on top of it.
+            $user->forceFill(['email_verified_at' => now()])->save();
+
+            event(new UserRegistered($user));
+
+            $membership = TeamMembership::query()->create([
+                'team_id' => $team->id,
+                'user_id' => $user->id,
+                'role' => $invite->role,
+                'joined_at' => now(),
+            ]);
+
+            $invite->forceFill(['accepted_at' => now()])->save();
+            $user->forceFill(['current_team_id' => $team->id])->save();
+
+            return $membership->loadMissing(['user', 'team']);
         });
     }
 

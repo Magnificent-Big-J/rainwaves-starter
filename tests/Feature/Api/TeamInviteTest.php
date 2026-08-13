@@ -166,6 +166,64 @@ class TeamInviteTest extends TestCase
             ->assertStatus(422);
     }
 
+    public function test_registering_via_invite_creates_an_account_and_logs_in_even_when_public_registration_is_closed(): void
+    {
+        config(['authx.registration.enabled' => false]);
+
+        $owner = User::factory()->create();
+        $team = $this->createTeamFor($owner);
+        $invite = $this->createInvite($team, $owner, 'brandnew@example.com');
+
+        $response = $this->postJson("/api/v1/team-invites/{$invite->token}/register", [
+            'name' => 'Brand New Person',
+            'password' => 'password123!',
+            'password_confirmation' => 'password123!',
+        ])->assertCreated();
+
+        $this->assertDatabaseHas('users', ['email' => 'brandnew@example.com', 'name' => 'Brand New Person']);
+
+        $newUser = User::where('email', 'brandnew@example.com')->firstOrFail();
+
+        $this->assertNotNull($newUser->email_verified_at);
+        $this->assertDatabaseHas('team_memberships', ['team_id' => $team->id, 'user_id' => $newUser->id, 'role' => 'member']);
+        $this->assertSame($team->id, $newUser->fresh()->current_team_id);
+        $this->assertNotNull($invite->fresh()->accepted_at);
+        $this->assertSame($newUser->id, $response['data']['user_id'] ?? null);
+
+        // Logged in as a result — a subsequent authenticated call succeeds without a
+        // separate login step.
+        $this->getJson('/api/v1/team')->assertOk()->assertJsonPath('data.team.id', $team->id);
+    }
+
+    public function test_registering_via_invite_is_rejected_if_an_account_with_that_email_already_exists(): void
+    {
+        $owner = User::factory()->create();
+        $team = $this->createTeamFor($owner);
+        User::factory()->create(['email' => 'existing@example.com']);
+        $invite = $this->createInvite($team, $owner, 'existing@example.com');
+
+        $this->postJson("/api/v1/team-invites/{$invite->token}/register", [
+            'name' => 'Someone',
+            'password' => 'password123!',
+            'password_confirmation' => 'password123!',
+        ])->assertStatus(422);
+    }
+
+    public function test_registering_via_invite_is_rejected_for_an_expired_invite(): void
+    {
+        $owner = User::factory()->create();
+        $team = $this->createTeamFor($owner);
+        $invite = $this->createInvite($team, $owner, 'brandnew@example.com', now()->subDay());
+
+        $this->postJson("/api/v1/team-invites/{$invite->token}/register", [
+            'name' => 'Brand New Person',
+            'password' => 'password123!',
+            'password_confirmation' => 'password123!',
+        ])->assertStatus(422);
+
+        $this->assertDatabaseMissing('users', ['email' => 'brandnew@example.com']);
+    }
+
     private function createTeamFor(User $owner): Team
     {
         $team = Team::query()->create([
