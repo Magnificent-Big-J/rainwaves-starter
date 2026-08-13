@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\MobileAuthController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SessionController;
+use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\SyncController;
 use App\Http\Controllers\Api\WebConfigController;
 use App\Http\Resources\AuthUserResource;
@@ -53,6 +54,8 @@ Route::middleware(['auth:sanctum', 'idempotency'])->group(function () {
     Route::delete('/v1/sessions/{id}', [SessionController::class, 'destroy']);
 
     Route::get('/v1/billing', [BillingController::class, 'show']);
+    Route::get('/v1/subscriptions', [SubscriptionController::class, 'index']);
+    Route::post('/v1/subscriptions/{subscription}/cancel', [SubscriptionController::class, 'cancel']);
 
     Route::get('/v1/profile', [ProfileController::class, 'show']);
     Route::patch('/v1/profile', [ProfileController::class, 'update']);

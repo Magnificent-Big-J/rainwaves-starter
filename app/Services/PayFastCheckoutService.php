@@ -9,6 +9,8 @@ use App\Models\Payment;
 use App\Models\PaymentEvent;
 use App\Models\Subscription;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use rainwaves\PayfastPayment\Client\PayFastClient;
 use rainwaves\PayfastPayment\Itn\PayFastItnValidator;
 use rainwaves\PayfastPayment\Model\Frequency;
 use rainwaves\PayfastPayment\PayFast;
@@ -220,6 +222,35 @@ class PayFastCheckoutService implements PayFastCheckoutServiceInterface
 
             return ['accepted' => true, 'duplicate' => false, 'type' => 'payment', 'id' => $payment->id, 'status' => $payment->status];
         });
+    }
+
+    public function cancelSubscription(Subscription $subscription): array
+    {
+        $client = PayFastClient::make($this->payFastConfig())->subscriptions();
+        $result = $client->cancel((string) $subscription->token);
+
+        $this->recordEvent(
+            eventType: 'subscription_action_cancel',
+            payload: [
+                'successful' => $result->successful(),
+                'status_code' => $result->statusCode(),
+                'provider_message' => $result->providerMessage(),
+            ],
+            subscriptionId: $subscription->id,
+            eventRef: $subscription->token.':cancel:'.Str::uuid(),
+        );
+
+        if ($result->successful()) {
+            $subscription->forceFill([
+                'status' => SubscriptionStatus::Cancelled,
+                'cancelled_at' => now(),
+            ])->save();
+        }
+
+        return [
+            'successful' => $result->successful(),
+            'provider_message' => $result->providerMessage(),
+        ];
     }
 
     private function makeOneTimePaymentForm(array $input): string

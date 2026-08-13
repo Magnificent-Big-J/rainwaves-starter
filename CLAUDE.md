@@ -112,6 +112,8 @@ Under `auth:sanctum` + `idempotency` middleware:
 | PATCH | `/api/v1/profile` | ProfileController@update |
 | PUT | `/api/v1/profile/password` | ProfileController@updatePassword |
 | GET | `/api/v1/billing` | BillingController@show — own latest payment/subscription/recent events |
+| GET | `/api/v1/subscriptions` | SubscriptionController@index — own subscriptions, paginated |
+| POST | `/api/v1/subscriptions/{subscription}/cancel` | SubscriptionController@cancel — own subscription only |
 | GET | `/api/v1/sessions` | SessionController@index — active browser sessions |
 | DELETE | `/api/v1/sessions/others` | SessionController@destroyOthers |
 | DELETE | `/api/v1/sessions/{id}` | SessionController@destroy |
@@ -229,6 +231,12 @@ Until this was added, the *only* place in the SPA that ever called `/payments/pa
 - `dashboard.vue` and `customer/home.vue` now pull the same `billing` store instead of hardcoding `PaymentStatusCard`/`SubscriptionStatusCard` props; `dashboard.vue`'s role/permission stat counts also now come from `admin-roles.js` instead of hardcoded `'4'`/`'21'` literals that would silently drift from the real seeded data.
 
 `PaymentResource`/`SubscriptionResource`/`PaymentEventResource` (new, `app/Http/Resources/`) are the shared serialization for `Payment`/`Subscription`/`PaymentEvent` — reach for these rather than hand-rolling arrays if another endpoint needs to expose the same models.
+
+### Subscription management
+
+`SubscriptionController` (`GET /api/v1/subscriptions`, `POST /api/v1/subscriptions/{subscription}/cancel`) is the production-safe counterpart to `PayFastController::subscriptionAction` (routes/payfast-local.php) — that dev tool has zero ownership checks by design (admin-only, local/testing-only); this controller enforces `$subscription->user_id === $request->user()->id` before allowing a cancel. `PayFastCheckoutService::cancelSubscription()` calls PayFast's native subscription API (a real network round-trip, unlike checkout initiation which just builds a form) — wrap calls to it in `try/catch (Throwable)`, since a transport failure or non-JSON response throws rather than returning a `successful: false` result. Found this the hard way: cancelling a subscription whose token was fabricated by local dev tooling (never actually issued by PayFast) throws `PayFast API returned unsupported content type: text/html`, which without the catch surfaced as an uncaught 500 instead of a normal 422.
+
+Same `isTerminal()` landmine as elsewhere: `SubscriptionStatus::isTerminal()` reports `Active` as terminal too, so the "already cancelled, can't cancel again" guard checks `in_array($status, [Cancelled, Failed])` explicitly rather than calling `isTerminal()`.
 
 ## Roles & permissions
 

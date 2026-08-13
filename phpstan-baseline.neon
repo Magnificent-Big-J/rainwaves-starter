@@ -19,6 +19,12 @@ parameters:
 			path: app/Http/Controllers/Api/DeviceController.php
 
 		-
+			message: '#^Call to function in_array\(\) with arguments string, array\{App\\Enums\\SubscriptionStatus\:\:Cancelled, App\\Enums\\SubscriptionStatus\:\:Failed\} and true will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: app/Http/Controllers/Api/SubscriptionController.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$deleted_at\.$#'
 			identifier: property.notFound
 			count: 1

@@ -10,11 +10,41 @@ export const useBillingStore = defineStore('billing', {
         latestPayment: null,
         latestSubscription: null,
         recentEvents: [],
+        subscriptions: [],
+        subscriptionsLoading: false,
         loading: false,
         loaded: false,
         checkingOut: false,
     }),
     actions: {
+        async fetchSubscriptions() {
+            this.subscriptionsLoading = true;
+
+            try {
+                const response = await v1('subscriptions', { params: { per_page: 20 } });
+                this.subscriptions = response?.data ?? [];
+            } catch (error) {
+                useAppErrorsStore().show({ message: normalizeErrorMessage(error, 'Unable to load subscriptions.') });
+            } finally {
+                this.subscriptionsLoading = false;
+            }
+        },
+        async cancelSubscription(id) {
+            try {
+                const response = await v1(`subscriptions/${id}/cancel`, { method: 'POST' });
+                const updated = response?.data;
+
+                this.subscriptions = this.subscriptions.map((sub) => (sub.id === id ? updated : sub));
+
+                if (this.latestSubscription?.id === id) {
+                    this.latestSubscription = updated;
+                }
+
+                return { ok: true };
+            } catch (error) {
+                return { ok: false, message: normalizeErrorMessage(error, 'Unable to cancel that subscription.') };
+            }
+        },
         async fetch() {
             this.loading = true;
 
