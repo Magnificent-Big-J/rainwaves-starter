@@ -111,6 +111,7 @@ Under `auth:sanctum` + `idempotency` middleware:
 | GET | `/api/v1/profile` | ProfileController@show |
 | PATCH | `/api/v1/profile` | ProfileController@update |
 | PUT | `/api/v1/profile/password` | ProfileController@updatePassword |
+| GET | `/api/v1/billing` | BillingController@show — own latest payment/subscription/recent events |
 | GET | `/api/v1/sessions` | SessionController@index — active browser sessions |
 | DELETE | `/api/v1/sessions/others` | SessionController@destroyOthers |
 | DELETE | `/api/v1/sessions/{id}` | SessionController@destroy |
@@ -206,6 +207,7 @@ Beyond auth/profile/admin-users (pre-existing), the starter now ships:
 
 | Page | Route | Backend |
 |---|---|---|
+| Billing | `/account/billing` | `GET /api/v1/billing` + a real PayFast checkout (see "PayFast checkout UI" below) |
 | Notifications (full history) | `/notifications` | `GET/POST /api/v1/notifications*` (pre-existing) |
 | Active sessions | `/account/sessions` | `GET/DELETE /api/v1/sessions*` — real browser sessions from `sessions` table, distinct from mobile devices |
 | Roles & Permissions | `/admin/roles` | `GET /api/v1/roles`, `PUT /api/v1/roles/{role}/permissions` — `super-admin` is immutable through this endpoint |
@@ -216,6 +218,17 @@ Beyond auth/profile/admin-users (pre-existing), the starter now ships:
 | Not found | any unmatched path, or `/showcase-disabled` | `pages/[...notFound].vue` — SPA-side catch-all |
 
 Laravel-level error pages (`resources/views/errors/{404,403,419,429,500,503}.blade.php`) are separate from the SPA catch-all above — they render for genuine backend HTTP errors that occur before Vue mounts (see "Brand & navigation config" section for detail).
+
+## PayFast checkout UI
+
+Until this was added, the *only* place in the SPA that ever called `/payments/payfast/initiate` or `/subscriptions/initiate` was `payfast-browser-test.vue` — a local/testing-only, admin-only dev tool. There was no production-usable way for a real user to actually pay or subscribe, and `dashboard.vue`/`customer/home.vue`'s billing widgets were 100% hardcoded literal props (`amount="R 1,499.00"`, `customer="Starter Owner"`, etc.) — decorative, not real data.
+
+- `resources/js/app/utils/payfast-checkout.js` — `startPayFastCheckout(mode, payload)`. POSTs to the web-layer initiate route (returns raw HTML — a `PayFastClient`-generated auto-submit form, not JSON), parses out the action + hidden fields, builds a real `<form>`, and submits it so the browser navigates to PayFast's hosted checkout. Same mechanism the dev tool uses, extracted so there's one implementation.
+- `stores/billing.js` / `GET /api/v1/billing` (`BillingController`) — the authenticated user's own latest payment, latest subscription (active preferred over a more recently-touched terminal one), and last 5 payment events. Scoped to `user_id`; nothing cross-user.
+- `pages/account/billing.vue` — real payment/subscription cards + event timeline + a genuine checkout form (item name, amount, one-time vs subscription) that calls `startPayFastCheckout`. Verified end-to-end with a real headless-browser submission landing on PayFast's actual sandbox checkout page.
+- `dashboard.vue` and `customer/home.vue` now pull the same `billing` store instead of hardcoding `PaymentStatusCard`/`SubscriptionStatusCard` props; `dashboard.vue`'s role/permission stat counts also now come from `admin-roles.js` instead of hardcoded `'4'`/`'21'` literals that would silently drift from the real seeded data.
+
+`PaymentResource`/`SubscriptionResource`/`PaymentEventResource` (new, `app/Http/Resources/`) are the shared serialization for `Payment`/`Subscription`/`PaymentEvent` — reach for these rather than hand-rolling arrays if another endpoint needs to expose the same models.
 
 ## Roles & permissions
 

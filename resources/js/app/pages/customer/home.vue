@@ -29,19 +29,28 @@
                 </p>
                 <div class="customer-home__actions">
                     <v-btn color="primary" to="/profile">Manage profile</v-btn>
-                    <v-btn variant="outlined">View orders</v-btn>
+                    <v-btn variant="outlined" to="/account/billing">View billing</v-btn>
                 </div>
             </AppSectionCard>
 
             <SubscriptionStatusCard
-                title="Customer subscription"
-                subtitle="Example starter-facing subscription summary"
-                amount="R 299.00 / month"
-                plan="Starter Growth"
-                status="active"
-                billing-date="01 May 2026"
-                cycles="0"
+                v-if="billing.latestSubscription"
+                title="Your subscription"
+                :amount="`R ${Number(billing.latestSubscription.recurring_amount).toFixed(2)} / cycle`"
+                :plan="billing.latestSubscription.item_name"
+                :status="billing.latestSubscription.status"
+                :status-label="billing.latestSubscription.status_label"
+                :billing-date="billing.latestSubscription.billing_date || 'Not scheduled'"
+                :cycles="String(billing.latestSubscription.cycles ?? 0)"
+                :terminal="billing.latestSubscription.is_terminal"
             />
+            <AppSectionCard v-else title="Your subscription" subtitle="No active subscription">
+                <AppEmptyState title="No subscription yet" text="Start one from the Billing page." icon="mdi-sync">
+                    <template #actions>
+                        <v-btn color="primary" size="small" to="/account/billing">Go to billing</v-btn>
+                    </template>
+                </AppEmptyState>
+            </AppSectionCard>
         </div>
 
         <div class="customer-home__grid">
@@ -61,17 +70,17 @@
             />
             <AppStatCard
                 label="Billing"
-                value="PayFast"
-                helper="Starter payment integration available"
+                :value="billing.latestPayment ? billing.latestPayment.status_label : 'No payments'"
+                helper="PayFast payment integration"
                 icon="mdi-credit-card-outline"
-                status="active"
+                :status="billing.latestPayment ? billing.latestPayment.status : 'inactive'"
             />
         </div>
 
         <PaymentEventList
             title="Account activity"
-            subtitle="Customer event feed example for orders, renewals, refunds, and account updates."
-            :events="events"
+            subtitle="Real payment and subscription events from PayFast ITN callbacks."
+            :events="timelineEvents"
         />
     </div>
 </template>
@@ -87,40 +96,32 @@
 </route>
 
 <script setup>
-import AppPageHeader from '../../components/AppPageHeader.vue';
+import { computed, onMounted } from 'vue';
+
 import AppBanner from '../../components/AppBanner.vue';
+import AppEmptyState from '../../components/AppEmptyState.vue';
+import AppPageHeader from '../../components/AppPageHeader.vue';
 import AppSectionCard from '../../components/AppSectionCard.vue';
 import AppStatCard from '../../components/AppStatCard.vue';
 import AppStatusBadge from '../../components/AppStatusBadge.vue';
 import PaymentEventList from '../../components/PaymentEventList.vue';
 import SubscriptionStatusCard from '../../components/SubscriptionStatusCard.vue';
+import { useBillingStore } from '../../stores/billing';
 import { useNotificationsStore } from '../../stores/notifications';
 
 const notifications = useNotificationsStore();
+const billing = useBillingStore();
 
-const events = [
-    {
-        id: 1,
-        title: 'Subscription renewed',
-        time: 'Today, 08:15',
-        text: 'Your monthly plan renewed successfully through PayFast.',
-        type: 'success',
-    },
-    {
-        id: 2,
-        title: 'Security reminder',
-        time: 'Yesterday',
-        text: 'Set up an authenticator app to strengthen account recovery and sign-in protection.',
-        type: 'info',
-    },
-    {
-        id: 3,
-        title: 'Welcome journey',
-        time: 'Earlier this week',
-        text: 'This customer shell is ready for orders, invoices, subscriptions, bookings, or member content.',
-        type: 'warning',
-    },
-];
+const timelineEvents = computed(() =>
+    billing.recentEvents.map((event) => ({
+        id: event.id,
+        title: event.event_type,
+        time: event.received_at ? new Date(event.received_at).toLocaleString() : 'Unknown',
+        text: event.payment_id ? `Payment #${event.payment_id}` : `Subscription #${event.subscription_id}`,
+    }))
+);
+
+onMounted(() => billing.fetch());
 </script>
 
 <style scoped>

@@ -20,6 +20,7 @@ return [
     'main' => [
         ['label' => 'Dashboard', 'to' => '/dashboard', 'icon' => 'mdi-view-dashboard-outline', 'surfaces' => ['admin']],
         ['label' => 'Home', 'to' => '/customer/home', 'icon' => 'mdi-home-outline', 'surfaces' => ['customer']],
+        ['label' => 'Billing', 'to' => '/account/billing', 'icon' => 'mdi-credit-card-outline', 'surfaces' => ['admin', 'customer']],
         ['label' => 'Notifications', 'to' => '/notifications', 'icon' => 'mdi-bell-outline', 'surfaces' => ['admin', 'customer']],
         ['label' => 'Profile', 'to' => '/profile', 'icon' => 'mdi-account-circle-outline', 'surfaces' => ['admin', 'customer']],
         ['label' => 'Sessions', 'to' => '/account/sessions', 'icon' => 'mdi-devices', 'surfaces' => ['admin', 'customer']],

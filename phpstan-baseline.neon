@@ -193,6 +193,102 @@ parameters:
 			path: app/Http/Resources/DeviceResource.php
 
 		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentEventResource\:\:\$event_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/PaymentEventResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentEventResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/PaymentEventResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentEventResource\:\:\$payment_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/PaymentEventResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentEventResource\:\:\$provider\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/PaymentEventResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentEventResource\:\:\$received_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/PaymentEventResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentEventResource\:\:\$subscription_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/PaymentEventResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentResource\:\:\$amount_gross\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/PaymentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentResource\:\:\$amount_requested\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/PaymentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/PaymentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentResource\:\:\$initiated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/PaymentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentResource\:\:\$item_description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/PaymentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentResource\:\:\$item_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/PaymentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentResource\:\:\$merchant_payment_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/PaymentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentResource\:\:\$paid_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/PaymentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentResource\:\:\$provider\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/PaymentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentResource\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Resources/PaymentResource.php
+
+		-
 			message: '#^Access to an undefined property App\\Http\\Resources\\ProfileResource\:\:\$created_at\.$#'
 			identifier: property.notFound
 			count: 1
@@ -233,6 +329,78 @@ parameters:
 			identifier: method.notFound
 			count: 2
 			path: app/Http/Resources/ProfileResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$activated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/SubscriptionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$billing_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/SubscriptionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$cancelled_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/SubscriptionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$cycles\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/SubscriptionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$frequency\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/SubscriptionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/SubscriptionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$initiated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/SubscriptionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$item_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/SubscriptionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$merchant_payment_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/SubscriptionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$provider\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/SubscriptionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$recurring_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/SubscriptionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Http/Resources/SubscriptionResource.php
 
 		-
 			message: '#^Parameter \#1 \$model of method Spatie\\Activitylog\\Support\\ActivityLogger\:\:performedOn\(\) expects Illuminate\\Database\\Eloquent\\Model, Illuminate\\Contracts\\Auth\\Authenticatable given\.$#'

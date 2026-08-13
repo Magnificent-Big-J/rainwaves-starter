@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\ActivityLogController;
 use App\Http\Controllers\Api\Admin\RoleAdminController;
 use App\Http\Controllers\Api\Admin\UserAdminController;
+use App\Http\Controllers\Api\BillingController;
 use App\Http\Controllers\Api\DeviceController;
 use App\Http\Controllers\Api\MetaController;
 use App\Http\Controllers\Api\MobileAuthController;
@@ -50,6 +51,8 @@ Route::middleware(['auth:sanctum', 'idempotency'])->group(function () {
     Route::get('/v1/sessions', [SessionController::class, 'index']);
     Route::delete('/v1/sessions/others', [SessionController::class, 'destroyOthers']);
     Route::delete('/v1/sessions/{id}', [SessionController::class, 'destroy']);
+
+    Route::get('/v1/billing', [BillingController::class, 'show']);
 
     Route::get('/v1/profile', [ProfileController::class, 'show']);
     Route::patch('/v1/profile', [ProfileController::class, 'update']);
