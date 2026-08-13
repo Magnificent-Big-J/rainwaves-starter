@@ -336,6 +336,14 @@ Backend: `composer lint` (Pint, check-only), `composer lint:fix` (Pint, writes),
 
 Frontend: `npm run lint` / `npm run lint:fix` (ESLint 9 flat config, `eslint.config.js`), `npm run format` / `npm run format:check` (Prettier, `.prettierrc.json`).
 
+## starter:init
+
+`php artisan starter:init` configures a project freshly copied from the starter: brand (name/short name/tagline/support email → `.env`'s `APP_NAME`/`APP_BRAND_*`/`APP_SUPPORT_EMAIL`), the `composer.json` `name` field, whether to keep the showcase pages (`--no-showcase`), and optionally runs migrations/seeding (`--migrate`/`--seed`, `--seed` implies `--migrate` — neither runs by default, on purpose: a pure config command shouldn't silently touch the database).
+
+Every value can be passed as a CLI option (`--name=`, `--short-name=`, `--tagline=`, `--support-email=`, `--package=`); anything not passed is prompted for interactively (via Laravel Prompts) with a sensible default, or — combined with `--no-interaction` — resolved straight to that default with no I/O at all, so `starter:init --no-interaction --name="..." --package=vendor/app ...` is fully deterministic for CI/scripted setup (RS-103's requirement). Safe to re-run: it only ever rewrites the specific `.env` keys and the one `composer.json` line, never anything else — verified by a dedicated test that the `composer.json` edit is a single-line diff, not a reformat of the whole file (a naive `json_decode`/`json_encode` round-trip would silently reformat every array in the file).
+
+**What it deliberately doesn't touch**: marketing prose (`pages/index.vue`, `pages/about.vue` still say "Rainwaves Starter" in body copy) — that's content a human should write, not something a config command should guess at. The command's own closing output says this explicitly.
+
 ## starter:doctor
 
 `php artisan starter:doctor` reports on deployment readiness: APP_KEY/APP_ENV/APP_DEBUG, `authx` fail-closed permission config, whether dev-only PayFast routes are registered (checked against the live route table, not just config), DB connectivity + pending migrations, Redis, Horizon master supervisor, storage disk write access, mail driver, PayFast credentials (fails/warns if still the published sandbox defaults), and the frontend build manifest.
