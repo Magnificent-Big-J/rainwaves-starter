@@ -41,6 +41,7 @@
                             size="small"
                             variant="text"
                             :disabled="row.is_locked"
+                            :title="row.is_locked ? 'Locked' : 'Edit'"
                             @click.stop="openEdit(row)"
                         />
                     </td>
@@ -105,7 +106,7 @@ const columns = [
     { key: 'name', label: 'Role' },
     { key: 'users', label: 'Users', hideable: true },
     { key: 'permissions', label: 'Permissions', hideable: true },
-    { key: 'actions', label: '', class: 'text-right' },
+    { key: 'actions', label: '', srLabel: 'Actions', class: 'text-right' },
 ];
 
 const dialog = reactive({ open: false, role: null, permissions: [], message: null });

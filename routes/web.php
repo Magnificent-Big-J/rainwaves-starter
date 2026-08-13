@@ -1,7 +1,12 @@
 <?php
 
+use App\Http\Controllers\HealthController;
 use App\Http\Controllers\PayFastController;
 use Illuminate\Support\Facades\Route;
+
+// Readiness probe — see HealthController for how this differs from Laravel's built-in
+// /up (liveness only). Registered before the SPA catch-all, same as everything else here.
+Route::get('/health', [HealthController::class, 'index']);
 
 // Production-safe PayFast surface only: checkout initiation, the ITN webhook, and
 // cosmetic return/cancel redirects. None of these can mutate payment/subscription

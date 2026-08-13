@@ -151,6 +151,7 @@
                                     icon="mdi-pencil-outline"
                                     size="small"
                                     variant="text"
+                                    title="Edit"
                                     @click.stop="openEdit(row)"
                                 />
                                 <v-btn
@@ -311,7 +312,7 @@ const columns = [
     { key: 'user', label: 'User', sortable: true, sortKey: 'name' },
     { key: 'roles', label: 'Roles', hideable: true },
     { key: 'created_at', label: 'Joined', sortable: true, hideable: true },
-    { key: 'actions', label: '', class: 'text-right' },
+    { key: 'actions', label: '', srLabel: 'Actions', class: 'text-right' },
 ];
 
 const filters = reactive({ search: '', role: '', status: '', page: 1, sortBy: '', sortDirection: 'asc' });
