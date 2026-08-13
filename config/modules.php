@@ -2,6 +2,7 @@
 
 use App\Modules\Billing\BillingModule;
 use App\Modules\Mobile\MobileModule;
+use App\Modules\Teams\TeamsModule;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,10 +22,12 @@ return [
     'modules' => [
         BillingModule::class,
         MobileModule::class,
+        TeamsModule::class,
     ],
 
     'enabled' => [
         'billing' => env('MODULE_BILLING_ENABLED', true),
         'mobile' => env('MODULE_MOBILE_ENABLED', true),
+        'teams' => env('MODULE_TEAMS_ENABLED', true),
     ],
 ];

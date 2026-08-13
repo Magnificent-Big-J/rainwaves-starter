@@ -29,6 +29,7 @@ return [
         'item_description' => 'Monthly subscription to the Starter tier.',
         'amount' => 199.00,
         'frequency' => Frequency::MONTHLY,
+        'max_members' => 5,
     ],
 
     'starter-annual' => [
@@ -37,6 +38,7 @@ return [
         'item_description' => 'Annual subscription to the Starter tier — two months free versus monthly billing.',
         'amount' => 1990.00,
         'frequency' => Frequency::ANNUAL,
+        'max_members' => 5,
     ],
 
     'starter-onetime' => [

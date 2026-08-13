@@ -64,6 +64,12 @@ class PresetInstallMatrixTest extends TestCase
             'APP_ENV' => 'testing',
             'DB_CONNECTION' => 'sqlite',
             'DB_DATABASE' => $dbPath,
+            // This matrix is billing x mobile only — Teams depends on billing (see
+            // TeamsModule::dependencies()), so left at its own default it would make
+            // every billing=false combination here fail for an unrelated reason.
+            // tests/Feature/ModuleDependencyMatrixTest.php covers the teams x billing
+            // interaction (including the expected-failure case) on its own.
+            'MODULE_TEAMS_ENABLED' => 'false',
         ]);
 
         try {
