@@ -448,6 +448,19 @@ Plain `starter:doctor` is informational (always exits 0). `starter:doctor --prod
 
 Returns `{ status: 'ok'|'degraded', checks: { database, cache, queue } }` — 200 when every check passes, 503 otherwise. Deliberately minimal in what it discloses (no version/config details), matching this project's fail-closed security posture elsewhere. See `App\Http\Controllers\HealthController` and `tests/Feature/HealthCheckTest.php` (including simulated dependency failures via `DB::shouldReceive`/`Cache::shouldReceive`, not just the happy path).
 
+## Backend architecture/security tests
+
+Beyond the PayFast/permissions-specific tests already covered elsewhere: `tests/Feature/ApiRouteAuthorizationTest.php` sweeps the real route table and asserts every mutating (`POST`/`PUT`/`PATCH`/`DELETE`) `api/v1/*` route requires `auth:sanctum` unless explicitly allow-listed as genuinely public (currently just the login/2FA endpoints — the auth flow itself can't require auth) — catches "forgot to add `auth:sanctum` to a new route" as a failing test instead of a live gap. `tests/Feature/SecurityConfigurationTest.php` guards two cheap, easy-to-get-wrong things: CORS never combining a wildcard origin with `supports_credentials` (the classic real misconfiguration), and no `dd()`/`dump()`/`var_dump()`/`ray()`/`die()`/`exit()` left in `app/` (word-boundary-matched via regex — a naive substring check false-positives on `in_array(`/`array_map(` containing `ray(`).
+
+## Deployment, backup/restore, incident response (RS-404 / RS-405)
+
+`.github/workflows/deploy.yml.example` — a deployment template, not a working workflow (the `.example` suffix is deliberate: GitHub Actions only runs literal `*.yml`/`*.yaml` files, so this can never accidentally fire). Covers the parts that are genuinely the same regardless of hosting target — production build, `starter:doctor --production` as a real readiness gate before deploy, migration/cache-clear/Horizon-restart as the standard post-deploy sequence — and marks the one part that can't be templated generically (the actual deploy step: SSH/rsync, a PaaS's own deploy action, or a container registry push) with a clear TODO rather than a fake working example pointed at an imaginary host.
+
+`docs/operations/` — three runbooks, each grounded in this app's actual architecture rather than generic boilerplate:
+- `rollback.md` — code rollback (release-symlink pattern) vs. schema rollback (genuinely risky — additive migrations are safe to leave, destructive ones need a backup restore, not `migrate:rollback`, unless you've actually read what the `down()` method does), plus the module registry's own rollback story (an env var flip, not a schema change).
+- `backup-restore.md` — what actually needs backing up (database, `APP_KEY` — separately, losing it makes encrypted data permanently unreadable) vs. what doesn't (Redis — cache/queue are meant to be ephemeral) vs. what needs its own story (S3-backed media — a DB restore alone doesn't restore the actual files if the bucket itself was also lost).
+- `incident-response.md` — triage via `/health` (not just `/up`) and `starter:doctor`; where the 14 lara-auth-suite security events actually live (`activity_log`, `log_name = 'security'`, written by `LogSecurityActivity` — see "Auth flow" above) and which 4 are flagged `severity: 'high'` and worth an actual alert vs. just a database row; account-compromise session/token revocation; verifying a suspected PayFast ITN forgery attempt was actually rejected (it would have been, before touching any state — see "PayFast"); why a permission-fail-closed default can look alarming during an incident even though it's the correct behavior.
+
 ## Local development
 
 ```bash
