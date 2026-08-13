@@ -39,17 +39,25 @@ app/
 
 resources/js/app/
   components/         # AppDataTable, AppSectionCard, MediaUploader, FormActions, FormStatusAlert, BusyOverlay, AppToastHost, AuthCard
-  layouts/            # default.vue (sidebar + guest bar), auth.vue (split auth shell)
+  layouts/            # default.vue (admin sidebar + guest bar), auth.vue (split auth shell), guest.vue (marketing pages), customer.vue (lighter customer-surface topbar)
   pages/
     auth/             # login, forgot-password, reset-password, verify
-    admin/            # users
-    index.vue         # dashboard/home
+    admin/            # users, roles, audit-log, settings
+    account/          # sessions (active devices)
+    index.vue         # marketing home (layout: guest)
+    dashboard.vue      # admin surface home (layout: default)
+    customer/home.vue  # customer surface home (layout: customer)
+    notifications.vue  # full notification history (layout: contextual)
     profile.vue       # account/security page — not under auth/, it's not an auth flow
-  stores/             # session, profile, admin-users, two-factor, app-errors, auth-shared (utils)
+    legal/            # privacy, terms (static content pages)
+    support.vue       # contact/support page
+  stores/             # session, app-config (brand/nav bootstrap), profile, admin-users, two-factor, app-errors, notifications, auth-shared (utils)
   utils/api.js        # ofetch instance with credentials + headers
   plugins/vuetify.js  # rainwavesStarter theme
-  router/index.js     # vue-router/auto-routes + auth guard
+  router/index.js     # vue-router/auto-routes + auth guard + showcase/environment gating
 ```
+
+Which layout a page uses is declared per-page via a `<route lang="json">{ "meta": { "layout": "..." } }</route>` block (unplugin-vue-router convention), not inferred from folder location. `layout: "contextual"` (used by profile.vue, notifications.vue) picks `default.vue` on the admin surface and `customer.vue` on the customer surface at render time (see `App.vue`).
 
 ## Auth flow
 
@@ -203,6 +211,18 @@ User model uses `HasRoles` from `spatie/laravel-permission`. Guard: `web`.
 | `AppToastHost` | Toast notifications via app-errors store |
 | `AuthCard` | Centered auth card wrapper |
 | `AppHeader` | Unused in authenticated shell; kept for guest/public views |
+
+## Brand & navigation config (RS-101 / RS-102)
+
+`config/app-brand.php`, `config/features.php`, `config/navigation.php` are the single source of truth for product name/logo mark/footer, the `show_showcase_pages` toggle, and every nav item (main/admin/showcase/guest/legal groups), plus which roles count as the admin surface (`navigation.admin_roles`) and each surface's home route (`navigation.home_routes`). Nothing in the frontend hardcodes a brand name, role name, or nav item.
+
+`GET /api/v1/web-config` (public, unauthenticated) serves all three as one payload. `resources/js/app/stores/app-config.js` fetches it once (`ensureLoaded()`, called from the router guard alongside `session.ensureLoaded()` — both must resolve before `session.isAdminSurface`/`homeRoute` can be trusted, since those getters read `navigation.admin_roles`/`home_routes` from this store) with safe built-in fallbacks if the request fails. All four layouts (`default.vue`, `auth.vue`, `guest.vue`, `customer.vue`) render brand text from `appConfig.brand`; `default.vue`/`customer.vue`/`guest.vue` render nav items from `appConfig.navigation`, filtered client-side by surface, `item.permission` (checked against the session user's `permissions` array), and `item.environments`.
+
+To rebrand a copied project: edit the three config files (or their `.env` overrides) — no Vue changes needed.
+
+### Showcase pages (RS-106)
+
+Component catalogue, foundation, about, and the PayFast browser test are starter-authoring aids, not product surface. Their route meta carries `"showcase": true` (`payfast-browser-test.vue` additionally carries `"environments": ["local", "testing"]`). The router guard (`router/index.js`) redirects to the catch-all not-found page (`pages/[...notFound].vue`, path `/showcase-disabled`) when `features.show_showcase_pages` is false or the current environment isn't in `meta.environments`. `default.vue`'s sidebar only renders the "Showcase" nav group when `show_showcase_pages` is true. Set `SHOW_SHOWCASE_PAGES=false` in any deployed environment.
 
 ## Design system
 

@@ -9,11 +9,11 @@
                     <div class="sidebar__brand">
                         <RouterLink to="/" class="brand-mark" @click="mobileOpen = false">
                             <span class="brand-mark__badge">
-                                <span class="brand-mark__letters">RW</span>
+                                <span class="brand-mark__letters">{{ appConfig.brand.short_name }}</span>
                             </span>
                             <div class="brand-mark__text">
-                                <span class="brand-mark__name">Rainwaves</span>
-                                <span class="brand-mark__sub">Starter</span>
+                                <span class="brand-mark__name">{{ brandFirstWord }}</span>
+                                <span class="brand-mark__sub">{{ brandRest }}</span>
                             </div>
                         </RouterLink>
                     </div>
@@ -28,13 +28,27 @@
                             />
                         </div>
 
-                        <template v-if="isAdmin">
+                        <template v-if="isAdmin && adminNav.length">
                             <div class="nav-divider">
                                 <span class="nav-divider__label">Admin</span>
                             </div>
                             <div class="nav-group">
                                 <NavItem
                                     v-for="item in adminNav"
+                                    :key="item.to"
+                                    :item="item"
+                                    @click="mobileOpen = false"
+                                />
+                            </div>
+                        </template>
+
+                        <template v-if="isAdmin && showcaseNav.length">
+                            <div class="nav-divider">
+                                <span class="nav-divider__label">Showcase</span>
+                            </div>
+                            <div class="nav-group">
+                                <NavItem
+                                    v-for="item in showcaseNav"
                                     :key="item.to"
                                     :item="item"
                                     @click="mobileOpen = false"
@@ -85,11 +99,18 @@
                 <!-- Guest topbar -->
                 <header v-else class="guest-bar">
                     <RouterLink to="/" class="guest-brand">
-                        <span class="guest-brand__badge">RW</span>
-                        <span class="guest-brand__name">Rainwaves <em>Starter</em></span>
+                        <span class="guest-brand__badge">{{ appConfig.brand.short_name }}</span>
+                        <span class="guest-brand__name">{{ brandFirstWord }} <em>{{ brandRest }}</em></span>
                     </RouterLink>
                     <nav class="guest-nav">
-                        <RouterLink to="/about" class="guest-nav__link">About</RouterLink>
+                        <RouterLink
+                            v-for="item in guestNav"
+                            :key="item.to"
+                            :to="item.to"
+                            class="guest-nav__link"
+                        >
+                            {{ item.label }}
+                        </RouterLink>
                         <RouterLink to="/auth/register" class="guest-nav__link">Register</RouterLink>
                         <RouterLink to="/auth/login" class="guest-nav__cta">Sign in</RouterLink>
                     </nav>
@@ -109,32 +130,49 @@ import { computed, defineComponent, h, ref, watch } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 
 import AppNotificationPanel from '../components/AppNotificationPanel.vue';
-import { useSessionStore } from '../stores/session';
+import { useAppConfigStore } from '../stores/app-config';
 import { useNotificationsStore } from '../stores/notifications';
+import { useSessionStore } from '../stores/session';
 
 const session = useSessionStore();
+const appConfig = useAppConfigStore();
 const notifications = useNotificationsStore();
 const router = useRouter();
 const route = useRoute();
 const mobileOpen = ref(false);
 
-const mainNav = [
-    { label: 'Dashboard', to: '/dashboard',    icon: 'mdi-view-dashboard-outline' },
-    { label: 'PayFast Test', to: '/payfast-browser-test', icon: 'mdi-credit-card-check-outline' },
-    { label: 'Profile',   to: '/profile', icon: 'mdi-account-circle-outline' },
-];
+const isAdmin = computed(() => session.isAdminSurface);
 
-const adminNav = [
-    { label: 'Users', to: '/admin/users', icon: 'mdi-account-group-outline' },
-    { label: 'Components', to: '/components', icon: 'mdi-toy-brick-outline' },
-];
+// "Rainwaves Starter" -> badge shows "Rainwaves" bold + "Starter" as the muted
+// sub-label, matching the original two-line brand mark with a configurable name.
+const brandFirstWord = computed(() => appConfig.brand.name.split(' ')[0] ?? appConfig.brand.name);
+const brandRest = computed(() => appConfig.brand.name.split(' ').slice(1).join(' ') || appConfig.brand.tagline);
 
-const isAdmin = computed(() =>
-    session.user?.roles?.some((r) => ['super-admin', 'admin'].includes(r))
-);
+const hasPermission = (permission) => !permission || (session.user?.permissions ?? []).includes(permission);
+const inEnvironment = (environments) => !environments || environments.includes(appConfig.environment);
+
+const mainNav = computed(() => {
+    const surface = isAdmin.value ? 'admin' : 'customer';
+
+    return (appConfig.navigation.main ?? []).filter(
+        (item) => (!item.surfaces || item.surfaces.includes(surface)) && hasPermission(item.permission)
+    );
+});
+
+const adminNav = computed(() => (appConfig.navigation.admin ?? []).filter((item) => hasPermission(item.permission)));
+
+const showcaseNav = computed(() => {
+    if (!appConfig.features.show_showcase_pages) {
+        return [];
+    }
+
+    return (appConfig.navigation.showcase ?? []).filter((item) => inEnvironment(item.environments));
+});
+
+const guestNav = computed(() => appConfig.navigation.guest ?? []);
 
 const userInitials = computed(() =>
-    (session.user?.name || 'RW')
+    (session.user?.name || appConfig.brand.short_name)
         .split(' ')
         .filter(Boolean)
         .slice(0, 2)

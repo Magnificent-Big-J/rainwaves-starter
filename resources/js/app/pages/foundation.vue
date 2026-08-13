@@ -165,7 +165,8 @@
         "layout": "default",
         "title": "Foundation",
         "requiresAuth": true,
-        "adminOnly": true
+        "adminOnly": true,
+        "showcase": true
     }
 }
 </route>

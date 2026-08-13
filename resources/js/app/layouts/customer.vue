@@ -3,9 +3,9 @@
         <div class="customer-shell">
             <header class="customer-topbar">
                 <RouterLink to="/customer/home" class="customer-brand">
-                    <span class="customer-brand__badge">RW</span>
+                    <span class="customer-brand__badge">{{ appConfig.brand.short_name }}</span>
                     <span class="customer-brand__text">
-                        <strong>Rainwaves</strong>
+                        <strong>{{ appConfig.brand.name.split(' ')[0] }}</strong>
                         <span>Customer</span>
                     </span>
                 </RouterLink>
@@ -48,21 +48,24 @@ import { computed, watch } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 
 import AppNotificationPanel from '../components/AppNotificationPanel.vue';
+import { useAppConfigStore } from '../stores/app-config';
 import { useNotificationsStore } from '../stores/notifications';
 import { useSessionStore } from '../stores/session';
 
 const session = useSessionStore();
+const appConfig = useAppConfigStore();
 const notifications = useNotificationsStore();
 const route = useRoute();
 const router = useRouter();
 
-const customerNav = [
-    { label: 'Home', to: '/customer/home' },
-    { label: 'Profile', to: '/profile' },
-];
+const customerNav = computed(() =>
+    (appConfig.navigation.main ?? [])
+        .filter((item) => !item.surfaces || item.surfaces.includes('customer'))
+        .map((item) => ({ label: item.label, to: item.to }))
+);
 
 const userInitials = computed(() =>
-    (session.user?.name || 'RW')
+    (session.user?.name || appConfig.brand.short_name)
         .split(' ')
         .filter(Boolean)
         .slice(0, 2)

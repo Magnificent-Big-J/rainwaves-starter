@@ -376,7 +376,10 @@
     "meta": {
         "layout": "default",
         "title": "PayFast Browser Test",
-        "requiresAuth": true
+        "requiresAuth": true,
+        "adminOnly": true,
+        "showcase": true,
+        "environments": ["local", "testing"]
     }
 }
 </route>

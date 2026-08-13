@@ -55,7 +55,8 @@
 {
     "meta": {
         "layout": "guest",
-        "title": "About"
+        "title": "About",
+        "showcase": true
     }
 }
 </route>

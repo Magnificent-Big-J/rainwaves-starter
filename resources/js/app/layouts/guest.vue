@@ -11,11 +11,18 @@
             <div class="guest-shell__body">
                 <header class="guest-header">
                     <RouterLink to="/" class="guest-logo">
-                        <span class="guest-logo__badge">RW</span>
-                        <span class="guest-logo__name">Rainwaves</span>
+                        <span class="guest-logo__badge">{{ appConfig.brand.short_name }}</span>
+                        <span class="guest-logo__name">{{ appConfig.brand.name }}</span>
                     </RouterLink>
                     <nav class="guest-links">
-                        <RouterLink to="/about" class="guest-links__item">About</RouterLink>
+                        <RouterLink
+                            v-for="item in appConfig.navigation.guest"
+                            :key="item.to"
+                            :to="item.to"
+                            class="guest-links__item"
+                        >
+                            {{ item.label }}
+                        </RouterLink>
                         <RouterLink to="/auth/register" class="guest-links__item">Register</RouterLink>
                         <RouterLink to="/auth/login" class="guest-links__cta">Sign in</RouterLink>
                     </nav>
@@ -26,12 +33,18 @@
                 </main>
 
                 <footer class="guest-footer">
-                    <span>Rainwaves Starter &mdash; Laravel 13</span>
+                    <span>{{ appConfig.brand.footer }}</span>
                 </footer>
             </div>
         </div>
     </v-app>
 </template>
+
+<script setup>
+import { useAppConfigStore } from '../stores/app-config';
+
+const appConfig = useAppConfigStore();
+</script>
 
 <style scoped>
 .guest-shell {

@@ -35,12 +35,25 @@ router.beforeEach(async (to) => {
     if (to.meta.adminOnly && session.activeSurface !== 'admin') {
         return session.homeRoute;
     }
+
+    // RS-106: showcase pages (component catalogue, foundation, PayFast browser test,
+    // about) don't belong in a shipped product's route table. Rather than removing
+    // them from the build, gate them behind config/features.php `show_showcase_pages`
+    // and the environment they declare — a hit outside that falls through to the
+    // catch-all not-found page rather than a broken/half-working demo.
+    if (to.meta.showcase && !appConfig.features.show_showcase_pages) {
+        return '/showcase-disabled';
+    }
+
+    if (to.meta.environments && !to.meta.environments.includes(appConfig.environment)) {
+        return '/showcase-disabled';
+    }
 });
 
 router.afterEach((to) => {
-    document.title = to.meta.title
-        ? `${to.meta.title} | Rainwaves Starter`
-        : 'Rainwaves Starter';
+    const brandName = useAppConfigStore().brand.name;
+
+    document.title = to.meta.title ? `${to.meta.title} | ${brandName}` : brandName;
 });
 
 if (import.meta.hot) {

@@ -207,7 +207,8 @@
         "layout": "default",
         "title": "Components",
         "requiresAuth": true,
-        "adminOnly": true
+        "adminOnly": true,
+        "showcase": true
     }
 }
 </route>
