@@ -356,13 +356,7 @@ const demoAvatar = ref(null);
 </script>
 
 <style scoped>
-.catalog-page {
-    padding: 2rem 1.25rem 4rem;
-}
-
 .page-wrap {
-    max-width: 1180px;
-    margin: 0 auto;
     display: grid;
     gap: 1.5rem;
 }
@@ -419,20 +413,10 @@ const demoAvatar = ref(null);
 }
 
 @media (max-width: 960px) {
-    .catalog-page {
-        padding: 1.75rem 1rem 3rem;
-    }
-
     .catalog-stats,
     .catalog-grid,
     .catalog-playground {
         grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 480px) {
-    .catalog-page {
-        padding-inline: 0.75rem;
     }
 }
 </style>

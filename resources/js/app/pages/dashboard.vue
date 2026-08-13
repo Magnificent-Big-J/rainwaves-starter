@@ -269,9 +269,6 @@ onMounted(() => {
 
 <style scoped>
 .dashboard {
-    padding: 2.25rem 2rem 4rem;
-    max-width: 1180px;
-    margin: 0 auto;
     display: grid;
     gap: 2rem;
 }
@@ -468,19 +465,21 @@ onMounted(() => {
     }
 }
 
-@media (max-width: 860px) {
-    .dashboard {
-        padding: 1.75rem 1rem 3rem;
+/* On a genuinely fluid page, a wide viewport should put the extra room to use
+   rather than leaving it as dead space inside a still-2-column grid. */
+@media (min-width: 1440px) {
+    .dashboard__body {
+        grid-template-columns: 1fr 320px;
     }
 
-    .dashboard__commerce {
-        grid-template-columns: 1fr;
+    .module-grid {
+        grid-template-columns: repeat(4, 1fr);
     }
 }
 
-@media (max-width: 480px) {
-    .dashboard {
-        padding-inline: 0.75rem;
+@media (max-width: 860px) {
+    .dashboard__commerce {
+        grid-template-columns: 1fr;
     }
 }
 </style>

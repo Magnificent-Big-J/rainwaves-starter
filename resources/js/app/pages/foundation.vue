@@ -246,13 +246,7 @@ const timelineItems = [
 </script>
 
 <style scoped>
-.foundation-page {
-    padding: 2rem 1.25rem 4rem;
-}
-
 .foundation-page__wrap {
-    max-width: 1180px;
-    margin: 0 auto;
     display: grid;
     gap: 1.5rem;
 }
@@ -296,10 +290,6 @@ const timelineItems = [
 }
 
 @media (max-width: 960px) {
-    .foundation-page {
-        padding: 1.75rem 1rem 3rem;
-    }
-
     .foundation-stats {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -312,10 +302,6 @@ const timelineItems = [
 }
 
 @media (max-width: 600px) {
-    .foundation-page {
-        padding-inline: 0.75rem;
-    }
-
     .foundation-stats {
         grid-template-columns: 1fr;
     }

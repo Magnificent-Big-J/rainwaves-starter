@@ -49,12 +49,14 @@
                 title="User directory"
                 subtitle="Filter starter accounts and update role assignments from the reusable admin table surface."
             >
+                <!-- admin-users__status-filter carries no styles of its own (AppFilterBar
+                     sizes these generically) — it's a stable hook tests/e2e/admin-users.spec.js
+                     clicks by class to work around a Vuetify select click-target quirk. -->
                 <AppFilterBar>
                     <AppTextField
                         v-model="filters.search"
                         label="Search users"
                         prepend-inner-icon="mdi-magnify"
-                        class="admin-users__search"
                         @update:model-value="onSearch"
                     />
                     <AppSelect
@@ -64,7 +66,6 @@
                             ...store.options.roles.map((r) => ({ title: r, value: r })),
                         ]"
                         label="Filter by role"
-                        class="admin-users__role-filter"
                         @update:model-value="onFilterChange"
                     />
                     <AppSelect
@@ -507,13 +508,7 @@ onMounted(load);
 </script>
 
 <style scoped>
-.admin-users-page {
-    padding: 2rem 1.25rem 4rem;
-}
-
 .page-wrap {
-    max-width: 1180px;
-    margin: 0 auto;
     display: grid;
     gap: 1.5rem;
 }
@@ -524,17 +519,8 @@ onMounted(load);
     gap: 0.9rem;
 }
 
-.admin-users__role-filter,
-.admin-users__status-filter {
-    min-width: 180px;
-}
-
 .text-right {
     text-align: right;
-}
-
-.admin-users__search {
-    min-width: min(360px, 100%);
 }
 
 .user-cell {
@@ -582,18 +568,8 @@ onMounted(load);
 }
 
 @media (max-width: 960px) {
-    .admin-users-page {
-        padding: 1.75rem 1rem 3rem;
-    }
-
     .admin-users__stats {
         grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 480px) {
-    .admin-users-page {
-        padding-inline: 0.75rem;
     }
 }
 </style>

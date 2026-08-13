@@ -18,6 +18,23 @@
             </template>
         </AppPageHeader>
 
+        <div class="sessions-page__stats">
+            <AppStatCard
+                label="Active sessions"
+                :value="String(sessions.items.length)"
+                helper="Browsers currently signed in"
+                icon="mdi-monitor-multiple"
+                status="active"
+            />
+            <AppStatCard
+                label="Other sessions"
+                :value="String(otherSessions.length)"
+                helper="Everything except this device"
+                icon="mdi-monitor-off"
+                :status="otherSessions.length > 0 ? 'warning' : 'active'"
+            />
+        </div>
+
         <AppSectionCard title="Active sessions">
             <div v-if="sessions.loading && !sessions.items.length" class="sessions-page__loading">
                 <AppSkeleton v-for="n in 3" :key="n" height="64px" />
@@ -95,6 +112,7 @@ import AppEmptyState from '../../components/AppEmptyState.vue';
 import AppPageHeader from '../../components/AppPageHeader.vue';
 import AppSectionCard from '../../components/AppSectionCard.vue';
 import AppSkeleton from '../../components/AppSkeleton.vue';
+import AppStatCard from '../../components/AppStatCard.vue';
 import AppStatusBadge from '../../components/AppStatusBadge.vue';
 import ConfirmDialog from '../../components/ConfirmDialog.vue';
 import { useSessionsStore } from '../../stores/sessions';
@@ -127,7 +145,19 @@ onMounted(() => sessions.fetch());
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    max-width: 860px;
+}
+
+.sessions-page__stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+    max-width: 640px;
+}
+
+@media (max-width: 600px) {
+    .sessions-page__stats {
+        grid-template-columns: 1fr;
+    }
 }
 
 .sessions-page__loading {

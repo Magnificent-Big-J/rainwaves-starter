@@ -413,9 +413,6 @@ onMounted(async () => {
 
 <style scoped>
 .profile-page {
-    padding: 2.25rem 2rem 4rem;
-    max-width: 1180px;
-    margin: 0 auto;
     display: grid;
     gap: 1.5rem;
 }
@@ -426,11 +423,17 @@ onMounted(async () => {
     gap: 0.9rem;
 }
 
+/* Fluid, but capped: forms genuinely get harder to scan past a certain width
+   (an input box stretched to 900px is worse UX, not better use of space), so
+   this is a deliberate exception to "no max-width" — a content-width cap for
+   readability, not the page boxing/centering itself the way the old
+   `.profile-page` rule did. */
 .profile-grid {
     display: grid;
     gap: 1.25rem;
     align-items: start;
     grid-template-columns: minmax(0, 1fr) minmax(360px, 0.95fr);
+    max-width: 1500px;
 }
 
 .profile-col {
@@ -440,10 +443,6 @@ onMounted(async () => {
 }
 
 @media (max-width: 960px) {
-    .profile-page {
-        padding: 1.75rem 1rem 3rem;
-    }
-
     .profile-stats,
     .profile-grid {
         grid-template-columns: 1fr;
@@ -451,10 +450,6 @@ onMounted(async () => {
 }
 
 @media (max-width: 480px) {
-    .profile-page {
-        padding-inline: 0.75rem;
-    }
-
     .twofa-confirm-actions {
         flex-wrap: wrap;
     }

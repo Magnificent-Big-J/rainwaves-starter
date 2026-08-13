@@ -640,8 +640,13 @@ const NavItem = defineComponent({
 }
 
 /* App main ─────────────────────────────────────────── */
+/* Single source of truth for page spacing — every page rendered through this
+   layout gets consistent padding here rather than each page declaring (or
+   forgetting to declare) its own. Pages themselves must stay fluid (no
+   max-width/margin:auto self-boxing) so this padding is the only inset. */
 .app-main {
     flex: 1;
+    padding: 2rem 2rem 4rem;
 }
 
 /* Desktop: sidebar always visible ──────────────────── */
@@ -666,6 +671,10 @@ const NavItem = defineComponent({
 @media (max-width: 959px) {
     .topbar {
         padding: 0 1rem;
+    }
+
+    .app-main {
+        padding: 1.75rem 1rem 3rem;
     }
 }
 
@@ -697,6 +706,10 @@ const NavItem = defineComponent({
 }
 
 @media (max-width: 480px) {
+    .app-main {
+        padding-inline: 0.75rem;
+    }
+
     .sidebar__footer {
         padding: 0.75rem 0.625rem;
     }
@@ -711,6 +724,21 @@ const NavItem = defineComponent({
 
     .guest-bar {
         padding-inline: 0.75rem;
+    }
+}
+</style>
+
+<style>
+/* Global, unscoped on purpose: Vuetify teleports dialog scrims to a container
+   outside this component's DOM tree, so scoped styles can't reach them.
+   By default the scrim dims the full viewport, which washes out the
+   persistent sidebar — that's global chrome, not backdrop content a dialog
+   is replacing, so it shouldn't read as "gone" every time a modal opens.
+   Only applied at the desktop breakpoint where the sidebar is a static
+   column; below 960px it's a mobile drawer the scrim should still cover. */
+@media (min-width: 960px) {
+    .v-overlay__scrim {
+        left: var(--rw-sidebar) !important;
     }
 }
 </style>
