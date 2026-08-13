@@ -4,12 +4,14 @@ namespace App\Modules\Billing\Http\Controllers;
 
 use App\Enums\SubscriptionStatus;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Modules\Billing\Contracts\PayFastCheckoutServiceInterface;
 use App\Modules\Billing\Http\Requests\InitiateOneTimePaymentRequest;
 use App\Modules\Billing\Http\Requests\InitiateSubscriptionPaymentRequest;
 use App\Modules\Billing\Models\Payment;
 use App\Modules\Billing\Models\PaymentEvent;
 use App\Modules\Billing\Models\Subscription;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -32,9 +34,12 @@ class PayFastController extends Controller
 
     public function initiateOneTime(InitiateOneTimePaymentRequest $request): Response
     {
+        [$userId, $customerData] = $this->resolveCheckoutContext($request);
+
         $result = $this->checkout->initiateOneTimePayment(
-            $request->validated(),
-            $request->user()?->id
+            $request->validated('plan'),
+            $customerData,
+            $userId
         );
 
         return response($result['html'], 200)->header('Content-Type', 'text/html');
@@ -108,12 +113,52 @@ class PayFastController extends Controller
 
     public function initiateSubscription(InitiateSubscriptionPaymentRequest $request): Response
     {
+        [$userId, $customerData] = $this->resolveCheckoutContext($request);
+        $customerData['billing_date'] = $request->validated('billing_date');
+        $customerData['cycles'] = $request->validated('cycles');
+
         $result = $this->checkout->initiateSubscriptionPayment(
-            $request->validated(),
-            $request->user()?->id
+            $request->validated('plan'),
+            $customerData,
+            $userId
         );
 
         return response($result['html'], 200)->header('Content-Type', 'text/html');
+    }
+
+    /**
+     * Who the checkout is actually for, and their contact details. Self-checkout
+     * (the default) uses the authenticated user's id and whatever name/email the
+     * request supplied. A caller with payments.manage can check someone else out
+     * by passing user_id — in that case contact details are resolved from the
+     * target user's own record, not the request body, since the caller's browser
+     * session doesn't represent the customer being checked out.
+     *
+     * @return array{0: ?int, 1: array}
+     */
+    private function resolveCheckoutContext(FormRequest $request): array
+    {
+        $userId = $request->user()?->id;
+        $customerData = [
+            'name_first' => $request->validated('name_first'),
+            'name_last' => $request->validated('name_last'),
+            'email_address' => $request->validated('email_address'),
+            'm_payment_id' => $request->validated('m_payment_id'),
+        ];
+
+        if ($request->filled('user_id') && $request->user()?->can('payments.manage')) {
+            $target = User::query()->find((int) $request->validated('user_id'));
+
+            if ($target) {
+                $userId = $target->id;
+                [$firstName, $lastName] = array_pad(explode(' ', (string) $target->name, 2), 2, null);
+                $customerData['name_first'] = $firstName;
+                $customerData['name_last'] = $lastName;
+                $customerData['email_address'] = $target->email;
+            }
+        }
+
+        return [$userId, $customerData];
     }
 
     public function itn(Request $request): Response

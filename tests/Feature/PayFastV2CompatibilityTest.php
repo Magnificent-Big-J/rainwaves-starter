@@ -31,10 +31,7 @@ class PayFastV2CompatibilityTest extends TestCase
 
     public function test_one_time_checkout_still_generates_a_stored_pay_fast_form(): void
     {
-        $result = $this->service()->initiateOneTimePayment([
-            'amount' => '199.99',
-            'item_name' => 'Starter Plan',
-            'item_description' => 'One time setup',
+        $result = $this->service()->initiateOneTimePayment('starter-onetime', [
             'email_address' => 'customer@rainwaves.test',
             'm_payment_id' => 'RW-1001',
         ]);
@@ -57,12 +54,8 @@ class PayFastV2CompatibilityTest extends TestCase
 
     public function test_subscription_checkout_still_generates_a_stored_pay_fast_form(): void
     {
-        $result = $this->service()->initiateSubscriptionPayment([
-            'amount' => '99.00',
-            'item_name' => 'Monthly Starter Plan',
+        $result = $this->service()->initiateSubscriptionPayment('starter-monthly', [
             'billing_date' => '2026-08-01',
-            'recurring_amount' => '99.00',
-            'frequency' => Frequency::MONTHLY,
             'cycles' => 0,
             'email_address' => 'customer@rainwaves.test',
             'm_payment_id' => 'SUB-1001',
@@ -130,10 +123,7 @@ class PayFastV2CompatibilityTest extends TestCase
 
     public function test_browser_test_records_and_simulated_itn_expose_local_state(): void
     {
-        $this->service()->initiateOneTimePayment([
-            'amount' => '150.00',
-            'item_name' => 'Browser View Smoke',
-            'item_description' => 'Browser records view',
+        $this->service()->initiateOneTimePayment('starter-onetime', [
             'email_address' => 'customer@rainwaves.test',
             'm_payment_id' => 'RW-BROWSER-VIEW',
         ]);

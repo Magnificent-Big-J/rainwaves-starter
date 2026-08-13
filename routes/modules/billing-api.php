@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 // doesn't inherit an outer group from a different file.
 Route::middleware(['auth:sanctum', 'idempotency'])->group(function () {
     Route::get('/v1/billing', [BillingController::class, 'show']);
+    Route::get('/v1/billing/plans', [BillingController::class, 'plans']);
     Route::get('/v1/subscriptions', [SubscriptionController::class, 'index']);
     Route::post('/v1/subscriptions/{subscription}/cancel', [SubscriptionController::class, 'cancel']);
 });
