@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\PayFastController;
+use App\Modules\Billing\Http\Controllers\PayFastController;
 use Illuminate\Support\Facades\Route;
 
 // Production-safe PayFast surface only: checkout initiation, the ITN webhook, and

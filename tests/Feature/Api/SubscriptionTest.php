@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Api;
 
-use App\Contracts\PayFastCheckoutServiceInterface;
 use App\Enums\SubscriptionStatus;
-use App\Models\Subscription;
 use App\Models\User;
+use App\Modules\Billing\Contracts\PayFastCheckoutServiceInterface;
+use App\Modules\Billing\Models\Subscription;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use RuntimeException;
 use Tests\TestCase;

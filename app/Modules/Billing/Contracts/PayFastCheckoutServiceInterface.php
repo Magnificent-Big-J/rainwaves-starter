@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Contracts;
+namespace App\Modules\Billing\Contracts;
 
-use App\Models\Subscription;
+use App\Modules\Billing\Models\Subscription;
 
 interface PayFastCheckoutServiceInterface
 {
