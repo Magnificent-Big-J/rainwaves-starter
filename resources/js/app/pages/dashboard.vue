@@ -79,32 +79,37 @@
 
         <div class="dashboard__commerce">
             <PaymentStatusCard
-                title="One-time payment"
-                subtitle="Starter billing summary primitive"
-                amount="R 1,499.00"
-                reference="Order #RW-10027"
-                status="processing"
-                provider="PayFast"
-                customer="Starter Owner"
-                requested-at="Today, 10:40"
-                settled-at="Awaiting ITN"
+                v-if="billing.latestPayment"
+                title="Latest payment"
+                :amount="`R ${Number(billing.latestPayment.amount_gross ?? billing.latestPayment.amount_requested).toFixed(2)}`"
+                :reference="billing.latestPayment.merchant_payment_id"
+                :status="billing.latestPayment.status"
+                :status-label="billing.latestPayment.status_label"
+                :provider="billing.latestPayment.provider"
+                :customer="billing.latestPayment.customer_name || '—'"
+                :requested-at="formatDate(billing.latestPayment.initiated_at)"
+                :settled-at="billing.latestPayment.paid_at ? formatDate(billing.latestPayment.paid_at) : 'Awaiting ITN'"
             />
+            <AppSectionCard v-else title="Latest payment" subtitle="No payments recorded yet" />
 
             <SubscriptionStatusCard
-                title="Recurring subscription"
-                subtitle="Starter subscription surface"
-                amount="R 299.00 / month"
-                plan="Growth plan"
-                status="active"
-                billing-date="01 May 2026"
-                cycles="0"
+                v-if="billing.latestSubscription"
+                title="Subscription"
+                :amount="`R ${Number(billing.latestSubscription.recurring_amount).toFixed(2)} / cycle`"
+                :plan="billing.latestSubscription.item_name"
+                :status="billing.latestSubscription.status"
+                :status-label="billing.latestSubscription.status_label"
+                :billing-date="billing.latestSubscription.billing_date || 'Not scheduled'"
+                :cycles="String(billing.latestSubscription.cycles ?? 0)"
+                :terminal="billing.latestSubscription.is_terminal"
             />
+            <AppSectionCard v-else title="Subscription" subtitle="No subscriptions recorded yet" />
         </div>
 
         <PaymentEventList
             title="Recent payment events"
             subtitle="Use this list for ITN history, billing audit, and support tooling."
-            :events="paymentEvents"
+            :events="timelineEvents"
         />
     </div>
 </template>
@@ -121,19 +126,23 @@
 </route>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 
+import AppBanner from '../components/AppBanner.vue';
 import AppPageHeader from '../components/AppPageHeader.vue';
 import AppSectionCard from '../components/AppSectionCard.vue';
 import AppStatCard from '../components/AppStatCard.vue';
 import AppStatusBadge from '../components/AppStatusBadge.vue';
-import AppBanner from '../components/AppBanner.vue';
 import PaymentEventList from '../components/PaymentEventList.vue';
 import PaymentStatusCard from '../components/PaymentStatusCard.vue';
 import SubscriptionStatusCard from '../components/SubscriptionStatusCard.vue';
+import { useAdminRolesStore } from '../stores/admin-roles';
+import { useBillingStore } from '../stores/billing';
 import { useSessionStore } from '../stores/session';
 
 const session = useSessionStore();
+const billing = useBillingStore();
+const adminRoles = useAdminRolesStore();
 
 const greeting = computed(() => {
     const h = new Date().getHours();
@@ -157,10 +166,10 @@ const today = computed(() =>
     new Date().toLocaleDateString('en-ZA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
 );
 
-const stats = [
+const stats = computed(() => [
     {
         label: 'Active roles',
-        value: '4',
+        value: String(adminRoles.rows.length),
         helper: 'Seeded platform roles',
         icon: 'mdi-shield-account-outline',
         bg: 'rgba(0,106,74,0.08)',
@@ -168,7 +177,7 @@ const stats = [
     },
     {
         label: 'Permissions seeded',
-        value: '21',
+        value: String(adminRoles.options.permissions.length),
         helper: 'Authorization baseline',
         icon: 'mdi-key-outline',
         bg: 'rgba(180,83,9,0.08)',
@@ -190,7 +199,7 @@ const stats = [
         bg: 'rgba(101,16,147,0.08)',
         iconColor: '#6510a3',
     },
-];
+]);
 
 const modules = [
     {
@@ -232,29 +241,21 @@ const stackItems = [
     { name: 'Horizon', ver: '5' },
 ];
 
-const paymentEvents = [
-    {
-        id: 1,
-        title: 'Checkout initiated',
-        time: 'Today, 10:40',
-        text: 'One-time order RW-10027 was sent to PayFast for customer redirect.',
-        type: 'info',
-    },
-    {
-        id: 2,
-        title: 'ITN received',
-        time: 'Today, 10:43',
-        text: 'Provider callback validated the merchant signature and queued reconciliation.',
-        type: 'warning',
-    },
-    {
-        id: 3,
-        title: 'Payment completed',
-        time: 'Today, 10:45',
-        text: 'Payment settled successfully and the starter payment aggregate moved to paid.',
-        type: 'success',
-    },
-];
+const formatDate = (iso) => (iso ? new Date(iso).toLocaleString() : '—');
+
+const timelineEvents = computed(() =>
+    billing.recentEvents.map((event) => ({
+        id: event.id,
+        title: event.event_type,
+        time: formatDate(event.received_at),
+        text: event.payment_id ? `Payment #${event.payment_id}` : `Subscription #${event.subscription_id}`,
+    }))
+);
+
+onMounted(() => {
+    billing.fetch();
+    adminRoles.fetch();
+});
 </script>
 
 <style scoped>
