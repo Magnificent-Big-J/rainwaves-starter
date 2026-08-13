@@ -28,7 +28,10 @@ class WebConfigController extends Controller
             // RS-301: which modules are enabled, so the frontend can hide module-owned
             // nav items and skip fetching module-owned data (e.g. billing widgets on
             // dashboard.vue/customer/home.vue) without needing to know why.
-            'modules' => ['billing' => $this->modules->isEnabled('billing')],
+            'modules' => [
+                'billing' => $this->modules->isEnabled('billing'),
+                'mobile' => $this->modules->isEnabled('mobile'),
+            ],
         ]);
     }
 }
