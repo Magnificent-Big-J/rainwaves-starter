@@ -18,7 +18,10 @@ class ModuleDisableTest extends TestCase
 {
     public function test_billing_routes_are_absent_when_the_module_is_disabled(): void
     {
-        $uris = array_column($this->routesFor(['MODULE_BILLING_ENABLED' => 'false']), 'uri');
+        // Teams depends on billing (TeamsModule::dependencies()) — left at its own
+        // default here it would fail for an unrelated reason. The teams x billing
+        // dependency interaction is covered on its own elsewhere.
+        $uris = array_column($this->routesFor(['MODULE_BILLING_ENABLED' => 'false', 'MODULE_TEAMS_ENABLED' => 'false']), 'uri');
 
         foreach ($this->billingUris() as $uri) {
             $this->assertNotContains($uri, $uris, "Billing route [{$uri}] must not be registered when the module is disabled.");
@@ -47,7 +50,7 @@ class ModuleDisableTest extends TestCase
 
     public function test_migrate_fresh_does_not_create_billing_tables_when_the_module_is_disabled(): void
     {
-        $tables = $this->tablesAfterMigrateFresh(['MODULE_BILLING_ENABLED' => 'false']);
+        $tables = $this->tablesAfterMigrateFresh(['MODULE_BILLING_ENABLED' => 'false', 'MODULE_TEAMS_ENABLED' => 'false']);
 
         foreach (['subscriptions', 'payments', 'payment_events'] as $table) {
             $this->assertNotContains($table, $tables, "Table [{$table}] must not exist when the billing module is disabled.");
@@ -120,6 +123,29 @@ class ModuleDisableTest extends TestCase
         foreach (['devices', 'sync_operations', 'sync_tombstones'] as $table) {
             $this->assertContains($table, $tables);
         }
+    }
+
+    /**
+     * Teams depends on Billing (TeamsModule::dependencies()). ModuleRegistry validates
+     * this too, but only when something actually resolves it from the container — a
+     * plain route:list never does, so without a bootstrap-level check Teams' routes
+     * would silently register regardless of Billing's state (a real bug caught live,
+     * not by this test first: route:list returned Teams' routes fine with billing
+     * disabled before bootstrap/providers.php gained its own check). This proves the
+     * invalid combination fails loudly at boot, before anything registers.
+     */
+    public function test_boot_fails_loudly_when_teams_is_enabled_but_billing_is_disabled(): void
+    {
+        $process = new Process(
+            ['php', 'artisan', 'route:list', '--path=v1/team'],
+            base_path(),
+            array_merge($_SERVER, $_ENV, ['MODULE_TEAMS_ENABLED' => 'true', 'MODULE_BILLING_ENABLED' => 'false'])
+        );
+
+        $process->run();
+
+        $this->assertFalse($process->isSuccessful());
+        $this->assertStringContainsString('MODULE_TEAMS_ENABLED requires MODULE_BILLING_ENABLED', $process->getOutput());
     }
 
     /** @return list<string> */

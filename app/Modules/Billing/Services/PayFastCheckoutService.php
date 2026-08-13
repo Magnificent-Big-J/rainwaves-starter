@@ -22,7 +22,7 @@ class PayFastCheckoutService implements PayFastCheckoutServiceInterface
     {
         $definition = $this->resolvePlan($plan, 'payment');
 
-        return DB::transaction(function () use ($definition, $customerData, $userId) {
+        return DB::transaction(function () use ($plan, $definition, $customerData, $userId) {
             $merchantPaymentId = $customerData['m_payment_id'] ?? (string) str()->uuid();
 
             $data = [
@@ -38,6 +38,7 @@ class PayFastCheckoutService implements PayFastCheckoutServiceInterface
                 ['merchant_payment_id' => $merchantPaymentId],
                 [
                     'user_id' => $userId,
+                    'plan_key' => $plan,
                     'provider' => 'payfast',
                     'item_name' => $data['item_name'],
                     'item_description' => $data['item_description'],
@@ -72,7 +73,7 @@ class PayFastCheckoutService implements PayFastCheckoutServiceInterface
     {
         $definition = $this->resolvePlan($plan, 'subscription');
 
-        return DB::transaction(function () use ($definition, $customerData, $userId) {
+        return DB::transaction(function () use ($plan, $definition, $customerData, $userId) {
             $merchantPaymentId = $customerData['m_payment_id'] ?? ('sub-'.str()->uuid());
             $frequency = (int) $definition['frequency'];
             $cycles = (int) ($customerData['cycles'] ?? 0);
@@ -91,6 +92,7 @@ class PayFastCheckoutService implements PayFastCheckoutServiceInterface
                 ['merchant_payment_id' => $merchantPaymentId],
                 [
                     'user_id' => $userId,
+                    'plan_key' => $plan,
                     'provider' => 'payfast',
                     'item_name' => $data['item_name'],
                     'amount_requested' => (float) $data['amount'],

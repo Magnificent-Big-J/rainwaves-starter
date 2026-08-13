@@ -12,6 +12,10 @@ class Subscription extends Model
 {
     protected $fillable = [
         'user_id',
+        // See the identical comment in Payment.php — Teams-owned columns, deliberately
+        // no team() relation here to keep the module dependency direction one-way.
+        'team_id',
+        'plan_key',
         'merchant_payment_id',
         'provider',
         'token',
