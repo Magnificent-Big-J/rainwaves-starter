@@ -9,14 +9,29 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use RuntimeException;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class UserAdminService implements UserAdminServiceInterface
 {
-    public function paginate(int $perPage = 15, ?string $search = null, ?string $role = null): LengthAwarePaginator
-    {
-        return User::query()
+    private const SORTABLE_COLUMNS = ['name', 'email', 'created_at'];
+
+    public function paginate(
+        int $perPage = 15,
+        ?string $search = null,
+        ?string $role = null,
+        ?string $status = null,
+        ?string $sortBy = null,
+        string $sortDirection = 'asc',
+    ): LengthAwarePaginator {
+        $query = match ($status) {
+            'archived' => User::onlyTrashed(),
+            'all' => User::withTrashed(),
+            default => User::query(),
+        };
+
+        return $query
             ->when($search, function ($query, $searchTerm) {
                 $query->where(function ($inner) use ($searchTerm) {
                     $inner->where('name', 'like', "%{$searchTerm}%")
@@ -30,7 +45,11 @@ class UserAdminService implements UserAdminServiceInterface
                     $rolesQuery->whereRaw('LOWER(name) = ?', [$normalizedRole]);
                 });
             })
-            ->latest('id')
+            ->when(
+                in_array($sortBy, self::SORTABLE_COLUMNS, true),
+                fn ($query) => $query->orderBy($sortBy, $sortDirection === 'desc' ? 'desc' : 'asc'),
+                fn ($query) => $query->latest('id'),
+            )
             ->paginate($perPage);
     }
 
@@ -101,6 +120,53 @@ class UserAdminService implements UserAdminServiceInterface
 
             return $user->refresh();
         });
+    }
+
+    public function archive(User $user): User
+    {
+        return DB::transaction(function () use ($user) {
+            if ($user->hasRole('super-admin') && $this->isLastSuperAdmin($user)) {
+                throw new RuntimeException('Cannot archive the last remaining super-admin — promote another user first.');
+            }
+
+            $user->delete();
+
+            if (function_exists('activity')) {
+                activity('admin-users')
+                    ->performedOn($user)
+                    ->causedBy(auth()->user())
+                    ->event('archived')
+                    ->log('Admin archived user');
+            }
+
+            return $user;
+        });
+    }
+
+    public function restore(User $user): User
+    {
+        return DB::transaction(function () use ($user) {
+            $user->restore();
+
+            if (function_exists('activity')) {
+                activity('admin-users')
+                    ->performedOn($user)
+                    ->causedBy(auth()->user())
+                    ->event('restored')
+                    ->log('Admin restored user');
+            }
+
+            return $user->refresh();
+        });
+    }
+
+    private function isLastSuperAdmin(User $user): bool
+    {
+        if (! $this->permissionTablesReady()) {
+            return false;
+        }
+
+        return User::role('super-admin')->where('id', '!=', $user->id)->doesntExist();
     }
 
     public function availableRoles(): array

@@ -120,6 +120,8 @@ Under `auth:sanctum` + `idempotency` middleware:
 | GET | `/api/v1/users` | UserAdminController@index |
 | POST | `/api/v1/users` | UserAdminController@store |
 | PATCH | `/api/v1/users/{user}` | UserAdminController@update |
+| DELETE | `/api/v1/users/{user}` | UserAdminController@destroy — archive (soft delete) |
+| POST | `/api/v1/users/{user}/restore` | UserAdminController@restore |
 | GET | `/api/v1/roles` | RoleAdminController@index |
 | PUT | `/api/v1/roles/{role}/permissions` | RoleAdminController@updatePermissions |
 | GET | `/api/v1/activity-log` | ActivityLogController@index |
@@ -231,6 +233,17 @@ Until this was added, the *only* place in the SPA that ever called `/payments/pa
 - `dashboard.vue` and `customer/home.vue` now pull the same `billing` store instead of hardcoding `PaymentStatusCard`/`SubscriptionStatusCard` props; `dashboard.vue`'s role/permission stat counts also now come from `admin-roles.js` instead of hardcoded `'4'`/`'21'` literals that would silently drift from the real seeded data.
 
 `PaymentResource`/`SubscriptionResource`/`PaymentEventResource` (new, `app/Http/Resources/`) are the shared serialization for `Payment`/`Subscription`/`PaymentEvent` — reach for these rather than hand-rolling arrays if another endpoint needs to expose the same models.
+
+### User archive/restore + AppDataTable hardening (Gate 2 reference CRUD module)
+
+`UserAdminController`/`UserAdminService` previously had no delete at all — Gate 2's own definition of a reference CRUD module is explicit ("create/read/update/**archive/restore/delete**"), so this was the concrete gap. `User` now uses Laravel's `SoftDeletes` (migration `2026_08_13_083710_add_soft_deletes_to_users_table`): archiving is a soft delete, which — for free, via Eloquent's default soft-delete query scope — also blocks the archived user from logging in, since the auth provider's user lookup excludes trashed rows.
+
+- `DELETE /api/v1/users/{user}` (archive) / `POST /api/v1/users/{user}/restore` (route uses `->withTrashed()` for binding). Guards: can't archive yourself, can't archive the last remaining `super-admin` (`UserAdminService::isLastSuperAdmin()`).
+- `UserAdminService::paginate()` gained `$status` (`active`/`archived`/`all`) and `$sortBy`/`$sortDirection` params.
+- `AppDataTable.vue` gained real hardening, generically (any page can opt in):
+  - **Sort**: `columns` items take `sortable: true` and optional `sortKey` (when the column's display doesn't match the backend's sort field name, e.g. the `users.vue` "User" column sorts by `name`). Parent-controlled via `:sort-by`/`:sort-direction` props + `@sort` event, same pattern as `@page-change`.
+  - **Bulk actions**: `selectable` + `v-model:selected` (array of row ids) renders a checkbox column; while anything is selected, the toolbar is replaced by a bulk-action bar rendering the `#bulk-actions` slot (`{ selected, clear }`).
+- `admin/users.vue` is the reference implementation of both: sortable columns, bulk-select + bulk-archive, a Status filter (Active/Archived/All), and per-row Archive/Restore actions. `stores/admin-users.js::bulkArchive()` fans out to the single-item endpoint via `Promise.allSettled` rather than a dedicated bulk endpoint — reasonable for a lightweight, roughly-idempotent action; a module with heavier bulk semantics (partial-failure reporting, transactions) would want a real endpoint instead.
 
 ### Subscription management
 
