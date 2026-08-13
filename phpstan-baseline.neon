@@ -22,7 +22,7 @@ parameters:
 			message: '#^Call to function in_array\(\) with arguments string, array\{App\\Enums\\SubscriptionStatus\:\:Cancelled, App\\Enums\\SubscriptionStatus\:\:Failed\} and true will always evaluate to false\.$#'
 			identifier: function.impossibleType
 			count: 1
-			path: app/Http/Controllers/Api/SubscriptionController.php
+			path: app/Modules/Billing/Http/Controllers/SubscriptionController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$deleted_at\.$#'
@@ -52,67 +52,67 @@ parameters:
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$merchant_payment_id\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/Http/Controllers/PayFastController.php
+			path: app/Modules/Billing/Http/Controllers/PayFastController.php
 
 		-
 			message: '#^Cannot access property \$value on string\.$#'
 			identifier: property.nonObject
 			count: 2
-			path: app/Http/Controllers/PayFastController.php
+			path: app/Modules/Billing/Http/Controllers/PayFastController.php
 
 		-
 			message: '#^Cannot call method toDateString\(\) on string\.$#'
 			identifier: method.nonObject
 			count: 2
-			path: app/Http/Controllers/PayFastController.php
+			path: app/Modules/Billing/Http/Controllers/PayFastController.php
 
 		-
 			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
 			identifier: method.nonObject
 			count: 6
-			path: app/Http/Controllers/PayFastController.php
+			path: app/Modules/Billing/Http/Controllers/PayFastController.php
 
 		-
 			message: '#^Match expression does not handle remaining value\: mixed$#'
 			identifier: match.unhandled
 			count: 1
-			path: app/Http/Controllers/PayFastController.php
+			path: app/Modules/Billing/Http/Controllers/PayFastController.php
 
 		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Payment\>\:\:map\(\) contains unresolvable type\.$#'
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Modules\\Billing\\Models\\Payment\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/PayFastController.php
+			path: app/Modules/Billing/Http/Controllers/PayFastController.php
 
 		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\PaymentEvent\>\:\:map\(\) contains unresolvable type\.$#'
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Modules\\Billing\\Models\\PaymentEvent\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/PayFastController.php
+			path: app/Modules/Billing/Http/Controllers/PayFastController.php
 
 		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\Subscription\>\:\:map\(\) contains unresolvable type\.$#'
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Modules\\Billing\\Models\\Subscription\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: app/Http/Controllers/PayFastController.php
+			path: app/Modules/Billing/Http/Controllers/PayFastController.php
 
 		-
 			message: '#^Using nullsafe method call on non\-nullable type string\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 2
-			path: app/Http/Controllers/PayFastController.php
+			path: app/Modules/Billing/Http/Controllers/PayFastController.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>merchant_payment_id" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: app/Http/Controllers/PayFastController.php
+			path: app/Modules/Billing/Http/Controllers/PayFastController.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>value" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 2
-			path: app/Http/Controllers/PayFastController.php
+			path: app/Modules/Billing/Http/Controllers/PayFastController.php
 
 		-
 			message: '#^Access to an undefined property App\\Http\\Resources\\Admin\\UserAdminResource\:\:\$created_at\.$#'
@@ -205,100 +205,100 @@ parameters:
 			path: app/Http/Resources/DeviceResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentEventResource\:\:\$event_type\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\PaymentEventResource\:\:\$event_type\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/PaymentEventResource.php
+			path: app/Modules/Billing/Http/Resources/PaymentEventResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentEventResource\:\:\$id\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\PaymentEventResource\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/PaymentEventResource.php
+			path: app/Modules/Billing/Http/Resources/PaymentEventResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentEventResource\:\:\$payment_id\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\PaymentEventResource\:\:\$payment_id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/PaymentEventResource.php
+			path: app/Modules/Billing/Http/Resources/PaymentEventResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentEventResource\:\:\$provider\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\PaymentEventResource\:\:\$provider\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/PaymentEventResource.php
+			path: app/Modules/Billing/Http/Resources/PaymentEventResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentEventResource\:\:\$received_at\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\PaymentEventResource\:\:\$received_at\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/PaymentEventResource.php
+			path: app/Modules/Billing/Http/Resources/PaymentEventResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentEventResource\:\:\$subscription_id\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\PaymentEventResource\:\:\$subscription_id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/PaymentEventResource.php
+			path: app/Modules/Billing/Http/Resources/PaymentEventResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentResource\:\:\$amount_gross\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\PaymentResource\:\:\$amount_gross\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/PaymentResource.php
+			path: app/Modules/Billing/Http/Resources/PaymentResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentResource\:\:\$amount_requested\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\PaymentResource\:\:\$amount_requested\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/PaymentResource.php
+			path: app/Modules/Billing/Http/Resources/PaymentResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentResource\:\:\$id\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\PaymentResource\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/PaymentResource.php
+			path: app/Modules/Billing/Http/Resources/PaymentResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentResource\:\:\$initiated_at\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\PaymentResource\:\:\$initiated_at\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/PaymentResource.php
+			path: app/Modules/Billing/Http/Resources/PaymentResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentResource\:\:\$item_description\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\PaymentResource\:\:\$item_description\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/PaymentResource.php
+			path: app/Modules/Billing/Http/Resources/PaymentResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentResource\:\:\$item_name\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\PaymentResource\:\:\$item_name\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/PaymentResource.php
+			path: app/Modules/Billing/Http/Resources/PaymentResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentResource\:\:\$merchant_payment_id\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\PaymentResource\:\:\$merchant_payment_id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/PaymentResource.php
+			path: app/Modules/Billing/Http/Resources/PaymentResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentResource\:\:\$paid_at\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\PaymentResource\:\:\$paid_at\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/PaymentResource.php
+			path: app/Modules/Billing/Http/Resources/PaymentResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentResource\:\:\$provider\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\PaymentResource\:\:\$provider\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/PaymentResource.php
+			path: app/Modules/Billing/Http/Resources/PaymentResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\PaymentResource\:\:\$status\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\PaymentResource\:\:\$status\.$#'
 			identifier: property.notFound
 			count: 3
-			path: app/Http/Resources/PaymentResource.php
+			path: app/Modules/Billing/Http/Resources/PaymentResource.php
 
 		-
 			message: '#^Access to an undefined property App\\Http\\Resources\\ProfileResource\:\:\$created_at\.$#'
@@ -343,76 +343,76 @@ parameters:
 			path: app/Http/Resources/ProfileResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$activated_at\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\SubscriptionResource\:\:\$activated_at\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/SubscriptionResource.php
+			path: app/Modules/Billing/Http/Resources/SubscriptionResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$billing_date\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\SubscriptionResource\:\:\$billing_date\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/SubscriptionResource.php
+			path: app/Modules/Billing/Http/Resources/SubscriptionResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$cancelled_at\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\SubscriptionResource\:\:\$cancelled_at\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/SubscriptionResource.php
+			path: app/Modules/Billing/Http/Resources/SubscriptionResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$cycles\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\SubscriptionResource\:\:\$cycles\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/SubscriptionResource.php
+			path: app/Modules/Billing/Http/Resources/SubscriptionResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$frequency\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\SubscriptionResource\:\:\$frequency\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/SubscriptionResource.php
+			path: app/Modules/Billing/Http/Resources/SubscriptionResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$id\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\SubscriptionResource\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/SubscriptionResource.php
+			path: app/Modules/Billing/Http/Resources/SubscriptionResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$initiated_at\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\SubscriptionResource\:\:\$initiated_at\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/SubscriptionResource.php
+			path: app/Modules/Billing/Http/Resources/SubscriptionResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$item_name\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\SubscriptionResource\:\:\$item_name\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/SubscriptionResource.php
+			path: app/Modules/Billing/Http/Resources/SubscriptionResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$merchant_payment_id\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\SubscriptionResource\:\:\$merchant_payment_id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/SubscriptionResource.php
+			path: app/Modules/Billing/Http/Resources/SubscriptionResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$provider\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\SubscriptionResource\:\:\$provider\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/SubscriptionResource.php
+			path: app/Modules/Billing/Http/Resources/SubscriptionResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$recurring_amount\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\SubscriptionResource\:\:\$recurring_amount\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/SubscriptionResource.php
+			path: app/Modules/Billing/Http/Resources/SubscriptionResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\SubscriptionResource\:\:\$status\.$#'
+			message: '#^Access to an undefined property App\\Modules\\Billing\\Http\\Resources\\SubscriptionResource\:\:\$status\.$#'
 			identifier: property.notFound
 			count: 4
-			path: app/Http/Resources/SubscriptionResource.php
+			path: app/Modules/Billing/Http/Resources/SubscriptionResource.php
 
 		-
 			message: '#^Parameter \#1 \$model of method Spatie\\Activitylog\\Support\\ActivityLogger\:\:performedOn\(\) expects Illuminate\\Database\\Eloquent\\Model, Illuminate\\Contracts\\Auth\\Authenticatable given\.$#'
@@ -490,19 +490,19 @@ parameters:
 			message: '#^Cannot call method isTerminal\(\) on string\.$#'
 			identifier: method.nonObject
 			count: 1
-			path: app/Services/PayFastCheckoutService.php
+			path: app/Modules/Billing/Services/PayFastCheckoutService.php
 
 		-
-			message: '#^Parameter \#1 \$current of method App\\Services\\PayFastCheckoutService\:\:isStaleSubscriptionTransition\(\) expects App\\Enums\\SubscriptionStatus, string given\.$#'
+			message: '#^Parameter \#1 \$current of method App\\Modules\\Billing\\Services\\PayFastCheckoutService\:\:isStaleSubscriptionTransition\(\) expects App\\Enums\\SubscriptionStatus, string given\.$#'
 			identifier: argument.type
 			count: 1
-			path: app/Services/PayFastCheckoutService.php
+			path: app/Modules/Billing/Services/PayFastCheckoutService.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between App\\Enums\\PaymentStatus and string will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
-			path: app/Services/PayFastCheckoutService.php
+			path: app/Modules/Billing/Services/PayFastCheckoutService.php
 
 		-
 			message: '#^Cannot access property \$value on string\.$#'

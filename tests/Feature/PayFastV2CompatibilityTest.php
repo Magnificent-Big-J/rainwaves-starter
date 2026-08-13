@@ -4,9 +4,9 @@ namespace Tests\Feature;
 
 use App\Enums\PaymentStatus;
 use App\Enums\SubscriptionStatus;
-use App\Models\Payment;
-use App\Models\Subscription;
-use App\Services\PayFastCheckoutService;
+use App\Modules\Billing\Models\Payment;
+use App\Modules\Billing\Models\Subscription;
+use App\Modules\Billing\Services\PayFastCheckoutService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use rainwaves\PayfastPayment\Model\Frequency;
 use rainwaves\PayfastPayment\Support\PayFastSignatureHelper;

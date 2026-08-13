@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Modules\Billing\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\PaymentEventResource;
-use App\Http\Resources\PaymentResource;
-use App\Http\Resources\SubscriptionResource;
 use App\Http\Responses\Envelope;
-use App\Models\Payment;
-use App\Models\PaymentEvent;
-use App\Models\Subscription;
+use App\Modules\Billing\Http\Resources\PaymentEventResource;
+use App\Modules\Billing\Http\Resources\PaymentResource;
+use App\Modules\Billing\Http\Resources\SubscriptionResource;
+use App\Modules\Billing\Models\Payment;
+use App\Modules\Billing\Models\PaymentEvent;
+use App\Modules\Billing\Models\Subscription;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

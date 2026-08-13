@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\Api\BillingController;
-use App\Http\Controllers\Api\SubscriptionController;
+use App\Modules\Billing\Http\Controllers\BillingController;
+use App\Modules\Billing\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 // Loaded by App\Providers\Modules\BillingServiceProvider only when the billing module

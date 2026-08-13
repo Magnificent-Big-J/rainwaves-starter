@@ -2,11 +2,9 @@
 
 namespace App\Providers;
 
-use App\Contracts\PayFastCheckoutServiceInterface;
 use App\Contracts\UserAdminServiceInterface;
 use App\Listeners\LogSecurityActivity;
 use App\Modules\ModuleRegistry;
-use App\Services\PayFastCheckoutService;
 use App\Services\UserAdminService;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -30,7 +28,6 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(UserAdminServiceInterface::class, UserAdminService::class);
-        $this->app->bind(PayFastCheckoutServiceInterface::class, PayFastCheckoutService::class);
         $this->app->singleton(ModuleRegistry::class);
     }
 

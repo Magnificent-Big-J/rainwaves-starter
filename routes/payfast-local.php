@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\PayFastController;
+use App\Modules\Billing\Http\Controllers\PayFastController;
 use Illuminate\Support\Facades\Route;
 
 // Dev/QA-only PayFast inspection and simulation tooling. This file is only ever

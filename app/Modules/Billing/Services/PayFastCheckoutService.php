@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Services;
+namespace App\Modules\Billing\Services;
 
-use App\Contracts\PayFastCheckoutServiceInterface;
 use App\Enums\PaymentStatus;
 use App\Enums\SubscriptionStatus;
-use App\Models\Payment;
-use App\Models\PaymentEvent;
-use App\Models\Subscription;
+use App\Modules\Billing\Contracts\PayFastCheckoutServiceInterface;
+use App\Modules\Billing\Models\Payment;
+use App\Modules\Billing\Models\PaymentEvent;
+use App\Modules\Billing\Models\Subscription;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use rainwaves\PayfastPayment\Client\PayFastClient;

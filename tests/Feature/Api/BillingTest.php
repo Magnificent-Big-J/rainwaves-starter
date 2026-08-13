@@ -4,10 +4,10 @@ namespace Tests\Feature\Api;
 
 use App\Enums\PaymentStatus;
 use App\Enums\SubscriptionStatus;
-use App\Models\Payment;
-use App\Models\PaymentEvent;
-use App\Models\Subscription;
 use App\Models\User;
+use App\Modules\Billing\Models\Payment;
+use App\Modules\Billing\Models\PaymentEvent;
+use App\Modules\Billing\Models\Subscription;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

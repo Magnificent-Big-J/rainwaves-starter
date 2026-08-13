@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Modules\Billing\Http\Controllers;
 
-use App\Contracts\PayFastCheckoutServiceInterface;
 use App\Enums\SubscriptionStatus;
-use App\Http\Requests\Payments\InitiateOneTimePaymentRequest;
-use App\Http\Requests\Payments\InitiateSubscriptionPaymentRequest;
-use App\Models\Payment;
-use App\Models\PaymentEvent;
-use App\Models\Subscription;
+use App\Http\Controllers\Controller;
+use App\Modules\Billing\Contracts\PayFastCheckoutServiceInterface;
+use App\Modules\Billing\Http\Requests\InitiateOneTimePaymentRequest;
+use App\Modules\Billing\Http\Requests\InitiateSubscriptionPaymentRequest;
+use App\Modules\Billing\Models\Payment;
+use App\Modules\Billing\Models\PaymentEvent;
+use App\Modules\Billing\Models\Subscription;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
