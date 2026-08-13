@@ -272,6 +272,8 @@ Until this was added, the *only* place in the SPA that ever called `/payments/pa
 
 ### User archive/restore + AppDataTable hardening (Gate 2 reference CRUD module)
 
+The reusable pattern this module established — response envelope, list/create/update/archive/restore/export request-response shapes, service-layer contract, `AppDataTable`/`AppFilterBar` frontend wiring — is written up prescriptively in `docs/crud-contract.md`. Read that when building a new CRUD module; this section stays as the historical "what shipped and why" for Users specifically.
+
 `UserAdminController`/`UserAdminService` previously had no delete at all — Gate 2's own definition of a reference CRUD module is explicit ("create/read/update/**archive/restore/delete**"), so this was the concrete gap. `User` now uses Laravel's `SoftDeletes` (migration `2026_08_13_083710_add_soft_deletes_to_users_table`): archiving is a soft delete, which — for free, via Eloquent's default soft-delete query scope — also blocks the archived user from logging in, since the auth provider's user lookup excludes trashed rows.
 
 - `DELETE /api/v1/users/{user}` (archive) / `POST /api/v1/users/{user}/restore` (route uses `->withTrashed()` for binding). Guards: can't archive yourself, can't archive the last remaining `super-admin` (`UserAdminService::isLastSuperAdmin()`).
