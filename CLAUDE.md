@@ -294,6 +294,14 @@ Run order matters. Key tables:
 11. sync_operations / sync_tombstones
 12. notifications
 
+## Quality tooling (RS-401 / RS-402)
+
+Backend: `composer lint` (Pint, check-only), `composer lint:fix` (Pint, writes), `composer stan` (Larastan level 5, `phpstan.neon`). `composer test` runs the PHPUnit suite.
+
+`phpstan-baseline.neon` (committed, generated the day Larastan was added) suppresses 81 pre-existing findings — all one root cause: Eloquent model properties/casts (`Subscription::$status`, `Device::$uuid`, `PersonalAccessToken::$personal_access_token_id`, etc.) aren't visible to static analysis without generated model docblocks, so Larastan sees `string`/`Model` where the real runtime type is a backed enum or a specific model. None of them are real bugs — confirmed by cross-referencing against the passing test suite. **Don't just re-run `--generate-baseline` to silence a new finding** — that hides real regressions behind the same file. The actual fix is adding `barryvdh/laravel-ide-helper` (`php artisan ide-helper:models`) to generate accurate model docblocks, then regenerating a much smaller (ideally empty) baseline; not done yet, left as follow-up.
+
+Frontend: `npm run lint` / `npm run lint:fix` (ESLint 9 flat config, `eslint.config.js`), `npm run format` / `npm run format:check` (Prettier, `.prettierrc.json`).
+
 ## starter:doctor
 
 `php artisan starter:doctor` reports on deployment readiness: APP_KEY/APP_ENV/APP_DEBUG, `authx` fail-closed permission config, whether dev-only PayFast routes are registered (checked against the live route table, not just config), DB connectivity + pending migrations, Redis, Horizon master supervisor, storage disk write access, mail driver, PayFast credentials (fails/warns if still the published sandbox defaults), and the frontend build manifest.
