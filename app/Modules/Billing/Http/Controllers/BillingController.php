@@ -51,4 +51,24 @@ class BillingController extends Controller
             'recent_events' => PaymentEventResource::collection($recentEvents),
         ]);
     }
+
+    /**
+     * The checkout form's plan choices — server-side pricing authority means the
+     * client can no longer type its own amount/item_name, so it needs somewhere
+     * to fetch the real options from. See config/billing-plans.php.
+     */
+    public function plans(): JsonResponse
+    {
+        $plans = collect(config('billing-plans', []))
+            ->map(fn (array $plan, string $key) => [
+                'key' => $key,
+                'mode' => $plan['mode'],
+                'item_name' => $plan['item_name'],
+                'item_description' => $plan['item_description'] ?? null,
+                'amount' => $plan['amount'],
+            ])
+            ->values();
+
+        return Envelope::success($plans);
+    }
 }

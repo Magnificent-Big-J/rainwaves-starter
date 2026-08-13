@@ -214,6 +214,16 @@ Local/testing-only (registered from `routes/payfast-local.php`, loaded by `App\P
 | POST | `/payments/payfast/simulate-itn` | Builds and replays a signed ITN payload for a given record |
 | POST | `/payments/payfast/subscriptions/action` | Native subscription actions (fetch/pause/unpause/cancel/card-update-link/update/adhoc) |
 
+### Checkout: server-side plan authority (RS-002, scoped)
+
+`/payments/payfast/initiate` and `/payments/payfast/subscriptions/initiate` **never accept amount/item_name from the client** — the request sends a `plan` key (`InitiateOneTimePaymentRequest`/`InitiateSubscriptionPaymentRequest` validate it against `config('billing-plans')`, filtered to that endpoint's mode via `Rule::in()`), and `PayFastCheckoutService::resolvePlan()` looks up the real `item_name`/`amount`/(`frequency`, subscriptions only) server-side. `config/billing-plans.php` is the catalog — placeholder starter plans a real project replaces with its actual product lineup. `GET /api/v1/billing/plans` (`BillingController::plans()`) exposes it to the frontend for the checkout form's Plan dropdown; `resources/js/app/stores/billing.js`'s `fetchPlans()` + `account/billing.vue`'s `planOptions` (filtered by the form's `mode`) are the reference consumer.
+
+**Admin-on-behalf-of-a-customer**: both `InitiateXPaymentRequest`s accept an optional `user_id`, but `PayFastController::resolveCheckoutContext()` only honors it when the *authenticated* caller has the `payments.manage` permission (declared in `BillingModule::permissions()` since RS-301, never actually enforced anywhere until this) — otherwise it's silently ignored and the checkout is recorded under the caller's own id, no matter what the client sends. When honored, contact details (`name_first`/`name_last`/`email_address`) are resolved from the *target* user's own record, not the request body — the admin's browser session doesn't represent the customer being checked out for.
+
+**Deliberately descoped**: anonymous/guest checkout (signed single-use links, no account required). RS-002's original plan speculatively scoped a "signed guest" checkout mode, but nothing in this starter's actual usage has needed it — descoped explicitly rather than building unused infrastructure; revisit if a real project needs "pay without an account."
+
+Proven by `tests/Feature/CheckoutPlanAuthorityTest.php`: a spoofed client-supplied `amount`/`item_name` has zero effect (the plan's real price is what gets stored), an unknown or wrong-mode plan key is rejected with a 422, a regular customer's `user_id` override is ignored, and a `payments.manage` admin's override is honored with the target user's real contact details substituted in. `PayFastV2CompatibilityTest`'s direct-service-call tests were updated to the new `(string $plan, array $customerData, ?int $userId)` signature — before this change nothing exercised the FormRequest/controller layer for checkout initiation at all, only the service directly.
+
 ## Enums
 
 `App\Enums\PaymentStatus`, `SubscriptionStatus`, `DevicePlatform`, `SyncOperationStatus` and `SyncOperationType` are PHP backed string enums.

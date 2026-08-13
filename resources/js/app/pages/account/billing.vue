@@ -111,20 +111,11 @@
                                 { title: 'Subscription', value: 'subscription' },
                             ]"
                             label="Type"
+                            @update:model-value="form.plan = ''"
                         />
                     </v-col>
-                    <v-col cols="12" sm="4">
-                        <AppTextField v-model="form.item_name" label="Item name" required />
-                    </v-col>
-                    <v-col cols="12" sm="4">
-                        <AppTextField
-                            v-model="form.amount"
-                            label="Amount (ZAR)"
-                            type="number"
-                            min="0.01"
-                            step="0.01"
-                            required
-                        />
+                    <v-col cols="12" sm="8">
+                        <AppSelect v-model="form.plan" :items="planOptions" label="Plan" required />
                     </v-col>
                     <v-col v-if="form.mode === 'subscription'" cols="12" sm="6">
                         <AppTextField v-model="form.billing_date" label="First billing date" type="date" required />
@@ -198,8 +189,7 @@ const cancellingId = ref(null);
 
 const form = reactive({
     mode: 'payment',
-    item_name: '',
-    amount: '',
+    plan: '',
     billing_date: '',
 });
 
@@ -208,12 +198,19 @@ const form = reactive({
 // close. Without this, a user who intentionally finishes checkout would still see
 // the "leave site, unsaved changes?" browser prompt on their way out.
 const leavingForCheckout = ref(false);
-const isFormDirty = computed(
-    () => !leavingForCheckout.value && Boolean(form.item_name || form.amount || form.billing_date)
-);
+const isFormDirty = computed(() => !leavingForCheckout.value && Boolean(form.plan || form.billing_date));
 const { showLeaveConfirm, confirmLeave, cancelLeave } = useUnsavedChanges(isFormDirty);
 
 const timelineEvents = ref([]);
+
+// Plans carry their own real price/description — the client only ever picks one of
+// these, it never sends an amount/item_name of its own (see config/billing-plans.php
+// and PayFastCheckoutService::resolvePlan()).
+const planOptions = computed(() =>
+    billing.plans
+        .filter((plan) => plan.mode === form.mode)
+        .map((plan) => ({ title: `${plan.item_name} — ${formatMoney(plan.amount)}`, value: plan.key }))
+);
 
 const formatMoney = (value) => {
     const amount = Number(value ?? 0);
@@ -226,18 +223,17 @@ const formatDate = (iso) => (iso ? new Date(iso).toLocaleString() : '—');
 const submit = async () => {
     formError.value = '';
 
-    if (!form.item_name || !form.amount || (form.mode === 'subscription' && !form.billing_date)) {
+    if (!form.plan || (form.mode === 'subscription' && !form.billing_date)) {
         formError.value = 'Fill in the required fields before continuing.';
 
         return;
     }
 
     const payload = {
-        item_name: form.item_name,
-        amount: form.amount,
+        plan: form.plan,
         name_first: session.user?.name?.split(' ')?.[0],
         email_address: session.user?.email,
-        ...(form.mode === 'subscription' ? { recurring_amount: form.amount, billing_date: form.billing_date } : {}),
+        ...(form.mode === 'subscription' ? { billing_date: form.billing_date } : {}),
     };
 
     const result = await billing.checkout(form.mode, payload);
@@ -267,7 +263,7 @@ const confirmCancel = async () => {
 };
 
 onMounted(async () => {
-    await Promise.all([billing.fetch(), billing.fetchSubscriptions()]);
+    await Promise.all([billing.fetch(), billing.fetchSubscriptions(), billing.fetchPlans()]);
 
     timelineEvents.value = billing.recentEvents.map((event) => ({
         id: event.id,

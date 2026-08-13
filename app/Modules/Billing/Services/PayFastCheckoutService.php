@@ -10,30 +10,41 @@ use App\Modules\Billing\Models\PaymentEvent;
 use App\Modules\Billing\Models\Subscription;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use rainwaves\PayfastPayment\Client\PayFastClient;
 use rainwaves\PayfastPayment\Itn\PayFastItnValidator;
-use rainwaves\PayfastPayment\Model\Frequency;
 use rainwaves\PayfastPayment\PayFast;
 use rainwaves\PayfastPayment\PayFastSubscription;
 
 class PayFastCheckoutService implements PayFastCheckoutServiceInterface
 {
-    public function initiateOneTimePayment(array $data, ?int $userId = null): array
+    public function initiateOneTimePayment(string $plan, array $customerData, ?int $userId = null): array
     {
-        return DB::transaction(function () use ($data, $userId) {
-            $merchantPaymentId = $data['m_payment_id'] ?? (string) str()->uuid();
+        $definition = $this->resolvePlan($plan, 'payment');
+
+        return DB::transaction(function () use ($definition, $customerData, $userId) {
+            $merchantPaymentId = $customerData['m_payment_id'] ?? (string) str()->uuid();
+
+            $data = [
+                'item_name' => $definition['item_name'],
+                'item_description' => $definition['item_description'] ?? null,
+                'amount' => $definition['amount'],
+                'name_first' => $customerData['name_first'] ?? null,
+                'name_last' => $customerData['name_last'] ?? null,
+                'email_address' => $customerData['email_address'] ?? null,
+            ];
 
             $payment = Payment::query()->updateOrCreate(
                 ['merchant_payment_id' => $merchantPaymentId],
                 [
                     'user_id' => $userId,
                     'provider' => 'payfast',
-                    'item_name' => (string) $data['item_name'],
-                    'item_description' => $data['item_description'] ?? null,
+                    'item_name' => $data['item_name'],
+                    'item_description' => $data['item_description'],
                     'amount_requested' => (float) $data['amount'],
-                    'customer_first_name' => $data['name_first'] ?? null,
-                    'customer_last_name' => $data['name_last'] ?? null,
-                    'customer_email' => $data['email_address'] ?? null,
+                    'customer_first_name' => $data['name_first'],
+                    'customer_last_name' => $data['name_last'],
+                    'customer_email' => $data['email_address'],
                     'status' => PaymentStatus::Initiated,
                     'initiated_at' => now(),
                     'metadata' => $data,
@@ -57,26 +68,39 @@ class PayFastCheckoutService implements PayFastCheckoutServiceInterface
         });
     }
 
-    public function initiateSubscriptionPayment(array $data, ?int $userId = null): array
+    public function initiateSubscriptionPayment(string $plan, array $customerData, ?int $userId = null): array
     {
-        return DB::transaction(function () use ($data, $userId) {
-            $merchantPaymentId = $data['m_payment_id'] ?? ('sub-'.str()->uuid());
-            $frequency = (int) ($data['frequency'] ?? Frequency::MONTHLY);
+        $definition = $this->resolvePlan($plan, 'subscription');
+
+        return DB::transaction(function () use ($definition, $customerData, $userId) {
+            $merchantPaymentId = $customerData['m_payment_id'] ?? ('sub-'.str()->uuid());
+            $frequency = (int) $definition['frequency'];
+            $cycles = (int) ($customerData['cycles'] ?? 0);
+
+            $data = [
+                'item_name' => $definition['item_name'],
+                'amount' => $definition['amount'],
+                'recurring_amount' => $definition['amount'],
+                'billing_date' => $customerData['billing_date'],
+                'name_first' => $customerData['name_first'] ?? null,
+                'name_last' => $customerData['name_last'] ?? null,
+                'email_address' => $customerData['email_address'] ?? null,
+            ];
 
             $subscription = Subscription::query()->updateOrCreate(
                 ['merchant_payment_id' => $merchantPaymentId],
                 [
                     'user_id' => $userId,
                     'provider' => 'payfast',
-                    'item_name' => (string) $data['item_name'],
+                    'item_name' => $data['item_name'],
                     'amount_requested' => (float) $data['amount'],
                     'recurring_amount' => (float) $data['recurring_amount'],
                     'billing_date' => $data['billing_date'],
                     'frequency' => $frequency,
-                    'cycles' => (int) ($data['cycles'] ?? 0),
-                    'customer_first_name' => $data['name_first'] ?? null,
-                    'customer_last_name' => $data['name_last'] ?? null,
-                    'customer_email' => $data['email_address'] ?? null,
+                    'cycles' => $cycles,
+                    'customer_first_name' => $data['name_first'],
+                    'customer_last_name' => $data['name_last'],
+                    'customer_email' => $data['email_address'],
                     'status' => SubscriptionStatus::Initiated,
                     'initiated_at' => now(),
                     'metadata' => $data,
@@ -86,7 +110,7 @@ class PayFastCheckoutService implements PayFastCheckoutServiceInterface
             $input = array_merge($data, [
                 'm_payment_id' => $merchantPaymentId,
                 'frequency' => $frequency,
-                'cycles' => (int) ($data['cycles'] ?? 0),
+                'cycles' => $cycles,
                 'subscription_notify_email' => true,
                 'subscription_notify_webhook' => true,
                 'subscription_notify_buyer' => true,
@@ -106,6 +130,22 @@ class PayFastCheckoutService implements PayFastCheckoutServiceInterface
                 'html' => $html,
             ];
         });
+    }
+
+    /** @return array{mode: string, item_name: string, item_description?: string, amount: float, frequency?: int} */
+    private function resolvePlan(string $plan, string $expectedMode): array
+    {
+        $definition = config("billing-plans.{$plan}");
+
+        if (! is_array($definition)) {
+            throw new InvalidArgumentException("Unknown billing plan [{$plan}].");
+        }
+
+        if (($definition['mode'] ?? null) !== $expectedMode) {
+            throw new InvalidArgumentException("Billing plan [{$plan}] is not a {$expectedMode} plan.");
+        }
+
+        return $definition;
     }
 
     public function processItn(array $payload, string $rawBody = ''): array

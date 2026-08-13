@@ -12,11 +12,20 @@ export const useBillingStore = defineStore('billing', {
         recentEvents: [],
         subscriptions: [],
         subscriptionsLoading: false,
+        plans: [],
         loading: false,
         loaded: false,
         checkingOut: false,
     }),
     actions: {
+        async fetchPlans() {
+            try {
+                const response = await v1('billing/plans');
+                this.plans = response?.data ?? [];
+            } catch (error) {
+                useAppErrorsStore().show({ message: normalizeErrorMessage(error, 'Unable to load checkout plans.') });
+            }
+        },
         async fetchSubscriptions() {
             this.subscriptionsLoading = true;
 

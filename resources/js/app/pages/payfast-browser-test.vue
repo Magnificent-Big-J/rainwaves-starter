@@ -35,15 +35,12 @@
                         <v-window v-model="mode" class="form-window">
                             <v-window-item value="one-time">
                                 <v-form class="form-grid" @submit.prevent="generateForm">
-                                    <AppTextField
-                                        v-model="oneTime.amount"
-                                        label="Amount"
-                                        type="number"
-                                        step="0.01"
-                                        min="0.01"
+                                    <AppSelect
+                                        v-model="oneTime.plan"
+                                        :items="oneTimePlanOptions"
+                                        label="Plan"
+                                        :clearable="false"
                                     />
-                                    <AppTextField v-model="oneTime.item_name" label="Item name" />
-                                    <AppTextField v-model="oneTime.item_description" label="Item description" />
                                     <AppTextField v-model="oneTime.email_address" label="Email" type="email" />
                                     <AppTextField v-model="oneTime.name_first" label="First name" />
                                     <AppTextField v-model="oneTime.name_last" label="Last name" />
@@ -72,31 +69,16 @@
 
                             <v-window-item value="subscription">
                                 <v-form class="form-grid" @submit.prevent="generateForm">
-                                    <AppTextField
-                                        v-model="subscription.amount"
-                                        label="Initial amount"
-                                        type="number"
-                                        step="0.01"
-                                        min="0.01"
+                                    <AppSelect
+                                        v-model="subscription.plan"
+                                        :items="subscriptionPlanOptions"
+                                        label="Plan"
+                                        :clearable="false"
                                     />
-                                    <AppTextField
-                                        v-model="subscription.recurring_amount"
-                                        label="Recurring amount"
-                                        type="number"
-                                        step="0.01"
-                                        min="0.01"
-                                    />
-                                    <AppTextField v-model="subscription.item_name" label="Item name" />
                                     <AppTextField
                                         v-model="subscription.billing_date"
                                         label="Billing date"
                                         type="date"
-                                    />
-                                    <AppSelect
-                                        v-model="subscription.frequency"
-                                        :items="frequencyOptions"
-                                        label="Frequency"
-                                        :clearable="false"
                                     />
                                     <AppTextField
                                         v-model="subscription.cycles"
@@ -666,6 +648,7 @@ import AppSelect from '../components/AppSelect.vue';
 import AppStatusBadge from '../components/AppStatusBadge.vue';
 import AppTextField from '../components/AppTextField.vue';
 import FormStatusAlert from '../components/FormStatusAlert.vue';
+import { v1 } from '../utils/api';
 
 const mode = ref('one-time');
 const view = ref('checkout');
@@ -678,9 +661,7 @@ const message = ref('');
 const messageType = ref('success');
 
 const oneTimeDefaults = () => ({
-    amount: '150.00',
-    item_name: 'Starter browser test',
-    item_description: 'One-time checkout smoke',
+    plan: '',
     email_address: 'customer@rainwaves.test',
     name_first: 'Rainwaves',
     name_last: 'Customer',
@@ -688,11 +669,8 @@ const oneTimeDefaults = () => ({
 });
 
 const subscriptionDefaults = () => ({
-    amount: '99.00',
-    recurring_amount: '99.00',
-    item_name: 'Starter subscription browser test',
+    plan: '',
     billing_date: nextBillingDate(),
-    frequency: 3,
     cycles: 0,
     email_address: 'customer@rainwaves.test',
     m_payment_id: `SUB-BROWSER-${Date.now()}`,
@@ -700,6 +678,35 @@ const subscriptionDefaults = () => ({
 
 const oneTime = reactive(oneTimeDefaults());
 const subscription = reactive(subscriptionDefaults());
+
+// Checkout no longer accepts a client-supplied amount/item_name (server-side
+// pricing authority — see config/billing-plans.php) — this dev tool picks from
+// the same real plan catalog the production checkout form uses, rather than
+// typing arbitrary values that the backend would now reject.
+const plans = ref([]);
+const oneTimePlanOptions = computed(() =>
+    plans.value
+        .filter((plan) => plan.mode === 'payment')
+        .map((plan) => ({ title: `${plan.item_name} — R ${plan.amount}`, value: plan.key }))
+);
+const subscriptionPlanOptions = computed(() =>
+    plans.value
+        .filter((plan) => plan.mode === 'subscription')
+        .map((plan) => ({ title: `${plan.item_name} — R ${plan.amount}`, value: plan.key }))
+);
+
+const fetchPlans = async () => {
+    const response = await v1('billing/plans');
+    plans.value = response?.data ?? [];
+
+    if (!oneTime.plan) {
+        oneTime.plan = oneTimePlanOptions.value[0]?.value ?? '';
+    }
+
+    if (!subscription.plan) {
+        subscription.plan = subscriptionPlanOptions.value[0]?.value ?? '';
+    }
+};
 
 const generatedForm = reactive({
     html: '',
@@ -1000,10 +1007,12 @@ const copyHtml = async () => {
 
 const resetOneTime = () => {
     Object.assign(oneTime, oneTimeDefaults());
+    oneTime.plan = oneTimePlanOptions.value[0]?.value ?? '';
 };
 
 const resetSubscription = () => {
     Object.assign(subscription, subscriptionDefaults());
+    subscription.plan = subscriptionPlanOptions.value[0]?.value ?? '';
 };
 
 function csrfToken() {
@@ -1072,6 +1081,7 @@ function hydrateBrowserResult() {
 onMounted(() => {
     hydrateBrowserResult();
     refreshRecords();
+    fetchPlans();
 });
 </script>
 
