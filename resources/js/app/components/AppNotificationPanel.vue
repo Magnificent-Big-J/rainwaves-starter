@@ -1,7 +1,13 @@
 <template>
     <v-menu v-model="open" :close-on-content-click="false" location="bottom end" offset="12">
         <template #activator="{ props }">
-            <v-btn v-bind="props" icon variant="text" class="notification-trigger">
+            <v-btn
+                v-bind="props"
+                icon
+                variant="text"
+                class="notification-trigger"
+                :aria-label="`Notifications${notifications.unreadCount > 0 ? `, ${notifications.unreadCount} unread` : ''}`"
+            >
                 <v-badge
                     :model-value="notifications.unreadCount > 0"
                     :content="notifications.unreadCount"

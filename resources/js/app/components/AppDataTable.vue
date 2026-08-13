@@ -87,8 +87,8 @@
                             :key="col.key"
                             :class="[col.class, col.sortable && 'data-table__th--sortable']"
                             :tabindex="col.sortable ? 0 : undefined"
-                            :role="col.sortable ? 'button' : undefined"
                             :aria-sort="ariaSort(col)"
+                            :aria-label="!col.label && col.srLabel ? col.srLabel : undefined"
                             @click="col.sortable && toggleSort(col.sortKey || col.key)"
                             @keydown.enter.space.prevent="col.sortable && toggleSort(col.sortKey || col.key)"
                         >
@@ -127,7 +127,6 @@
                             clickableRows && 'data-table__row--clickable',
                         ]"
                         :tabindex="clickableRows ? 0 : undefined"
-                        :role="clickableRows ? 'button' : undefined"
                         @click="$emit('row-click', row)"
                         @keydown.enter.space.prevent="clickableRows && $emit('row-click', row)"
                     >
@@ -156,6 +155,10 @@ import { computed, ref, watch } from 'vue';
 
 const props = defineProps({
     title: { type: String, default: null },
+    // Each column: { key, label, sortable?, sortKey?, hideable?, class?,
+    // srLabel? }. A visually-empty header (label: '', typically an icon/actions
+    // column) should set srLabel (e.g. 'Actions') so screen reader users still get a
+    // name for that column — axe's empty-table-header rule catches this if omitted.
     columns: { type: Array, default: () => [] },
     rows: { type: Array, default: () => [] },
     meta: { type: Object, default: null },

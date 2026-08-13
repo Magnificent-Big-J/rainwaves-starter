@@ -89,7 +89,11 @@ describe('AppDataTable sorting', () => {
         const emailHeader = headers.find((h) => h.text().includes('Email'));
 
         expect(nameHeader.attributes('aria-sort')).toBe('descending');
-        expect(nameHeader.attributes('role')).toBe('button');
+        // No role="button" here: aria-sort is only a valid ARIA attribute on an element
+        // whose role is columnheader (a <th>'s native implicit role) — role="button"
+        // would override that and make aria-sort invalid (axe: aria-allowed-attr).
+        // tabindex + Enter/Space handling alone still makes it keyboard-operable.
+        expect(nameHeader.attributes('role')).toBeUndefined();
         expect(nameHeader.attributes('tabindex')).toBe('0');
 
         expect(emailHeader.attributes('aria-sort')).toBeUndefined();
@@ -144,11 +148,34 @@ describe('AppDataTable clickable rows', () => {
         const row = wrapper.find('tbody tr.data-table__row');
 
         expect(row.attributes('tabindex')).toBe('0');
-        expect(row.attributes('role')).toBe('button');
+        // Deliberately no role="button" here: a row typically also contains its own
+        // real interactive elements (a select checkbox, edit/archive buttons), and an
+        // ARIA "button" role containing other focusable descendants is an accessibility
+        // violation (axe: no-focusable-content) — found via the Playwright a11y suite.
+        // tabindex + Enter/Space handling alone still makes the row keyboard-operable.
+        expect(row.attributes('role')).toBeUndefined();
 
         await row.trigger('keydown.enter');
 
         expect(wrapper.emitted('row-click')[0]).toEqual([rows[0]]);
+    });
+});
+
+describe('AppDataTable accessible column headers', () => {
+    it('gives a visually-empty header its srLabel as an aria-label', () => {
+        const wrapper = mountTable({
+            columns: [...columns, { key: 'actions', label: '', srLabel: 'Actions' }],
+        });
+        const headers = wrapper.findAll('th');
+
+        expect(headers.at(-1).attributes('aria-label')).toBe('Actions');
+    });
+
+    it('does not add an aria-label when the header already has visible text', () => {
+        const wrapper = mountTable();
+        const headers = wrapper.findAll('th');
+
+        expect(headers[0].attributes('aria-label')).toBeUndefined();
     });
 });
 
