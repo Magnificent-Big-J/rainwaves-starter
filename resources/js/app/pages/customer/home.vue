@@ -18,9 +18,14 @@
         />
 
         <div class="customer-home__hero">
-            <AppSectionCard title="Welcome back" subtitle="Use this shell for storefront accounts, member portals, and subscription products.">
+            <AppSectionCard
+                title="Welcome back"
+                subtitle="Use this shell for storefront accounts, member portals, and subscription products."
+            >
                 <p class="customer-home__copy">
-                    Customer-facing apps should not inherit the dense admin sidebar. This shell gives you a lighter authenticated surface while still reusing the starter’s notifications, billing primitives, and profile flows.
+                    Customer-facing apps should not inherit the dense admin sidebar. This shell gives you a lighter
+                    authenticated surface while still reusing the starter’s notifications, billing primitives, and
+                    profile flows.
                 </p>
                 <div class="customer-home__actions">
                     <v-btn color="primary" to="/profile">Manage profile</v-btn>

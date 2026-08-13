@@ -86,6 +86,11 @@ return [
 
     'permissions' => [
         'enabled' => true, // if true, try assign roles/permissions via spatie/laravel-permission (if present)
+
+        // RS-005: deliberately NOT env('...')-driven. A missing permission table must
+        // always deny rather than silently grant access (see
+        // tests/Feature/PermissionsFailClosedTest.php) — leaving this hardcoded means
+        // it can't be flipped by an unrelated .env edit or a copy-pasted example value.
         'fail_open_when_tables_missing' => false,
     ],
 ];

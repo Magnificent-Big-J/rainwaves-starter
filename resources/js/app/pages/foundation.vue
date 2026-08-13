@@ -48,12 +48,7 @@
             </div>
 
             <div class="foundation-grid foundation-grid--cards">
-                <AppSectionCard
-                    v-for="item in items"
-                    :key="item.title"
-                    :title="item.title"
-                    :subtitle="item.subtitle"
-                >
+                <AppSectionCard v-for="item in items" :key="item.title" :title="item.title" :subtitle="item.subtitle">
                     <p class="foundation-copy">{{ item.body }}</p>
                 </AppSectionCard>
             </div>
@@ -88,7 +83,10 @@
                 </div>
             </AppSectionCard>
 
-            <AppSectionCard title="Empty-state pattern" subtitle="Reusable default for table, page, and card empty states.">
+            <AppSectionCard
+                title="Empty-state pattern"
+                subtitle="Reusable default for table, page, and card empty states."
+            >
                 <AppEmptyState
                     title="No widgets configured"
                     text="Use this pattern when a module has no seeded records, no filters matched, or a user has not created their first item yet."
@@ -117,7 +115,10 @@
                     />
                 </AppSectionCard>
 
-                <AppSectionCard title="File input" subtitle="Shared upload field wrapper for billing, imports, and content tools.">
+                <AppSectionCard
+                    title="File input"
+                    subtitle="Shared upload field wrapper for billing, imports, and content tools."
+                >
                     <AppFileInput
                         v-model="demoFile"
                         label="Attach example file"
@@ -126,7 +127,10 @@
                     />
                 </AppSectionCard>
 
-                <AppSectionCard title="Modal and drawer" subtitle="Interaction primitives for forms, detail views, and secondary flows.">
+                <AppSectionCard
+                    title="Modal and drawer"
+                    subtitle="Interaction primitives for forms, detail views, and secondary flows."
+                >
                     <div class="foundation-actions">
                         <v-btn color="primary" @click="demoModal = true">Open modal</v-btn>
                         <v-btn variant="outlined" @click="demoDrawer = true">Open drawer</v-btn>
@@ -134,7 +138,10 @@
                 </AppSectionCard>
             </div>
 
-            <AppSectionCard title="Timeline pattern" subtitle="Starter-ready structure for activity feeds, payment events, and rollout history.">
+            <AppSectionCard
+                title="Timeline pattern"
+                subtitle="Starter-ready structure for activity feeds, payment events, and rollout history."
+            >
                 <AppTimeline :items="timelineItems" />
             </AppSectionCard>
         </div>
@@ -151,7 +158,11 @@
             </template>
         </AppModal>
 
-        <AppDrawer v-model="demoDrawer" title="Starter drawer" subtitle="Use for side-panel detail views and quick tools.">
+        <AppDrawer
+            v-model="demoDrawer"
+            title="Starter drawer"
+            subtitle="Use for side-panel detail views and quick tools."
+        >
             <AppSkeleton height="2.4rem" />
             <AppSkeleton height="2.4rem" />
             <AppSkeleton height="7rem" />
@@ -165,7 +176,8 @@
         "layout": "default",
         "title": "Foundation",
         "requiresAuth": true,
-        "adminOnly": true
+        "adminOnly": true,
+        "showcase": true
     }
 }
 </route>

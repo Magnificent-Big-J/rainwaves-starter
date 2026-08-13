@@ -17,11 +17,7 @@
             </div>
 
             <div class="recovery-panel__grid">
-                <code
-                    v-for="code in codes"
-                    :key="code"
-                    class="recovery-panel__code"
-                >
+                <code v-for="code in codes" :key="code" class="recovery-panel__code">
                     {{ code }}
                 </code>
             </div>

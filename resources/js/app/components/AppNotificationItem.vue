@@ -1,5 +1,9 @@
 <template>
-    <button class="notification-item" :class="{ 'notification-item--read': Boolean(item.readAt) }" @click="$emit('select', item)">
+    <button
+        class="notification-item"
+        :class="{ 'notification-item--read': Boolean(item.readAt) }"
+        @click="$emit('select', item)"
+    >
         <span class="notification-item__icon" :class="`notification-item__icon--${item.type}`">
             <v-icon :icon="item.icon" size="17" />
         </span>
@@ -57,10 +61,22 @@ defineEmits(['select']);
     justify-content: center;
 }
 
-.notification-item__icon--success { background: rgba(21, 128, 61, 0.12); color: #15803d; }
-.notification-item__icon--error { background: rgba(185, 28, 28, 0.12); color: #b91c1c; }
-.notification-item__icon--warning { background: rgba(180, 83, 9, 0.12); color: #b45309; }
-.notification-item__icon--info { background: rgba(3, 105, 161, 0.12); color: #0369a1; }
+.notification-item__icon--success {
+    background: rgba(21, 128, 61, 0.12);
+    color: #15803d;
+}
+.notification-item__icon--error {
+    background: rgba(185, 28, 28, 0.12);
+    color: #b91c1c;
+}
+.notification-item__icon--warning {
+    background: rgba(180, 83, 9, 0.12);
+    color: #b45309;
+}
+.notification-item__icon--info {
+    background: rgba(3, 105, 161, 0.12);
+    color: #0369a1;
+}
 
 .notification-item__copy {
     display: grid;

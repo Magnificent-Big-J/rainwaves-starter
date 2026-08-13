@@ -16,10 +16,10 @@
 import BusyOverlay from './BusyOverlay.vue';
 
 defineProps({
-    busy:     { type: Boolean, default: false },
-    eyebrow:  { type: String,  default: '' },
-    title:    { type: String,  required: true },
-    subtitle: { type: String,  default: '' },
+    busy: { type: Boolean, default: false },
+    eyebrow: { type: String, default: '' },
+    title: { type: String, required: true },
+    subtitle: { type: String, default: '' },
 });
 </script>
 

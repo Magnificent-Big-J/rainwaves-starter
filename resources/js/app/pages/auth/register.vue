@@ -12,13 +12,11 @@
             <div>
                 <p class="reg-closed__heading">Registration is currently closed</p>
                 <p class="reg-closed__text">
-                    New accounts are created by an administrator.
-                    Contact your team lead or sign in if you already have access.
+                    New accounts are created by an administrator. Contact your team lead or sign in if you already have
+                    access.
                 </p>
             </div>
-            <v-btn variant="outlined" color="primary" to="/auth/login" block>
-                Go to sign in
-            </v-btn>
+            <v-btn variant="outlined" color="primary" to="/auth/login" block> Go to sign in </v-btn>
         </div>
 
         <template v-else>

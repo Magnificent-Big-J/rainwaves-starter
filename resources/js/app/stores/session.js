@@ -10,6 +10,7 @@ import {
     persistPendingTwoFactorState,
     SESSION_BASE,
 } from './auth-shared';
+import { useAppConfigStore } from './app-config';
 import { useAppErrorsStore } from './app-errors';
 
 export const useSessionStore = defineStore('sessionAuth', {
@@ -26,8 +27,13 @@ export const useSessionStore = defineStore('sessionAuth', {
     },
     getters: {
         isAuthenticated: (state) => Boolean(state.user),
-        isAdminSurface: (state) =>
-            state.user?.roles?.some((role) => ['super-admin', 'admin'].includes(role)) ?? false,
+        // Role names driving the admin surface come from config/navigation.php
+        // (`admin_roles`) via the app-config store — nothing hardcoded here.
+        isAdminSurface: (state) => {
+            const adminRoles = useAppConfigStore().navigation.admin_roles ?? [];
+
+            return state.user?.roles?.some((role) => adminRoles.includes(role)) ?? false;
+        },
         activeSurface() {
             if (!this.isAuthenticated) {
                 return 'guest';
@@ -36,7 +42,13 @@ export const useSessionStore = defineStore('sessionAuth', {
             return this.isAdminSurface ? 'admin' : 'customer';
         },
         homeRoute() {
-            return this.isAdminSurface ? '/dashboard' : '/customer/home';
+            const homeRoutes = useAppConfigStore().navigation.home_routes ?? {};
+
+            if (!this.isAuthenticated) {
+                return homeRoutes.guest ?? '/';
+            }
+
+            return this.isAdminSurface ? (homeRoutes.admin ?? '/dashboard') : (homeRoutes.customer ?? '/customer/home');
         },
     },
     actions: {

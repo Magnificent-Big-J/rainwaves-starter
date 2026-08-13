@@ -1,0 +1,6 @@
+public/
+vendor/
+node_modules/
+storage/
+bootstrap/cache/
+resources/js/app/typed-router.d.ts

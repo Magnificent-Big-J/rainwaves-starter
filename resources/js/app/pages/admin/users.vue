@@ -11,13 +11,7 @@
                 </template>
 
                 <template #actions>
-                    <v-btn
-                        color="primary"
-                        prepend-icon="mdi-account-plus"
-                        @click="openCreate"
-                    >
-                        New user
-                    </v-btn>
+                    <v-btn color="primary" prepend-icon="mdi-account-plus" @click="openCreate"> New user </v-btn>
                 </template>
             </AppPageHeader>
 
@@ -51,7 +45,10 @@
                 />
             </div>
 
-            <AppSectionCard title="User directory" subtitle="Filter starter accounts and update role assignments from the reusable admin table surface.">
+            <AppSectionCard
+                title="User directory"
+                subtitle="Filter starter accounts and update role assignments from the reusable admin table surface."
+            >
                 <AppFilterBar>
                     <AppTextField
                         v-model="filters.search"
@@ -62,7 +59,10 @@
                     />
                     <AppSelect
                         v-model="filters.role"
-                        :items="[{ title: 'All roles', value: '' }, ...store.options.roles.map(r => ({ title: r, value: r }))]"
+                        :items="[
+                            { title: 'All roles', value: '' },
+                            ...store.options.roles.map((r) => ({ title: r, value: r })),
+                        ]"
                         label="Filter by role"
                         class="admin-users__role-filter"
                         @update:model-value="onRoleFilter"
@@ -80,7 +80,6 @@
                     @page-change="onPage"
                     @row-click="openEdit"
                 >
-
                     <template #row="{ row }">
                         <td>
                             <div class="user-cell">
@@ -95,12 +94,7 @@
                         </td>
                         <td>
                             <div class="role-chips">
-                                <AppStatusBadge
-                                    v-for="role in row.roles"
-                                    :key="role"
-                                    :status="role"
-                                    :label="role"
-                                />
+                                <AppStatusBadge v-for="role in row.roles" :key="role" :status="role" :label="role" />
                                 <span v-if="!row.roles?.length" class="text-muted">—</span>
                             </div>
                         </td>
@@ -108,12 +102,7 @@
                             <span class="text-muted text-sm">{{ formatDate(row.created_at) }}</span>
                         </td>
                         <td>
-                            <v-btn
-                                icon="mdi-pencil-outline"
-                                size="small"
-                                variant="text"
-                                @click.stop="openEdit(row)"
-                            />
+                            <v-btn icon="mdi-pencil-outline" size="small" variant="text" @click.stop="openEdit(row)" />
                         </td>
                     </template>
                 </AppDataTable>
@@ -191,11 +180,7 @@
 
             <template #actions>
                 <v-btn variant="text" @click="closeDialog">Cancel</v-btn>
-                <v-btn
-                    color="primary"
-                    :loading="store.loading"
-                    @click="submitDialog"
-                >
+                <v-btn color="primary" :loading="store.loading" @click="submitDialog">
                     {{ dialog.mode === 'create' ? 'Create user' : 'Save changes' }}
                 </v-btn>
             </template>
@@ -261,8 +246,7 @@ const confirmSeed = reactive({
     open: false,
 });
 
-const load = () =>
-    store.fetch({ page: filters.page, search: filters.search, role: filters.role });
+const load = () => store.fetch({ page: filters.page, search: filters.search, role: filters.role });
 
 const onSearch = (val) => {
     filters.search = val;
@@ -309,7 +293,13 @@ const openEdit = (row) => {
         open: true,
         mode: 'edit',
         editId: row.id,
-        form: { name: row.name, email: row.email, password: '', password_confirmation: '', roles: [...(row.roles || [])] },
+        form: {
+            name: row.name,
+            email: row.email,
+            password: '',
+            password_confirmation: '',
+            roles: [...(row.roles || [])],
+        },
         errors: {},
         message: '',
     });

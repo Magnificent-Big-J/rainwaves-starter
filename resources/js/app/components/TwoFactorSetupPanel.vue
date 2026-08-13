@@ -1,22 +1,22 @@
 <template>
-    <AppSectionCard title="Two-factor authentication" subtitle="Protect your account with a second verification step at login.">
+    <AppSectionCard
+        title="Two-factor authentication"
+        subtitle="Protect your account with a second verification step at login."
+    >
         <template #header>
-            <AppStatusBadge
-                :status="statusKey"
-                :label="statusLabel"
-                :icon="statusIcon"
-            />
+            <AppStatusBadge :status="statusKey" :label="statusLabel" :icon="statusIcon" />
         </template>
 
         <FormStatusAlert :message="message" :type="messageType" />
 
         <!-- ── Idle: nothing in progress ───────────────────── -->
         <template v-if="!secret && !emailPending">
-
             <!-- Channel detail when enabled -->
             <div v-if="enabled && channel" class="twofa-channel">
                 <v-icon size="16" color="var(--rw-600)">{{ channelIcon }}</v-icon>
-                <span>Active method: <strong>{{ channelLabel }}</strong></span>
+                <span
+                    >Active method: <strong>{{ channelLabel }}</strong></span
+                >
             </div>
 
             <div class="twofa-panel__actions">
@@ -51,12 +51,7 @@
         <!-- ── TOTP setup in progress ──────────────────────── -->
         <template v-if="secret">
             <div class="twofa-panel__setup">
-                <img
-                    v-if="qrCodeDataUrl"
-                    :src="qrCodeDataUrl"
-                    class="twofa-panel__qr"
-                    alt="QR code"
-                />
+                <img v-if="qrCodeDataUrl" :src="qrCodeDataUrl" class="twofa-panel__qr" alt="QR code" />
                 <div class="twofa-panel__copy">
                     <p class="twofa-step">
                         <span class="twofa-step__num">1</span>
@@ -94,8 +89,8 @@
                     <div>
                         <p class="twofa-email-setup__heading">Check your email</p>
                         <p class="twofa-email-setup__sub">
-                            A verification code was sent to <strong>{{ userEmail }}</strong>.
-                            Enter it below to activate email two-factor authentication.
+                            A verification code was sent to <strong>{{ userEmail }}</strong
+                            >. Enter it below to activate email two-factor authentication.
                         </p>
                     </div>
                 </div>
@@ -116,7 +111,6 @@
                 </div>
             </v-form>
         </template>
-
     </AppSectionCard>
 </template>
 
@@ -124,20 +118,30 @@
 import { computed } from 'vue';
 
 const props = defineProps({
-    enabled:        { type: Boolean, default: false },
-    channel:        { type: String,  default: null },
-    loading:        { type: Boolean, default: false },
-    secret:         { type: String,  default: null },
-    qrCodeDataUrl:  { type: String,  default: null },
-    code:           { type: String,  default: '' },
-    emailPending:   { type: Boolean, default: false },
-    emailCode:      { type: String,  default: '' },
-    userEmail:      { type: String,  default: '' },
-    message:        { type: String,  default: '' },
-    messageType:    { type: String,  default: 'success' },
+    enabled: { type: Boolean, default: false },
+    channel: { type: String, default: null },
+    loading: { type: Boolean, default: false },
+    secret: { type: String, default: null },
+    qrCodeDataUrl: { type: String, default: null },
+    code: { type: String, default: '' },
+    emailPending: { type: Boolean, default: false },
+    emailCode: { type: String, default: '' },
+    userEmail: { type: String, default: '' },
+    message: { type: String, default: '' },
+    messageType: { type: String, default: 'success' },
 });
 
-defineEmits(['start', 'email', 'disable', 'verify', 'cancel', 'verify-email', 'cancel-email', 'update:code', 'update:email-code']);
+defineEmits([
+    'start',
+    'email',
+    'disable',
+    'verify',
+    'cancel',
+    'verify-email',
+    'cancel-email',
+    'update:code',
+    'update:email-code',
+]);
 
 const statusKey = computed(() => {
     if (!props.enabled) return 'inactive';
@@ -156,13 +160,9 @@ const statusIcon = computed(() => {
     return 'mdi-shield-check';
 });
 
-const channelIcon = computed(() =>
-    props.channel === 'email' ? 'mdi-email-outline' : 'mdi-cellphone-key'
-);
+const channelIcon = computed(() => (props.channel === 'email' ? 'mdi-email-outline' : 'mdi-cellphone-key'));
 
-const channelLabel = computed(() =>
-    props.channel === 'email' ? 'Email OTP' : 'Authenticator app (TOTP)'
-);
+const channelLabel = computed(() => (props.channel === 'email' ? 'Email OTP' : 'Authenticator app (TOTP)'));
 </script>
 
 <style scoped>
@@ -183,7 +183,9 @@ const channelLabel = computed(() =>
     border-radius: 0.75rem;
     cursor: pointer;
     text-align: left;
-    transition: background 0.12s, border-color 0.12s;
+    transition:
+        background 0.12s,
+        border-color 0.12s;
     width: 100%;
 }
 

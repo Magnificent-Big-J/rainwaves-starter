@@ -8,13 +8,7 @@
         <FormStatusAlert :message="message" :type="messageType" />
 
         <v-form class="auth-form" @submit.prevent="submit">
-            <v-text-field
-                v-model="email"
-                label="Email"
-                type="email"
-                autocomplete="email"
-                required
-            />
+            <v-text-field v-model="email" label="Email" type="email" autocomplete="email" required />
 
             <FormActions
                 submit-label="Send reset instructions"

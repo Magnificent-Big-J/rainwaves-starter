@@ -17,11 +17,7 @@
             @click:append-inner="clearInput"
         />
 
-        <v-card
-            v-if="showSuggestions && suggestions.length"
-            class="app-address-autocomplete__menu"
-            elevation="8"
-        >
+        <v-card v-if="showSuggestions && suggestions.length" class="app-address-autocomplete__menu" elevation="8">
             <v-list density="compact" class="app-address-autocomplete__list">
                 <v-list-item
                     v-for="(suggestion, index) in suggestions"
@@ -34,7 +30,9 @@
                         <v-icon size="18" color="var(--rw-600)">mdi-map-marker-outline</v-icon>
                     </template>
 
-                    <v-list-item-title>{{ suggestion.structured_formatting?.main_text || suggestion.description }}</v-list-item-title>
+                    <v-list-item-title>{{
+                        suggestion.structured_formatting?.main_text || suggestion.description
+                    }}</v-list-item-title>
                     <v-list-item-subtitle>
                         {{ suggestion.structured_formatting?.secondary_text || suggestion.description }}
                     </v-list-item-subtitle>
@@ -133,17 +131,19 @@ const composeLineOne = (components) => {
 
 const normalizePlace = (place) => {
     const addressComponents = place.address_components || [];
-    const suburb = getComponent(addressComponents, 'sublocality_level_1')
-        || getComponent(addressComponents, 'sublocality')
-        || getComponent(addressComponents, 'neighborhood');
+    const suburb =
+        getComponent(addressComponents, 'sublocality_level_1') ||
+        getComponent(addressComponents, 'sublocality') ||
+        getComponent(addressComponents, 'neighborhood');
 
     return {
         google_place_id: place.place_id,
         formatted_address: place.formatted_address,
         address_line_1: composeLineOne(addressComponents),
         suburb,
-        city: getComponent(addressComponents, 'locality')
-            || getComponent(addressComponents, 'administrative_area_level_2'),
+        city:
+            getComponent(addressComponents, 'locality') ||
+            getComponent(addressComponents, 'administrative_area_level_2'),
         state: getComponent(addressComponents, 'administrative_area_level_1'),
         country: getComponent(addressComponents, 'country'),
         postal_code: getComponent(addressComponents, 'postal_code'),
@@ -196,18 +196,21 @@ const selectSuggestion = async (suggestion) => {
 
     await ensureServices();
 
-    placesService.getDetails({
-        placeId: suggestion.place_id,
-        fields: ['place_id', 'formatted_address', 'address_components', 'geometry'],
-    }, (place, status) => {
-        if (status !== window.google.maps.places.PlacesServiceStatus.OK || !place) {
-            return;
-        }
+    placesService.getDetails(
+        {
+            placeId: suggestion.place_id,
+            fields: ['place_id', 'formatted_address', 'address_components', 'geometry'],
+        },
+        (place, status) => {
+            if (status !== window.google.maps.places.PlacesServiceStatus.OK || !place) {
+                return;
+            }
 
-        const payload = normalizePlace(place);
-        emit('update:modelValue', payload);
-        emit('select', payload);
-    });
+            const payload = normalizePlace(place);
+            emit('update:modelValue', payload);
+            emit('select', payload);
+        }
+    );
 };
 
 const clearInput = () => {
@@ -287,7 +290,7 @@ watch(
         if (nextValue !== query.value) {
             query.value = nextValue;
         }
-    },
+    }
 );
 
 watch(
@@ -303,7 +306,7 @@ watch(
             query.value = nextValue;
         }
     },
-    { deep: true },
+    { deep: true }
 );
 
 onMounted(() => {

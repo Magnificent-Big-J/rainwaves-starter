@@ -39,17 +39,25 @@ app/
 
 resources/js/app/
   components/         # AppDataTable, AppSectionCard, MediaUploader, FormActions, FormStatusAlert, BusyOverlay, AppToastHost, AuthCard
-  layouts/            # default.vue (sidebar + guest bar), auth.vue (split auth shell)
+  layouts/            # default.vue (admin sidebar + guest bar), auth.vue (split auth shell), guest.vue (marketing pages), customer.vue (lighter customer-surface topbar)
   pages/
     auth/             # login, forgot-password, reset-password, verify
-    admin/            # users
-    index.vue         # dashboard/home
+    admin/            # users, roles, audit-log, settings
+    account/          # sessions (active devices)
+    index.vue         # marketing home (layout: guest)
+    dashboard.vue      # admin surface home (layout: default)
+    customer/home.vue  # customer surface home (layout: customer)
+    notifications.vue  # full notification history (layout: contextual)
     profile.vue       # account/security page — not under auth/, it's not an auth flow
-  stores/             # session, profile, admin-users, two-factor, app-errors, auth-shared (utils)
+    legal/            # privacy, terms (static content pages)
+    support.vue       # contact/support page
+  stores/             # session, app-config (brand/nav bootstrap), profile, admin-users, two-factor, app-errors, notifications, auth-shared (utils)
   utils/api.js        # ofetch instance with credentials + headers
   plugins/vuetify.js  # rainwavesStarter theme
-  router/index.js     # vue-router/auto-routes + auth guard
+  router/index.js     # vue-router/auto-routes + auth guard + showcase/environment gating
 ```
+
+Which layout a page uses is declared per-page via a `<route lang="json">{ "meta": { "layout": "..." } }</route>` block (unplugin-vue-router convention), not inferred from folder location. `layout: "contextual"` (used by profile.vue, notifications.vue) picks `default.vue` on the admin surface and `customer.vue` on the customer surface at render time (see `App.vue`).
 
 ## Auth flow
 
@@ -103,11 +111,19 @@ Under `auth:sanctum` + `idempotency` middleware:
 | GET | `/api/v1/profile` | ProfileController@show |
 | PATCH | `/api/v1/profile` | ProfileController@update |
 | PUT | `/api/v1/profile/password` | ProfileController@updatePassword |
+| GET | `/api/v1/sessions` | SessionController@index — active browser sessions |
+| DELETE | `/api/v1/sessions/others` | SessionController@destroyOthers |
+| DELETE | `/api/v1/sessions/{id}` | SessionController@destroy |
 | GET | `/api/v1/users` | UserAdminController@index |
 | POST | `/api/v1/users` | UserAdminController@store |
 | PATCH | `/api/v1/users/{user}` | UserAdminController@update |
+| GET | `/api/v1/roles` | RoleAdminController@index |
+| PUT | `/api/v1/roles/{role}/permissions` | RoleAdminController@updatePermissions |
+| GET | `/api/v1/activity-log` | ActivityLogController@index |
 
-Admin routes are gated by `users.view` / `users.create` / `users.update` permissions.
+Public also includes `GET /api/v1/web-config` (brand/navigation/features bootstrap, see below).
+
+Admin routes are gated by permissions: `users.view` / `users.create` / `users.update`, `roles.view` / `roles.manage`, `activity.view`.
 
 ## Mobile auth (token flow)
 
@@ -137,13 +153,25 @@ Database notifications with a mobile payload contract. Extend `App\Notifications
 
 ## Web routes (PayFast)
 
+Production route table (always registered):
+
 | Method | Endpoint | Notes |
 |---|---|---|
-| POST | `/payments/payfast/initiate` | Returns PayFast HTML form for one-time payment |
-| POST | `/payments/payfast/subscriptions/initiate` | Returns PayFast HTML form for subscription |
-| POST | `/payments/payfast/itn` | ITN webhook — CSRF excluded |
-| GET | `/payments/payfast/return` | PayFast return redirect |
-| GET | `/payments/payfast/cancel` | PayFast cancel redirect |
+| POST | `/payments/payfast/initiate` | Returns PayFast HTML form for one-time payment; throttled `payfast-initiate` |
+| POST | `/payments/payfast/subscriptions/initiate` | Returns PayFast HTML form for subscription; throttled `payfast-initiate` |
+| POST | `/payments/payfast/itn` | ITN webhook — CSRF excluded. **The only path allowed to mutate payment/subscription state.** |
+| GET | `/payments/payfast/return` | Cosmetic redirect only — reads query params for display, never writes to the DB |
+| GET | `/payments/payfast/cancel` | Cosmetic redirect only — same as above |
+
+`handleReturn`/`handleCancel` redirect to `/payfast-browser-test` in local/testing and `/dashboard` everywhere else. A buyer fully controls this URL (wrong id, forged token, replay) so it must never be trusted — see `tests/Feature/PayFastV2CompatibilityTest.php`.
+
+Local/testing-only (registered from `routes/payfast-local.php`, included from `routes/web.php` only when `app()->environment(['local', 'testing'])` — never present in the production route table, proven by `tests/Feature/ProductionRouteHardeningTest.php`):
+
+| Method | Endpoint | Notes |
+|---|---|---|
+| GET | `/payments/payfast/records` | Dumps recent payments/subscriptions/events as JSON |
+| POST | `/payments/payfast/simulate-itn` | Builds and replays a signed ITN payload for a given record |
+| POST | `/payments/payfast/subscriptions/action` | Native subscription actions (fetch/pause/unpause/cancel/card-update-link/update/adhoc) |
 
 ## Enums
 
@@ -164,10 +192,30 @@ Service: `PayFastCheckoutService` (bound via `PayFastCheckoutServiceInterface`)
 
 - `initiateOneTimePayment` — creates `Payment` record, returns HTML checkout form
 - `initiateSubscriptionPayment` — creates `Subscription` record, returns HTML checkout form
-- `processItn` — validates payment, updates record, idempotent via `PaymentEvent` event_ref unique constraint
-- `markReturn` / `markCancelled` — updates status from redirect
+- `processItn` — validates payment, updates record, idempotent via `PaymentEvent` event_ref unique constraint. This is the **only** method that ever changes `status` on a `Payment`/`Subscription` — there is deliberately no `markReturn`/`markCancelled`; the browser return/cancel routes are cosmetic redirects only.
 
 Config: `config/payfast.php` — reads merchant ID, key, pass phrase, env, URLs from `.env`.
+
+### Gotcha: spatie/laravel-permission's dynamic-guard relations crash inside `auth:sanctum` routes
+
+`Role->users()` / `Permission->roles()` (and anything built on them, e.g. `Role::withCount('users')`) resolve their target model via `config('auth.defaults.guard')` when called on a fresh (attribute-less) model instance — which is exactly how Eloquent builds a relation for `withCount`/`loadCount`. `Illuminate\Auth\Middleware\Authenticate::authenticate()` calls `AuthManager::shouldUse('sanctum')` for every request that authenticates via `auth:sanctum`, which **mutates that same `auth.defaults.guard` config value for the rest of the request**. `'sanctum'` has no `config('auth.guards.sanctum')` entry (Sanctum registers its guard programmatically), so `Guard::getModelForGuard('sanctum')` returns `null` and the relation build fatals with `Error: Class name must be a valid object or a string` — a controller-only failure that never reproduces calling the same query directly in a test body or tinker (see `RoleAdminController::withUserCounts()` for the workaround: count the `model_has_roles`/`model_has_permissions` pivot table directly instead of using the relation).
+
+## Standard page catalogue (RS-105)
+
+Beyond auth/profile/admin-users (pre-existing), the starter now ships:
+
+| Page | Route | Backend |
+|---|---|---|
+| Notifications (full history) | `/notifications` | `GET/POST /api/v1/notifications*` (pre-existing) |
+| Active sessions | `/account/sessions` | `GET/DELETE /api/v1/sessions*` — real browser sessions from `sessions` table, distinct from mobile devices |
+| Roles & Permissions | `/admin/roles` | `GET /api/v1/roles`, `PUT /api/v1/roles/{role}/permissions` — `super-admin` is immutable through this endpoint |
+| Audit Log | `/admin/audit-log` | `GET /api/v1/activity-log` — `spatie/laravel-activitylog` entries, includes the 14 security events from `LogSecurityActivity` |
+| Settings | `/admin/settings` | Read-only view of `config/app-brand.php` / `features.php` / `navigation.php` via the existing `/api/v1/web-config` |
+| Privacy / Terms | `/legal/privacy`, `/legal/terms` | Static placeholder content — replace before launch |
+| Support | `/support` | Static contact page reading `brand.support_email` |
+| Not found | any unmatched path, or `/showcase-disabled` | `pages/[...notFound].vue` — SPA-side catch-all |
+
+Laravel-level error pages (`resources/views/errors/{404,403,419,429,500,503}.blade.php`) are separate from the SPA catch-all above — they render for genuine backend HTTP errors that occur before Vue mounts (see "Brand & navigation config" section for detail).
 
 ## Roles & permissions
 
@@ -192,6 +240,18 @@ User model uses `HasRoles` from `spatie/laravel-permission`. Guard: `web`.
 | `AppToastHost` | Toast notifications via app-errors store |
 | `AuthCard` | Centered auth card wrapper |
 | `AppHeader` | Unused in authenticated shell; kept for guest/public views |
+
+## Brand & navigation config (RS-101 / RS-102)
+
+`config/app-brand.php`, `config/features.php`, `config/navigation.php` are the single source of truth for product name/logo mark/footer, the `show_showcase_pages` toggle, and every nav item (main/admin/showcase/guest/legal groups), plus which roles count as the admin surface (`navigation.admin_roles`) and each surface's home route (`navigation.home_routes`). Nothing in the frontend hardcodes a brand name, role name, or nav item.
+
+`GET /api/v1/web-config` (public, unauthenticated) serves all three as one payload. `resources/js/app/stores/app-config.js` fetches it once (`ensureLoaded()`, called from the router guard alongside `session.ensureLoaded()` — both must resolve before `session.isAdminSurface`/`homeRoute` can be trusted, since those getters read `navigation.admin_roles`/`home_routes` from this store) with safe built-in fallbacks if the request fails. All four layouts (`default.vue`, `auth.vue`, `guest.vue`, `customer.vue`) render brand text from `appConfig.brand`; `default.vue`/`customer.vue`/`guest.vue` render nav items from `appConfig.navigation`, filtered client-side by surface, `item.permission` (checked against the session user's `permissions` array), and `item.environments`.
+
+To rebrand a copied project: edit the three config files (or their `.env` overrides) — no Vue changes needed.
+
+### Showcase pages (RS-106)
+
+Component catalogue, foundation, about, and the PayFast browser test are starter-authoring aids, not product surface. Their route meta carries `"showcase": true` (`payfast-browser-test.vue` additionally carries `"environments": ["local", "testing"]`). The router guard (`router/index.js`) redirects to the catch-all not-found page (`pages/[...notFound].vue`, path `/showcase-disabled`) when `features.show_showcase_pages` is false or the current environment isn't in `meta.environments`. `default.vue`'s sidebar only renders the "Showcase" nav group when `show_showcase_pages` is true. Set `SHOW_SHOWCASE_PAGES=false` in any deployed environment.
 
 ## Design system
 
@@ -233,6 +293,20 @@ Run order matters. Key tables:
 10. devices (links personal_access_tokens)
 11. sync_operations / sync_tombstones
 12. notifications
+
+## Quality tooling (RS-401 / RS-402)
+
+Backend: `composer lint` (Pint, check-only), `composer lint:fix` (Pint, writes), `composer stan` (Larastan level 5, `phpstan.neon`). `composer test` runs the PHPUnit suite.
+
+`phpstan-baseline.neon` (committed, generated the day Larastan was added) suppresses 81 pre-existing findings — all one root cause: Eloquent model properties/casts (`Subscription::$status`, `Device::$uuid`, `PersonalAccessToken::$personal_access_token_id`, etc.) aren't visible to static analysis without generated model docblocks, so Larastan sees `string`/`Model` where the real runtime type is a backed enum or a specific model. None of them are real bugs — confirmed by cross-referencing against the passing test suite. **Don't just re-run `--generate-baseline` to silence a new finding** — that hides real regressions behind the same file. The actual fix is adding `barryvdh/laravel-ide-helper` (`php artisan ide-helper:models`) to generate accurate model docblocks, then regenerating a much smaller (ideally empty) baseline; not done yet, left as follow-up.
+
+Frontend: `npm run lint` / `npm run lint:fix` (ESLint 9 flat config, `eslint.config.js`), `npm run format` / `npm run format:check` (Prettier, `.prettierrc.json`).
+
+## starter:doctor
+
+`php artisan starter:doctor` reports on deployment readiness: APP_KEY/APP_ENV/APP_DEBUG, `authx` fail-closed permission config, whether dev-only PayFast routes are registered (checked against the live route table, not just config), DB connectivity + pending migrations, Redis, Horizon master supervisor, storage disk write access, mail driver, PayFast credentials (fails/warns if still the published sandbox defaults), and the frontend build manifest.
+
+Plain `starter:doctor` is informational (always exits 0). `starter:doctor --production` turns every blocking finding into a non-zero exit — wire it into a deploy pipeline as a release gate. See `tests/Feature/Console/StarterDoctorCommandTest.php`.
 
 ## Local development
 

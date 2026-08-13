@@ -50,6 +50,13 @@ class AppServiceProvider extends ServiceProvider
                 ->by($request->string('email')->toString().'|'.$request->ip());
         });
 
+        RateLimiter::for('payfast-initiate', function (Request $request) {
+            return [
+                Limit::perMinute(10)->by($request->ip()),
+                Limit::perMinute(5)->by('payfast-initiate|'.($request->user()?->id ?? $request->ip())),
+            ];
+        });
+
         $this->registerSecurityAuditListeners();
     }
 

@@ -1,10 +1,5 @@
 <template>
-    <v-chip
-        :color="resolved.color"
-        :variant="variant"
-        size="small"
-        class="status-badge"
-    >
+    <v-chip :color="resolved.color" :variant="variant" size="small" class="status-badge">
         <template v-if="resolved.icon" #prepend>
             <v-icon :icon="resolved.icon" size="14" />
         </template>
@@ -43,10 +38,7 @@ const presetMap = {
     refunded: { color: 'secondary', icon: 'mdi-backup-restore' },
 };
 
-const humanize = (value) =>
-    value
-        .replace(/[_-]+/g, ' ')
-        .replace(/\b\w/g, (char) => char.toUpperCase());
+const humanize = (value) => value.replace(/[_-]+/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 
 const resolved = computed(() => {
     const key = props.status.toLowerCase();

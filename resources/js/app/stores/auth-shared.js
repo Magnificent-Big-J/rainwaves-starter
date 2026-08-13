@@ -23,10 +23,7 @@ export const extractUserPayload = (response) => {
 };
 
 export const normalizeErrorMessage = (error, fallback = 'Something went wrong.') => {
-    return error?.data?.message
-        || error?.data?.error
-        || error?.message
-        || fallback;
+    return error?.data?.message || error?.data?.error || error?.message || fallback;
 };
 
 export const validationErrors = (error) => {
@@ -54,8 +51,11 @@ export const persistPendingTwoFactorState = (required, channel = null) => {
         return;
     }
 
-    window.localStorage.setItem(PENDING_TWO_FACTOR_STORAGE_KEY, JSON.stringify({
-        required,
-        channel,
-    }));
+    window.localStorage.setItem(
+        PENDING_TWO_FACTOR_STORAGE_KEY,
+        JSON.stringify({
+            required,
+            channel,
+        })
+    );
 };

@@ -8,12 +8,7 @@
             <slot name="actions" />
         </div>
 
-        <apexchart
-            type="line"
-            height="100%"
-            :options="chartOptions"
-            :series="series"
-        />
+        <apexchart type="line" height="100%" :options="chartOptions" :series="series" />
     </div>
 </template>
 

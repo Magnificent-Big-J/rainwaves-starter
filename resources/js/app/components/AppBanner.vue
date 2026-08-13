@@ -9,13 +9,7 @@
         </div>
         <div class="app-banner__actions">
             <slot name="actions" />
-            <v-btn
-                v-if="closable"
-                icon="mdi-close"
-                size="small"
-                variant="text"
-                @click="$emit('close')"
-            />
+            <v-btn v-if="closable" icon="mdi-close" size="small" variant="text" @click="$emit('close')" />
         </div>
     </div>
 </template>
@@ -32,12 +26,15 @@ const props = defineProps({
 
 defineEmits(['close']);
 
-const icon = computed(() => ({
-    success: 'mdi-check-circle-outline',
-    error: 'mdi-alert-circle-outline',
-    warning: 'mdi-alert-outline',
-    info: 'mdi-information-outline',
-}[props.type] || 'mdi-information-outline'));
+const icon = computed(
+    () =>
+        ({
+            success: 'mdi-check-circle-outline',
+            error: 'mdi-alert-circle-outline',
+            warning: 'mdi-alert-outline',
+            info: 'mdi-information-outline',
+        })[props.type] || 'mdi-information-outline'
+);
 </script>
 
 <style scoped>
@@ -51,10 +48,18 @@ const icon = computed(() => ({
     border: 1px solid rgba(17, 34, 51, 0.08);
 }
 
-.app-banner--success { background: rgba(21, 128, 61, 0.08); }
-.app-banner--error { background: rgba(185, 28, 28, 0.08); }
-.app-banner--warning { background: rgba(180, 83, 9, 0.08); }
-.app-banner--info { background: rgba(3, 105, 161, 0.08); }
+.app-banner--success {
+    background: rgba(21, 128, 61, 0.08);
+}
+.app-banner--error {
+    background: rgba(185, 28, 28, 0.08);
+}
+.app-banner--warning {
+    background: rgba(180, 83, 9, 0.08);
+}
+.app-banner--info {
+    background: rgba(3, 105, 161, 0.08);
+}
 
 .app-banner__copy {
     display: flex;

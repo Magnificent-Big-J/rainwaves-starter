@@ -37,9 +37,44 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/[...notFound]': RouteRecordInfo<
+      '/[...notFound]',
+      '/:notFound(.*)',
+      { notFound: ParamValue<true> },
+      { notFound: ParamValue<false> },
+      | never
+    >,
     '/about': RouteRecordInfo<
       '/about',
       '/about',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/account/sessions': RouteRecordInfo<
+      '/account/sessions',
+      '/account/sessions',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/admin/audit-log': RouteRecordInfo<
+      '/admin/audit-log',
+      '/admin/audit-log',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/admin/roles': RouteRecordInfo<
+      '/admin/roles',
+      '/admin/roles',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/admin/settings': RouteRecordInfo<
+      '/admin/settings',
+      '/admin/settings',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -114,6 +149,27 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/legal/privacy': RouteRecordInfo<
+      '/legal/privacy',
+      '/legal/privacy',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/legal/terms': RouteRecordInfo<
+      '/legal/terms',
+      '/legal/terms',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/notifications': RouteRecordInfo<
+      '/notifications',
+      '/notifications',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/payfast-browser-test': RouteRecordInfo<
       '/payfast-browser-test',
       '/payfast-browser-test',
@@ -124,6 +180,13 @@ declare module 'vue-router/auto-routes' {
     '/profile': RouteRecordInfo<
       '/profile',
       '/profile',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/support': RouteRecordInfo<
+      '/support',
+      '/support',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -147,9 +210,39 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'resources/js/app/pages/[...notFound].vue': {
+      routes:
+        | '/[...notFound]'
+      views:
+        | never
+    }
     'resources/js/app/pages/about.vue': {
       routes:
         | '/about'
+      views:
+        | never
+    }
+    'resources/js/app/pages/account/sessions.vue': {
+      routes:
+        | '/account/sessions'
+      views:
+        | never
+    }
+    'resources/js/app/pages/admin/audit-log.vue': {
+      routes:
+        | '/admin/audit-log'
+      views:
+        | never
+    }
+    'resources/js/app/pages/admin/roles.vue': {
+      routes:
+        | '/admin/roles'
+      views:
+        | never
+    }
+    'resources/js/app/pages/admin/settings.vue': {
+      routes:
+        | '/admin/settings'
       views:
         | never
     }
@@ -213,6 +306,24 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'resources/js/app/pages/legal/privacy.vue': {
+      routes:
+        | '/legal/privacy'
+      views:
+        | never
+    }
+    'resources/js/app/pages/legal/terms.vue': {
+      routes:
+        | '/legal/terms'
+      views:
+        | never
+    }
+    'resources/js/app/pages/notifications.vue': {
+      routes:
+        | '/notifications'
+      views:
+        | never
+    }
     'resources/js/app/pages/payfast-browser-test.vue': {
       routes:
         | '/payfast-browser-test'
@@ -222,6 +333,12 @@ declare module 'vue-router/auto-routes' {
     'resources/js/app/pages/profile.vue': {
       routes:
         | '/profile'
+      views:
+        | never
+    }
+    'resources/js/app/pages/support.vue': {
+      routes:
+        | '/support'
       views:
         | never
     }

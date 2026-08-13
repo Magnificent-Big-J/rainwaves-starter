@@ -36,7 +36,7 @@ const rangeLabel = computed(() => {
         return 'No records';
     }
 
-    const start = ((currentPage.value - 1) * perPage.value) + 1;
+    const start = (currentPage.value - 1) * perPage.value + 1;
     const end = Math.min(currentPage.value * perPage.value, total.value);
 
     return `${start}-${end}`;

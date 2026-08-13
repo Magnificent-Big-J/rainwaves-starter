@@ -1,10 +1,6 @@
 <template>
     <div class="timeline">
-        <div
-            v-for="item in items"
-            :key="item.id ?? `${item.title}-${item.time}`"
-            class="timeline__item"
-        >
+        <div v-for="item in items" :key="item.id ?? `${item.title}-${item.time}`" class="timeline__item">
             <span class="timeline__dot" :class="`timeline__dot--${item.type || 'info'}`" />
             <div class="timeline__content">
                 <div class="timeline__meta">
@@ -43,10 +39,18 @@ defineProps({
     margin-top: 0.35rem;
 }
 
-.timeline__dot--success { background: #15803d; }
-.timeline__dot--warning { background: #b45309; }
-.timeline__dot--error { background: #b91c1c; }
-.timeline__dot--info { background: #0369a1; }
+.timeline__dot--success {
+    background: #15803d;
+}
+.timeline__dot--warning {
+    background: #b45309;
+}
+.timeline__dot--error {
+    background: #b91c1c;
+}
+.timeline__dot--info {
+    background: #0369a1;
+}
 
 .timeline__content {
     padding-left: 0.9rem;

@@ -1,10 +1,5 @@
 <template>
-    <v-menu
-        v-model="open"
-        :close-on-content-click="false"
-        location="bottom end"
-        offset="12"
-    >
+    <v-menu v-model="open" :close-on-content-click="false" location="bottom end" offset="12">
         <template #activator="{ props }">
             <v-btn v-bind="props" icon variant="text" class="notification-trigger">
                 <v-badge
@@ -25,8 +20,8 @@
                     <p>{{ notifications.unreadCount }} unread</p>
                 </div>
                 <div class="notification-panel__actions">
-                    <v-btn variant="text" size="small" @click="notifications.markAllAsRead()">Mark all read</v-btn>
-                    <v-btn variant="text" size="small" @click="notifications.clearAll()">Clear</v-btn>
+                    <v-btn variant="text" size="small" @click="notifications.markAllRead()">Mark all read</v-btn>
+                    <RouterLink to="/notifications" class="notification-panel__view-all">View all</RouterLink>
                 </div>
             </div>
 
@@ -50,15 +45,26 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+import { RouterLink } from 'vue-router';
 
 import { useNotificationsStore } from '../stores/notifications';
 
 const notifications = useNotificationsStore();
 const open = ref(false);
 
+watch(open, (isOpen) => {
+    if (isOpen) {
+        notifications.fetch();
+    }
+});
+
+// item.route/item.params are the mobile deep-link contract (App\Notifications\
+// AppNotification::deepLink — a named mobile route, e.g. "home", not a web path),
+// so the web panel doesn't try to navigate with them. It just marks read; the
+// full history page (/notifications) is where "View all" goes for more detail.
 const selectItem = (item) => {
-    notifications.markAsRead(item.id);
+    notifications.markRead(item.id);
 };
 </script>
 

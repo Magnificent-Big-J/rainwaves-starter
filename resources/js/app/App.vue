@@ -25,8 +25,8 @@ const activeLayout = computed(() => {
 
     if (requested === 'contextual') {
         return session.activeSurface === 'admin'
-            ? layouts['./layouts/default.vue']?.default ?? fallback
-            : layouts['./layouts/customer.vue']?.default ?? fallback;
+            ? (layouts['./layouts/default.vue']?.default ?? fallback)
+            : (layouts['./layouts/customer.vue']?.default ?? fallback);
     }
 
     return layouts[`./layouts/${requested}.vue`]?.default ?? fallback;

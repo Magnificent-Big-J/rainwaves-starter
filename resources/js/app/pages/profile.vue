@@ -125,11 +125,9 @@
                                     v-for="perm in session.user?.permissions?.slice(0, 10)"
                                     :key="perm"
                                     class="perm-badge"
-                                >{{ perm }}</span>
-                                <span
-                                    v-if="(session.user?.permissions?.length ?? 0) > 10"
-                                    class="badge-overflow"
+                                    >{{ perm }}</span
                                 >
+                                <span v-if="(session.user?.permissions?.length ?? 0) > 10" class="badge-overflow">
                                     +{{ session.user.permissions.length - 10 }} more
                                 </span>
                                 <span v-if="!session.user?.permissions?.length" class="badge-none">None</span>

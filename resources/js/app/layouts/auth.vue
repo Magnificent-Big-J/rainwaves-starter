@@ -13,8 +13,8 @@
             <div class="auth-shell__body">
                 <div class="auth-header">
                     <RouterLink to="/" class="auth-logo">
-                        <span class="auth-logo__badge">RW</span>
-                        <span class="auth-logo__name">Rainwaves</span>
+                        <span class="auth-logo__badge">{{ appConfig.brand.short_name }}</span>
+                        <span class="auth-logo__name">{{ appConfig.brand.name }}</span>
                     </RouterLink>
                 </div>
 
@@ -23,12 +23,18 @@
                 </div>
 
                 <footer class="auth-footer">
-                    <span>Rainwaves Starter &mdash; Laravel 13</span>
+                    <span>{{ appConfig.brand.footer }}</span>
                 </footer>
             </div>
         </div>
     </v-app>
 </template>
+
+<script setup>
+import { useAppConfigStore } from '../stores/app-config';
+
+const appConfig = useAppConfigStore();
+</script>
 
 <style scoped>
 .auth-shell {
@@ -129,7 +135,9 @@
     font-size: 0.72rem;
     font-weight: 800;
     letter-spacing: 0.05em;
-    box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.4);
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.08),
+        0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .auth-logo__name {
