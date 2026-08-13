@@ -77,40 +77,44 @@
             </aside>
         </div>
 
-        <div class="dashboard__commerce">
-            <PaymentStatusCard
-                v-if="billing.latestPayment"
-                title="Latest payment"
-                :amount="`R ${Number(billing.latestPayment.amount_gross ?? billing.latestPayment.amount_requested).toFixed(2)}`"
-                :reference="billing.latestPayment.merchant_payment_id"
-                :status="billing.latestPayment.status"
-                :status-label="billing.latestPayment.status_label"
-                :provider="billing.latestPayment.provider"
-                :customer="billing.latestPayment.customer_name || '—'"
-                :requested-at="formatDate(billing.latestPayment.initiated_at)"
-                :settled-at="billing.latestPayment.paid_at ? formatDate(billing.latestPayment.paid_at) : 'Awaiting ITN'"
-            />
-            <AppSectionCard v-else title="Latest payment" subtitle="No payments recorded yet" />
+        <template v-if="appConfig.modules.billing">
+            <div class="dashboard__commerce">
+                <PaymentStatusCard
+                    v-if="billing.latestPayment"
+                    title="Latest payment"
+                    :amount="`R ${Number(billing.latestPayment.amount_gross ?? billing.latestPayment.amount_requested).toFixed(2)}`"
+                    :reference="billing.latestPayment.merchant_payment_id"
+                    :status="billing.latestPayment.status"
+                    :status-label="billing.latestPayment.status_label"
+                    :provider="billing.latestPayment.provider"
+                    :customer="billing.latestPayment.customer_name || '—'"
+                    :requested-at="formatDate(billing.latestPayment.initiated_at)"
+                    :settled-at="
+                        billing.latestPayment.paid_at ? formatDate(billing.latestPayment.paid_at) : 'Awaiting ITN'
+                    "
+                />
+                <AppSectionCard v-else title="Latest payment" subtitle="No payments recorded yet" />
 
-            <SubscriptionStatusCard
-                v-if="billing.latestSubscription"
-                title="Subscription"
-                :amount="`R ${Number(billing.latestSubscription.recurring_amount).toFixed(2)} / cycle`"
-                :plan="billing.latestSubscription.item_name"
-                :status="billing.latestSubscription.status"
-                :status-label="billing.latestSubscription.status_label"
-                :billing-date="billing.latestSubscription.billing_date || 'Not scheduled'"
-                :cycles="String(billing.latestSubscription.cycles ?? 0)"
-                :terminal="billing.latestSubscription.is_terminal"
-            />
-            <AppSectionCard v-else title="Subscription" subtitle="No subscriptions recorded yet" />
-        </div>
+                <SubscriptionStatusCard
+                    v-if="billing.latestSubscription"
+                    title="Subscription"
+                    :amount="`R ${Number(billing.latestSubscription.recurring_amount).toFixed(2)} / cycle`"
+                    :plan="billing.latestSubscription.item_name"
+                    :status="billing.latestSubscription.status"
+                    :status-label="billing.latestSubscription.status_label"
+                    :billing-date="billing.latestSubscription.billing_date || 'Not scheduled'"
+                    :cycles="String(billing.latestSubscription.cycles ?? 0)"
+                    :terminal="billing.latestSubscription.is_terminal"
+                />
+                <AppSectionCard v-else title="Subscription" subtitle="No subscriptions recorded yet" />
+            </div>
 
-        <PaymentEventList
-            title="Recent payment events"
-            subtitle="Use this list for ITN history, billing audit, and support tooling."
-            :events="timelineEvents"
-        />
+            <PaymentEventList
+                title="Recent payment events"
+                subtitle="Use this list for ITN history, billing audit, and support tooling."
+                :events="timelineEvents"
+            />
+        </template>
     </div>
 </template>
 
@@ -137,10 +141,12 @@ import PaymentEventList from '../components/PaymentEventList.vue';
 import PaymentStatusCard from '../components/PaymentStatusCard.vue';
 import SubscriptionStatusCard from '../components/SubscriptionStatusCard.vue';
 import { useAdminRolesStore } from '../stores/admin-roles';
+import { useAppConfigStore } from '../stores/app-config';
 import { useBillingStore } from '../stores/billing';
 import { useSessionStore } from '../stores/session';
 
 const session = useSessionStore();
+const appConfig = useAppConfigStore();
 const billing = useBillingStore();
 const adminRoles = useAdminRolesStore();
 
@@ -253,7 +259,10 @@ const timelineEvents = computed(() =>
 );
 
 onMounted(() => {
-    billing.fetch();
+    if (appConfig.modules.billing) {
+        billing.fetch();
+    }
+
     adminRoles.fetch();
 });
 </script>

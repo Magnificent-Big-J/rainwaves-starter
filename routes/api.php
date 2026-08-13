@@ -3,14 +3,12 @@
 use App\Http\Controllers\Api\Admin\ActivityLogController;
 use App\Http\Controllers\Api\Admin\RoleAdminController;
 use App\Http\Controllers\Api\Admin\UserAdminController;
-use App\Http\Controllers\Api\BillingController;
 use App\Http\Controllers\Api\DeviceController;
 use App\Http\Controllers\Api\MetaController;
 use App\Http\Controllers\Api\MobileAuthController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SessionController;
-use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\SyncController;
 use App\Http\Controllers\Api\WebConfigController;
 use App\Http\Resources\AuthUserResource;
@@ -31,6 +29,12 @@ Route::prefix('v1/auth')->middleware('throttle:mobile-auth')->group(function () 
 });
 
 // idempotency only engages on mutating requests carrying an Idempotency-Key.
+//
+// Billing/subscription routes (/v1/billing, /v1/subscriptions*) live in
+// routes/modules/billing-api.php, loaded by App\Providers\Modules\BillingServiceProvider
+// — see RS-301/config/modules.php. That file re-declares this same auth:sanctum +
+// idempotency wrapper locally, since loadRoutesFrom() doesn't inherit an outer group
+// from a different file.
 Route::middleware(['auth:sanctum', 'idempotency'])->group(function () {
     Route::post('/v1/auth/logout', [MobileAuthController::class, 'logout']);
 
@@ -52,10 +56,6 @@ Route::middleware(['auth:sanctum', 'idempotency'])->group(function () {
     Route::get('/v1/sessions', [SessionController::class, 'index']);
     Route::delete('/v1/sessions/others', [SessionController::class, 'destroyOthers']);
     Route::delete('/v1/sessions/{id}', [SessionController::class, 'destroy']);
-
-    Route::get('/v1/billing', [BillingController::class, 'show']);
-    Route::get('/v1/subscriptions', [SubscriptionController::class, 'index']);
-    Route::post('/v1/subscriptions/{subscription}/cancel', [SubscriptionController::class, 'cancel']);
 
     Route::get('/v1/profile', [ProfileController::class, 'show']);
     Route::patch('/v1/profile', [ProfileController::class, 'update']);

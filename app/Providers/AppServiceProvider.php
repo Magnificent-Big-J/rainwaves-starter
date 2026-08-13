@@ -7,6 +7,7 @@ use App\Contracts\PayFastCheckoutServiceInterface;
 use App\Contracts\Sync\SyncProcessorInterface;
 use App\Contracts\UserAdminServiceInterface;
 use App\Listeners\LogSecurityActivity;
+use App\Modules\ModuleRegistry;
 use App\Services\MobileAuthService;
 use App\Services\PayFastCheckoutService;
 use App\Services\Sync\SyncProcessor;
@@ -41,6 +42,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(MobileAuthServiceInterface::class, MobileAuthService::class);
         $this->app->bind(SyncProcessorInterface::class, SyncProcessor::class);
         $this->app->singleton(SyncRegistry::class);
+        $this->app->singleton(ModuleRegistry::class);
     }
 
     public function boot(): void
@@ -48,13 +50,6 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('mobile-auth', function (Request $request) {
             return Limit::perMinute((int) config('authx.throttle.login_per_account', 5))
                 ->by($request->string('email')->toString().'|'.$request->ip());
-        });
-
-        RateLimiter::for('payfast-initiate', function (Request $request) {
-            return [
-                Limit::perMinute(10)->by($request->ip()),
-                Limit::perMinute(5)->by('payfast-initiate|'.($request->user()?->id ?? $request->ip())),
-            ];
         });
 
         $this->registerSecurityAuditListeners();

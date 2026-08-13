@@ -143,23 +143,31 @@ const brandRest = computed(() => appConfig.brand.name.split(' ').slice(1).join('
 
 const hasPermission = (permission) => !permission || (session.user?.permissions ?? []).includes(permission);
 const inEnvironment = (environments) => !environments || environments.includes(appConfig.environment);
+const hasModule = (module) => !module || appConfig.modules[module] !== false;
 
 const mainNav = computed(() => {
     const surface = isAdmin.value ? 'admin' : 'customer';
 
     return (appConfig.navigation.main ?? []).filter(
-        (item) => (!item.surfaces || item.surfaces.includes(surface)) && hasPermission(item.permission)
+        (item) =>
+            (!item.surfaces || item.surfaces.includes(surface)) &&
+            hasPermission(item.permission) &&
+            hasModule(item.module)
     );
 });
 
-const adminNav = computed(() => (appConfig.navigation.admin ?? []).filter((item) => hasPermission(item.permission)));
+const adminNav = computed(() =>
+    (appConfig.navigation.admin ?? []).filter((item) => hasPermission(item.permission) && hasModule(item.module))
+);
 
 const showcaseNav = computed(() => {
     if (!appConfig.features.show_showcase_pages) {
         return [];
     }
 
-    return (appConfig.navigation.showcase ?? []).filter((item) => inEnvironment(item.environments));
+    return (appConfig.navigation.showcase ?? []).filter(
+        (item) => inEnvironment(item.environments) && hasModule(item.module)
+    );
 });
 
 const guestNav = computed(() => appConfig.navigation.guest ?? []);

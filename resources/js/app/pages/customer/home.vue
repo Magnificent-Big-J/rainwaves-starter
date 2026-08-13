@@ -33,24 +33,26 @@
                 </div>
             </AppSectionCard>
 
-            <SubscriptionStatusCard
-                v-if="billing.latestSubscription"
-                title="Your subscription"
-                :amount="`R ${Number(billing.latestSubscription.recurring_amount).toFixed(2)} / cycle`"
-                :plan="billing.latestSubscription.item_name"
-                :status="billing.latestSubscription.status"
-                :status-label="billing.latestSubscription.status_label"
-                :billing-date="billing.latestSubscription.billing_date || 'Not scheduled'"
-                :cycles="String(billing.latestSubscription.cycles ?? 0)"
-                :terminal="billing.latestSubscription.is_terminal"
-            />
-            <AppSectionCard v-else title="Your subscription" subtitle="No active subscription">
-                <AppEmptyState title="No subscription yet" text="Start one from the Billing page." icon="mdi-sync">
-                    <template #actions>
-                        <v-btn color="primary" size="small" to="/account/billing">Go to billing</v-btn>
-                    </template>
-                </AppEmptyState>
-            </AppSectionCard>
+            <template v-if="appConfig.modules.billing">
+                <SubscriptionStatusCard
+                    v-if="billing.latestSubscription"
+                    title="Your subscription"
+                    :amount="`R ${Number(billing.latestSubscription.recurring_amount).toFixed(2)} / cycle`"
+                    :plan="billing.latestSubscription.item_name"
+                    :status="billing.latestSubscription.status"
+                    :status-label="billing.latestSubscription.status_label"
+                    :billing-date="billing.latestSubscription.billing_date || 'Not scheduled'"
+                    :cycles="String(billing.latestSubscription.cycles ?? 0)"
+                    :terminal="billing.latestSubscription.is_terminal"
+                />
+                <AppSectionCard v-else title="Your subscription" subtitle="No active subscription">
+                    <AppEmptyState title="No subscription yet" text="Start one from the Billing page." icon="mdi-sync">
+                        <template #actions>
+                            <v-btn color="primary" size="small" to="/account/billing">Go to billing</v-btn>
+                        </template>
+                    </AppEmptyState>
+                </AppSectionCard>
+            </template>
         </div>
 
         <div class="customer-home__grid">
@@ -69,6 +71,7 @@
                 status="processing"
             />
             <AppStatCard
+                v-if="appConfig.modules.billing"
                 label="Billing"
                 :value="billing.latestPayment ? billing.latestPayment.status_label : 'No payments'"
                 helper="PayFast payment integration"
@@ -78,6 +81,7 @@
         </div>
 
         <PaymentEventList
+            v-if="appConfig.modules.billing"
             title="Account activity"
             subtitle="Real payment and subscription events from PayFast ITN callbacks."
             :events="timelineEvents"
@@ -106,10 +110,12 @@ import AppStatCard from '../../components/AppStatCard.vue';
 import AppStatusBadge from '../../components/AppStatusBadge.vue';
 import PaymentEventList from '../../components/PaymentEventList.vue';
 import SubscriptionStatusCard from '../../components/SubscriptionStatusCard.vue';
+import { useAppConfigStore } from '../../stores/app-config';
 import { useBillingStore } from '../../stores/billing';
 import { useNotificationsStore } from '../../stores/notifications';
 
 const notifications = useNotificationsStore();
+const appConfig = useAppConfigStore();
 const billing = useBillingStore();
 
 const timelineEvents = computed(() =>
@@ -121,7 +127,11 @@ const timelineEvents = computed(() =>
     }))
 );
 
-onMounted(() => billing.fetch());
+onMounted(() => {
+    if (appConfig.modules.billing) {
+        billing.fetch();
+    }
+});
 </script>
 
 <style scoped>

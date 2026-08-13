@@ -29,6 +29,9 @@ export const useAppConfigStore = defineStore('appConfig', {
             legal: [],
         },
         environment: 'production',
+        // RS-301: safe fallback is "enabled" — a transient web-config fetch failure
+        // shouldn't hide real functionality that's actually there.
+        modules: { billing: true },
     }),
     actions: {
         async ensureLoaded() {
@@ -46,6 +49,7 @@ export const useAppConfigStore = defineStore('appConfig', {
                 if (data.features) this.features = data.features;
                 if (data.navigation) this.navigation = data.navigation;
                 if (data.environment) this.environment = data.environment;
+                if (data.modules) this.modules = data.modules;
 
                 this.loaded = true;
             } catch (_error) {
