@@ -100,6 +100,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/admin/teams': RouteRecordInfo<
+      '/admin/teams',
+      '/admin/teams',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/admin/users': RouteRecordInfo<
       '/admin/users',
       '/admin/users',
@@ -289,6 +296,12 @@ declare module 'vue-router/auto-routes' {
     'resources/js/app/pages/admin/settings.vue': {
       routes:
         | '/admin/settings'
+      views:
+        | never
+    }
+    'resources/js/app/pages/admin/teams.vue': {
+      routes:
+        | '/admin/teams'
       views:
         | never
     }
