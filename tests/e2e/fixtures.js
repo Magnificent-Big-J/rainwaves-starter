@@ -14,6 +14,14 @@ export const test = base.extend({
         await page.waitForURL('**/dashboard');
         await use(page);
     },
+    customerPage: async ({ page }, use) => {
+        await page.goto('/auth/login');
+        await page.getByLabel('Email').fill(CUSTOMER.email);
+        await page.getByRole('textbox', { name: 'Password' }).fill(CUSTOMER.password);
+        await page.getByRole('button', { name: 'Sign in' }).click();
+        await page.waitForURL((url) => !url.pathname.includes('/auth/login'));
+        await use(page);
+    },
 });
 
 export { expect };
