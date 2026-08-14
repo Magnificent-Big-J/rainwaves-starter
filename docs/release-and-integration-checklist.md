@@ -6,6 +6,7 @@ Kept for history, not as a task list. For current state, read:
 
 - `CLAUDE.md` — the live architecture/conventions reference
 - `2026-07-29-rainwaves-starter-v2-tracker.md` (in the planning docs, not this repo) — the actual gap-closure tracker and session log
+- `CHANGELOG.md`, `docs/upgrade-guide.md`, `docs/supported-versions.md` — the real release documentation this checklist's "release" section was gesturing at before any of it existed
 
 ---
 

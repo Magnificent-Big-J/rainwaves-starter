@@ -2,6 +2,10 @@
 
 Secure Laravel 13 + Vue starter template for Rainwaves apps, with auth, roles, media, and PayFast integration.
 
+See `CHANGELOG.md` for release history, `docs/upgrade-guide.md` if you're backporting
+changes into an existing project, and `docs/supported-versions.md` for the PHP/
+Laravel/Node/MySQL baseline.
+
 ## Purpose
 
 This repository is the clean internal baseline for new Rainwaves applications.
