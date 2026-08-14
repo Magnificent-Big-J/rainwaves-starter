@@ -31,8 +31,7 @@ return [
     // Only ever rendered on the admin surface.
     'admin' => [
         ['label' => 'Users', 'to' => '/admin/users', 'icon' => 'mdi-account-group-outline', 'permission' => 'users.view'],
-        // Admin "Teams" overview nav entry lands in Phase 3 alongside admin/teams.vue —
-        // not added yet so this doesn't point at a page that doesn't exist.
+        ['label' => 'Teams', 'to' => '/admin/teams', 'icon' => 'mdi-domain', 'permission' => 'teams.view', 'module' => 'teams'],
         ['label' => 'Roles & Permissions', 'to' => '/admin/roles', 'icon' => 'mdi-shield-account-outline', 'permission' => 'roles.view'],
         ['label' => 'Audit Log', 'to' => '/admin/audit-log', 'icon' => 'mdi-history', 'permission' => 'activity.view'],
         ['label' => 'Settings', 'to' => '/admin/settings', 'icon' => 'mdi-cog-outline', 'permission' => 'settings.view'],
