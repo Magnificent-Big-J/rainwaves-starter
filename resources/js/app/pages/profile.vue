@@ -460,7 +460,11 @@ const confirmDeleteAccount = async () => {
     }
 
     showDeleteConfirm.value = false;
-    await session.logout();
+    // The backend already ended this session (GovernanceController::deleteAccount()
+    // calls Auth::guard('web')->logout() itself) — calling session.logout() again here
+    // would redundantly re-hit /auth/session/logout on an already-dead session, found
+    // live to be a real hang, not just a wasted request. Just clear local state.
+    session.setUser(null);
     router.push('/');
 };
 
