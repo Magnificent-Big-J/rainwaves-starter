@@ -19,10 +19,13 @@ use Tests\TestCase;
  * Module list is deliberately generic (env var names, not hardcoded to two
  * modules) so this scales automatically when a new module is added — the
  * combination count doubles per module, not something this file needs to know
- * about. Teams' real dependency on Billing (TeamsModule::dependencies()) means
- * one combination in this matrix — teams enabled, billing disabled — is
- * expected to fail fast at boot rather than install cleanly; that branch is
- * handled explicitly below rather than being a silent gap in the matrix.
+ * about (billing × mobile × teams × governance = 16 combinations). Teams' real
+ * dependency on Billing (TeamsModule::dependencies()) means one combination in
+ * this matrix — teams enabled, billing disabled — is expected to fail fast at
+ * boot rather than install cleanly; that branch is handled explicitly below
+ * rather than being a silent gap in the matrix. Governance declares no
+ * dependencies() at all, so every governance=true/false combination installs
+ * cleanly regardless of the other three toggles.
  *
  * config:cache/route:cache write real files into bootstrap/cache/ (unlike
  * route:list/migrate:fresh, which don't touch the working tree at all) — every
@@ -36,6 +39,7 @@ class PresetInstallMatrixTest extends TestCase
         'MODULE_BILLING_ENABLED',
         'MODULE_MOBILE_ENABLED',
         'MODULE_TEAMS_ENABLED',
+        'MODULE_GOVERNANCE_ENABLED',
     ];
 
     /** @return array<string, array{0: array<string, string>}> */
@@ -111,6 +115,13 @@ class PresetInstallMatrixTest extends TestCase
                 $expectTeamsTables,
                 in_array('team_memberships', $tables, true),
                 "[{$label}] team_memberships table presence must match MODULE_TEAMS_ENABLED."
+            );
+
+            $expectGovernanceTables = $moduleEnv['MODULE_GOVERNANCE_ENABLED'] === 'true';
+            $this->assertSame(
+                $expectGovernanceTables,
+                in_array('legal_acceptances', $tables, true),
+                "[{$label}] legal_acceptances table presence must match MODULE_GOVERNANCE_ENABLED."
             );
         } finally {
             // Best-effort cache cleanup — not itself under test, and in the expected-
