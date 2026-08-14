@@ -724,3 +724,87 @@ parameters:
 			identifier: argument.type
 			count: 2
 			path: app/Modules/Teams/Services/TeamService.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Governance\\Http\\Resources\\RoleChangeRequestResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Governance/Http/Resources/RoleChangeRequestResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Governance\\Http\\Resources\\RoleChangeRequestResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Governance/Http/Resources/RoleChangeRequestResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Governance\\Http\\Resources\\RoleChangeRequestResource\:\:\$previous_roles\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Governance/Http/Resources/RoleChangeRequestResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Governance\\Http\\Resources\\RoleChangeRequestResource\:\:\$requested_roles\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Governance/Http/Resources/RoleChangeRequestResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Governance\\Http\\Resources\\RoleChangeRequestResource\:\:\$requester\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Modules/Governance/Http/Resources/RoleChangeRequestResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Governance\\Http\\Resources\\RoleChangeRequestResource\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Governance/Http/Resources/RoleChangeRequestResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Modules\\Governance\\Http\\Resources\\RoleChangeRequestResource\:\:\$user\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Modules/Governance/Http/Resources/RoleChangeRequestResource.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Modules\\Governance\\Enums\\RoleChangeRequestStatus\:\:Pending will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Modules/Governance/Models/RoleChangeRequest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Modules/Governance/Services/GovernanceService.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:syncRoles\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Modules/Governance/Services/GovernanceService.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Modules/Governance/Services/GovernanceService.php
+
+		-
+			message: '#^Instanceof between string and BackedEnum will always evaluate to false\.$#'
+			identifier: instanceof.alwaysFalse
+			count: 2
+			path: app/Modules/Governance/Services/GovernanceService.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Modules\\Teams\\Models\\TeamMembership\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Modules/Governance/Services/GovernanceService.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type string\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Modules/Governance/Services/GovernanceService.php

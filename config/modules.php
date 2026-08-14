@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Billing\BillingModule;
+use App\Modules\Governance\GovernanceModule;
 use App\Modules\Mobile\MobileModule;
 use App\Modules\Teams\TeamsModule;
 
@@ -23,11 +24,13 @@ return [
         BillingModule::class,
         MobileModule::class,
         TeamsModule::class,
+        GovernanceModule::class,
     ],
 
     'enabled' => [
         'billing' => env('MODULE_BILLING_ENABLED', true),
         'mobile' => env('MODULE_MOBILE_ENABLED', true),
         'teams' => env('MODULE_TEAMS_ENABLED', true),
+        'governance' => env('MODULE_GOVERNANCE_ENABLED', true),
     ],
 ];

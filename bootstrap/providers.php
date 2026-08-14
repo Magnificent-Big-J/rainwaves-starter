@@ -3,6 +3,7 @@
 use App\Providers\AppServiceProvider;
 use App\Providers\HorizonServiceProvider;
 use App\Providers\Modules\BillingServiceProvider;
+use App\Providers\Modules\GovernanceServiceProvider;
 use App\Providers\Modules\MobileServiceProvider;
 use App\Providers\Modules\TeamsServiceProvider;
 
@@ -30,4 +31,5 @@ return array_filter([
     env('MODULE_BILLING_ENABLED', true) ? BillingServiceProvider::class : null,
     env('MODULE_MOBILE_ENABLED', true) ? MobileServiceProvider::class : null,
     env('MODULE_TEAMS_ENABLED', true) ? TeamsServiceProvider::class : null,
+    env('MODULE_GOVERNANCE_ENABLED', true) ? GovernanceServiceProvider::class : null,
 ]);
