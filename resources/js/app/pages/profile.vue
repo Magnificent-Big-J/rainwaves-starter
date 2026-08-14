@@ -195,6 +195,27 @@
                     :loading="twoFactor.loading"
                     @regenerate="regenerateCodes"
                 />
+
+                <AppSectionCard
+                    v-if="appConfig.modules.governance !== false"
+                    title="Your data"
+                    subtitle="Export everything associated with your account, or delete it entirely."
+                >
+                    <div class="data-actions">
+                        <v-btn :href="exportHref" variant="tonal" prepend-icon="mdi-download-outline" block>
+                            Export my data
+                        </v-btn>
+                        <v-btn
+                            color="error"
+                            variant="tonal"
+                            prepend-icon="mdi-delete-outline"
+                            block
+                            @click="showDeleteConfirm = true"
+                        >
+                            Delete my account
+                        </v-btn>
+                    </div>
+                </AppSectionCard>
             </div>
         </div>
 
@@ -208,6 +229,18 @@
             @cancel="cancelLeave"
             @confirm="confirmLeave"
         />
+
+        <ConfirmDialog
+            v-model="showDeleteConfirm"
+            title="Delete your account?"
+            text="This deactivates your account immediately and cannot be undone from here. You will be signed out."
+            confirm-label="Delete account"
+            confirm-color="error"
+            :loading="governance.deleting"
+            @confirm="confirmDeleteAccount"
+        >
+            <FormStatusAlert :message="deleteError" type="error" />
+        </ConfirmDialog>
     </div>
 </template>
 
@@ -223,6 +256,7 @@
 
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 import AppBanner from '../components/AppBanner.vue';
 import AppPageHeader from '../components/AppPageHeader.vue';
@@ -237,14 +271,23 @@ import MediaUploader from '../components/MediaUploader.vue';
 import RecoveryCodesPanel from '../components/RecoveryCodesPanel.vue';
 import TwoFactorSetupPanel from '../components/TwoFactorSetupPanel.vue';
 import { useUnsavedChanges } from '../composables/useUnsavedChanges';
+import { useAppConfigStore } from '../stores/app-config';
 import { normalizeErrorMessage, validationErrors } from '../stores/auth-shared';
+import { useGovernanceStore } from '../stores/governance';
 import { useProfileStore } from '../stores/profile';
 import { useSessionStore } from '../stores/session';
 import { useTwoFactorStore } from '../stores/two-factor';
 
 const session = useSessionStore();
+const appConfig = useAppConfigStore();
 const profileStore = useProfileStore();
 const twoFactor = useTwoFactorStore();
+const governance = useGovernanceStore();
+const router = useRouter();
+
+const exportHref = '/api/v1/governance/export';
+const showDeleteConfirm = ref(false);
+const deleteError = ref('');
 
 const profileForm = reactive({ name: '', email: '', avatarFile: null, removeAvatar: false });
 const profileBaseline = reactive({ name: '', email: '' });
@@ -405,6 +448,22 @@ const disableTwoFactor = async () => {
     }
 };
 
+const confirmDeleteAccount = async () => {
+    deleteError.value = '';
+
+    const result = await governance.deleteAccount();
+
+    if (!result.ok) {
+        deleteError.value = result.message;
+
+        return;
+    }
+
+    showDeleteConfirm.value = false;
+    await session.logout();
+    router.push('/');
+};
+
 onMounted(async () => {
     syncProfileForm();
     await twoFactor.getStatus().catch(() => null);
@@ -515,5 +574,10 @@ onMounted(async () => {
     display: flex;
     gap: 0.5rem;
     align-items: center;
+}
+
+.data-actions {
+    display: grid;
+    gap: 0.75rem;
 }
 </style>

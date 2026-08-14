@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Events\StarterAccountsSeeded;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
@@ -16,13 +17,15 @@ class StarterUsersSeeder extends Seeder
     {
         $owner = $this->upsertUser('owner@rainwaves.test', 'Starter Owner', 'super-admin');
         $ops = $this->upsertUser('ops@rainwaves.test', 'Starter Ops', 'admin');
-        $this->upsertUser('customer@rainwaves.test', 'Starter Customer', 'customer');
+        $customer = $this->upsertUser('customer@rainwaves.test', 'Starter Customer', 'customer');
 
         if (! $owner->hasRole('super-admin')) {
             $owner->syncRoles(['super-admin']);
         }
 
         $this->twoFactor->enableEmailOtp($ops);
+
+        event(new StarterAccountsSeeded([$owner, $ops, $customer]));
     }
 
     private function upsertUser(string $email, string $name, string $role): User

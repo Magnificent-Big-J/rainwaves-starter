@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { handleHotUpdate, routes } from 'vue-router/auto-routes';
 import { useAppConfigStore } from '../stores/app-config';
+import { useLegalStore } from '../stores/legal';
 import { useSessionStore } from '../stores/session';
 
 const router = createRouter({
@@ -30,6 +31,19 @@ router.beforeEach(async (to) => {
 
     if (to.path !== '/auth/verify' && session.pendingTwoFactorRequired) {
         return '/auth/verify';
+    }
+
+    // Same unconditional-redirect shape as the 2FA gate above — applies regardless of
+    // the target route's own meta, since accepting outstanding legal documents isn't
+    // tied to any one page. Skipped entirely for guests (nothing to accept yet) and
+    // when the Governance module is disabled.
+    if (to.path !== '/legal/accept' && session.isAuthenticated && appConfig.modules.governance !== false) {
+        const legal = useLegalStore();
+        await legal.ensureLoaded();
+
+        if (legal.hasOutstandingDocuments) {
+            return '/legal/accept';
+        }
     }
 
     if (to.meta.adminOnly && session.activeSurface !== 'admin') {

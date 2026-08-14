@@ -3,12 +3,14 @@
 namespace App\Providers\Modules;
 
 use App\Contracts\UserAdminServiceInterface;
+use App\Events\StarterAccountsSeeded;
 use App\Modules\Governance\Contracts\GovernanceServiceInterface;
 use App\Modules\Governance\Contracts\LegalServiceInterface;
 use App\Modules\Governance\Services\ApprovalGatedUserAdminService;
 use App\Modules\Governance\Services\GovernanceService;
 use App\Modules\Governance\Services\LegalService;
 use App\Services\UserAdminService;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
@@ -16,7 +18,7 @@ use Illuminate\Support\ServiceProvider;
  * The Governance module — only ever instantiated when MODULE_GOVERNANCE_ENABLED
  * evaluates true (see bootstrap/providers.php). Declares no dependencies() — legal
  * consent and role-elevation approval are unrelated to Billing/Teams, and the data
- * export feature degrades gracefully via runtime config('modules.*') checks rather
+ * export feature degrades gracefully via runtime ModuleRegistry::isEnabled() checks rather
  * than requiring either.
  *
  * Rebinds UserAdminServiceInterface to a decorator (ApprovalGatedUserAdminService,
@@ -46,5 +48,18 @@ class GovernanceServiceProvider extends ServiceProvider
         });
 
         $this->loadMigrationsFrom(database_path('migrations/modules/governance'));
+
+        // StarterUsersSeeder fires this with zero awareness Governance exists — same
+        // decoupled listener shape as LogSecurityActivity reacting to lara-auth-suite's
+        // UserRegistered event. Pre-accepts the current legal documents for the seeded
+        // starter accounts so they're not stuck behind their own onboarding gate,
+        // matching "ready to use starter accounts" (StarterPlatformTest).
+        Event::listen(StarterAccountsSeeded::class, function (StarterAccountsSeeded $event) {
+            $legal = $this->app->make(LegalServiceInterface::class);
+
+            foreach ($event->users as $user) {
+                $legal->accept($user, array_keys(config('governance.legal_versions', [])), log: false);
+            }
+        });
     }
 }

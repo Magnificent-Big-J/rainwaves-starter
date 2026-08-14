@@ -13,6 +13,11 @@ Route::middleware(['auth:sanctum', 'idempotency'])->group(function () {
     Route::get('/v1/legal/status', [LegalController::class, 'status']);
     Route::post('/v1/legal/accept', [LegalController::class, 'accept']);
 
+    // Gated on users.view (not governance.manage) — this is read-only enrichment for
+    // admin/users.vue's own table, not the elevation-approval surface, so it's visible
+    // to the same audience that can already see the users list at all.
+    Route::middleware('can:users.view')->get('/v1/governance/legal-acceptance-summary', [LegalController::class, 'adminSummary']);
+
     Route::get('/v1/governance/export', [GovernanceController::class, 'exportData']);
     Route::delete('/v1/governance/account', [GovernanceController::class, 'deleteAccount']);
 

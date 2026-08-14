@@ -86,6 +86,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/admin/governance': RouteRecordInfo<
+      '/admin/governance',
+      '/admin/governance',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/admin/roles': RouteRecordInfo<
       '/admin/roles',
       '/admin/roles',
@@ -173,6 +180,13 @@ declare module 'vue-router/auto-routes' {
     '/foundation': RouteRecordInfo<
       '/foundation',
       '/foundation',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/legal/accept': RouteRecordInfo<
+      '/legal/accept',
+      '/legal/accept',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -287,6 +301,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'resources/js/app/pages/admin/governance.vue': {
+      routes:
+        | '/admin/governance'
+      views:
+        | never
+    }
     'resources/js/app/pages/admin/roles.vue': {
       routes:
         | '/admin/roles'
@@ -362,6 +382,12 @@ declare module 'vue-router/auto-routes' {
     'resources/js/app/pages/foundation.vue': {
       routes:
         | '/foundation'
+      views:
+        | never
+    }
+    'resources/js/app/pages/legal/accept.vue': {
+      routes:
+        | '/legal/accept'
       views:
         | never
     }

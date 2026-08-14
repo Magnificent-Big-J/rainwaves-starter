@@ -33,6 +33,7 @@ return [
         ['label' => 'Users', 'to' => '/admin/users', 'icon' => 'mdi-account-group-outline', 'permission' => 'users.view'],
         ['label' => 'Teams', 'to' => '/admin/teams', 'icon' => 'mdi-domain', 'permission' => 'teams.view', 'module' => 'teams'],
         ['label' => 'Roles & Permissions', 'to' => '/admin/roles', 'icon' => 'mdi-shield-account-outline', 'permission' => 'roles.view'],
+        ['label' => 'Governance', 'to' => '/admin/governance', 'icon' => 'mdi-gavel', 'permission' => 'governance.manage', 'module' => 'governance'],
         ['label' => 'Audit Log', 'to' => '/admin/audit-log', 'icon' => 'mdi-history', 'permission' => 'activity.view'],
         ['label' => 'Settings', 'to' => '/admin/settings', 'icon' => 'mdi-cog-outline', 'permission' => 'settings.view'],
     ],
