@@ -55,6 +55,20 @@ class TeamMemberTest extends TestCase
             ->assertJsonPath('data.role', 'admin');
     }
 
+    public function test_an_admin_cannot_change_their_own_role(): void
+    {
+        $owner = User::factory()->create();
+        $admin = User::factory()->create();
+        $team = $this->createTeamFor($owner);
+        $this->addMember($team, $admin, 'admin');
+
+        $this->actingAs($admin)
+            ->patchJson("/api/v1/teams/{$team->id}/members/{$admin->id}", ['role' => 'member'])
+            ->assertStatus(422);
+
+        $this->assertDatabaseHas('team_memberships', ['team_id' => $team->id, 'user_id' => $admin->id, 'role' => 'admin']);
+    }
+
     public function test_a_plain_member_cannot_change_roles(): void
     {
         $owner = User::factory()->create();

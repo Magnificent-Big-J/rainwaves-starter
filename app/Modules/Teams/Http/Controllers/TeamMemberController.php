@@ -38,6 +38,10 @@ class TeamMemberController extends Controller
     {
         $this->authorizeManageMembers($request, $team);
 
+        if ($user->getKey() === $request->user()->getKey()) {
+            return Envelope::error('You cannot change your own role.', [], 422);
+        }
+
         try {
             $membership = $this->teams->changeMemberRole($team, $user, TeamRole::from($request->validated('role')));
         } catch (RuntimeException $exception) {

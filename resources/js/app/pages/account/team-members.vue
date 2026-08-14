@@ -52,7 +52,7 @@
                         </td>
                         <td data-label="Role">
                             <AppSelect
-                                v-if="canManage && !row.is_owner"
+                                v-if="canManage && !row.is_owner && !isSelf(row)"
                                 :model-value="row.role"
                                 :items="roleOptions"
                                 density="compact"
@@ -71,7 +71,7 @@
                                 color="error"
                                 @click="removeTarget = row"
                             >
-                                Remove
+                                {{ isSelf(row) ? 'Leave' : 'Remove' }}
                             </v-btn>
                         </td>
                     </template>
@@ -134,9 +134,13 @@
 
         <ConfirmDialog
             :model-value="Boolean(removeTarget)"
-            title="Remove this member?"
-            :text="`${removeTarget?.name ?? ''} will lose access to this team immediately.`"
-            confirm-label="Remove"
+            :title="isSelf(removeTarget) ? 'Leave this team?' : 'Remove this member?'"
+            :text="
+                isSelf(removeTarget)
+                    ? 'You will lose access to this team immediately.'
+                    : `${removeTarget?.name ?? ''} will lose access to this team immediately.`
+            "
+            :confirm-label="isSelf(removeTarget) ? 'Leave' : 'Remove'"
             confirm-color="error"
             :loading="removing"
             @update:model-value="removeTarget = null"
@@ -184,13 +188,16 @@ import AppTextField from '../../components/AppTextField.vue';
 import ConfirmDialog from '../../components/ConfirmDialog.vue';
 import FormStatusAlert from '../../components/FormStatusAlert.vue';
 import { useAppErrorsStore } from '../../stores/app-errors';
+import { useSessionStore } from '../../stores/session';
 import { useTeamStore } from '../../stores/team';
 import { useTeamMembersStore } from '../../stores/team-members';
 
+const session = useSessionStore();
 const team = useTeamStore();
 const members = useTeamMembersStore();
 
 const canManage = computed(() => team.myRole === 'owner' || team.myRole === 'admin');
+const isSelf = (row) => Boolean(row) && row.user_id === session.user?.id;
 
 const columns = [
     { key: 'member', label: 'Member' },
