@@ -135,6 +135,14 @@
                                 <span v-if="!row.roles?.length" class="text-muted">—</span>
                             </div>
                         </td>
+                        <td v-if="showLegalColumn" data-label="Legal">
+                            <AppStatusBadge
+                                v-if="legalStatus[row.id] !== undefined"
+                                :status="legalStatus[row.id] ? 'active' : 'warning'"
+                                :label="legalStatus[row.id] ? 'Accepted' : 'Stale'"
+                            />
+                            <span v-else class="text-muted">—</span>
+                        </td>
                         <td data-label="Joined">
                             <span class="text-muted text-sm">{{ formatDate(row.created_at) }}</span>
                         </td>
@@ -304,17 +312,28 @@ import AppSkeleton from '../../components/AppSkeleton.vue';
 import AppTextField from '../../components/AppTextField.vue';
 import { usePersistedFilters } from '../../composables/usePersistedFilters';
 import { useAdminUsersStore } from '../../stores/admin-users';
+import { useAppConfigStore } from '../../stores/app-config';
 import { useAppErrorsStore } from '../../stores/app-errors';
 import { normalizeErrorMessage, validationErrors } from '../../stores/auth-shared';
+import { v1 } from '../../utils/api';
 
 const store = useAdminUsersStore();
+const appConfig = useAppConfigStore();
 
-const columns = [
+// Legal-acceptance status is Governance's own data — admin/users.vue (core) fetches it
+// as an optional enrichment via Governance's endpoint rather than the Users
+// list/response knowing anything about it, the same one-way module dependency
+// direction Billing/Teams already established.
+const showLegalColumn = computed(() => appConfig.modules.governance !== false);
+const legalStatus = reactive({});
+
+const columns = computed(() => [
     { key: 'user', label: 'User', sortable: true, sortKey: 'name' },
     { key: 'roles', label: 'Roles', hideable: true },
+    ...(showLegalColumn.value ? [{ key: 'legal', label: 'Legal', hideable: true }] : []),
     { key: 'created_at', label: 'Joined', sortable: true, hideable: true },
     { key: 'actions', label: '', srLabel: 'Actions', class: 'text-right' },
-];
+]);
 
 const filters = reactive({ search: '', role: '', status: '', page: 1, sortBy: '', sortDirection: 'asc' });
 usePersistedFilters('admin-users', filters, { exclude: ['page'] });
@@ -338,8 +357,8 @@ const confirmSeed = reactive({
     open: false,
 });
 
-const load = () =>
-    store.fetch({
+const load = async () => {
+    await store.fetch({
         page: filters.page,
         search: filters.search,
         role: filters.role,
@@ -347,6 +366,21 @@ const load = () =>
         sortBy: filters.sortBy,
         sortDirection: filters.sortDirection,
     });
+
+    if (!showLegalColumn.value || !store.rows.length) {
+        return;
+    }
+
+    const params = new URLSearchParams();
+    store.rows.forEach((row) => params.append('ids[]', row.id));
+
+    try {
+        const response = await v1(`governance/legal-acceptance-summary?${params}`);
+        Object.assign(legalStatus, response?.data?.status ?? {});
+    } catch (_error) {
+        // Non-critical enrichment — the table still works, the column just shows "—".
+    }
+};
 
 const exportHref = computed(() => {
     const params = new URLSearchParams();

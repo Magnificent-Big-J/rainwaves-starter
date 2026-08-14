@@ -31,7 +31,7 @@ class LegalService implements LegalServiceInterface
             ->all();
     }
 
-    public function accept(User $user, array $documents): void
+    public function accept(User $user, array $documents, bool $log = true): void
     {
         $versions = config('governance.legal_versions', []);
 
@@ -50,7 +50,11 @@ class LegalService implements LegalServiceInterface
             }
         });
 
-        if (function_exists('activity')) {
+        // Suppressed for the seed-time default acceptance (StarterAccountsSeeded) —
+        // that's a bootstrapping convenience, not a real user action worth an audit
+        // trail entry, and it was polluting activity-log tests' "most recent" ordering
+        // assumption when it fired alongside their own log() calls in the same second.
+        if ($log && function_exists('activity')) {
             activity('governance')
                 ->performedOn($user)
                 ->causedBy($user)
@@ -58,5 +62,29 @@ class LegalService implements LegalServiceInterface
                 ->event('legal_accepted')
                 ->log('Accepted legal documents');
         }
+    }
+
+    public function upToDateStatusFor(iterable $userIds): array
+    {
+        $versions = config('governance.legal_versions', []);
+        $userIds = collect($userIds)->values();
+
+        if ($userIds->isEmpty() || $versions === []) {
+            return $userIds->mapWithKeys(fn (int $id) => [$id => true])->all();
+        }
+
+        $latestByUser = LegalAcceptance::query()
+            ->whereIn('user_id', $userIds)
+            ->whereIn('document', array_keys($versions))
+            ->get()
+            ->groupBy('user_id')
+            ->map(fn ($rows) => $rows->groupBy('document')->map(fn ($rows) => $rows->max('version')));
+
+        return $userIds->mapWithKeys(function (int $id) use ($versions, $latestByUser) {
+            $userVersions = $latestByUser->get($id, collect());
+            $upToDate = collect($versions)->every(fn (int $version, string $document) => ($userVersions[$document] ?? null) === $version);
+
+            return [$id => $upToDate];
+        })->all();
     }
 }

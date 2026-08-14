@@ -79,4 +79,30 @@ class LegalTest extends TestCase
         $this->getJson('/api/v1/legal/status')->assertUnauthorized();
         $this->postJson('/api/v1/legal/accept', ['documents' => ['terms']])->assertUnauthorized();
     }
+
+    public function test_admin_summary_reports_up_to_date_status_per_user(): void
+    {
+        $owner = User::where('email', 'owner@rainwaves.test')->firstOrFail();
+        $upToDate = User::factory()->create();
+        $stale = User::factory()->create();
+
+        $this->actingAs($upToDate)->postJson('/api/v1/legal/accept', ['documents' => ['terms', 'privacy']])->assertOk();
+        $this->actingAs($stale)->postJson('/api/v1/legal/accept', ['documents' => ['terms']])->assertOk();
+
+        $response = $this->actingAs($owner)
+            ->getJson('/api/v1/governance/legal-acceptance-summary?'.http_build_query(['ids' => [$upToDate->id, $stale->id]]))
+            ->assertOk();
+
+        $this->assertTrue($response->json("data.status.{$upToDate->id}"));
+        $this->assertFalse($response->json("data.status.{$stale->id}"));
+    }
+
+    public function test_admin_summary_requires_users_view_permission(): void
+    {
+        $customer = User::where('email', 'customer@rainwaves.test')->firstOrFail();
+
+        $this->actingAs($customer)
+            ->getJson('/api/v1/governance/legal-acceptance-summary')
+            ->assertForbidden();
+    }
 }

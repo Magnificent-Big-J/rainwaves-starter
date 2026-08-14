@@ -19,7 +19,7 @@ class GovernanceModule implements ModuleManifest
     /**
      * No hard dependency — legal consent and role-elevation approval are unrelated to
      * Billing/Teams. Data export conditionally includes their data via a runtime
-     * config('modules.*') check, not a module dependency (see GovernanceService).
+     * ModuleRegistry::isEnabled() check, not a module dependency (see GovernanceService).
      */
     public function dependencies(): array
     {

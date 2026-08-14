@@ -3,6 +3,8 @@
 namespace Tests\Feature\Api;
 
 use App\Models\User;
+use App\Modules\Teams\Models\Team;
+use App\Modules\Teams\Models\TeamMembership;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -35,6 +37,34 @@ class GovernanceTest extends TestCase
     public function test_export_requires_authentication(): void
     {
         $this->getJson('/api/v1/governance/export')->assertUnauthorized();
+    }
+
+    public function test_export_includes_team_and_payment_data_when_those_modules_are_enabled(): void
+    {
+        // Regression: exportDataFor() originally checked config('modules.teams')/
+        // config('modules.billing') directly instead of the real
+        // ModuleRegistry::isEnabled('teams'|'billing') path (config('modules.enabled.*')
+        // is where module state actually lives) — both always resolved to null, so these
+        // sections silently never appeared even with both modules enabled. Caught live in
+        // a real browser, not by the original (looser) export test.
+        $user = User::factory()->create();
+        $team = Team::query()->create([
+            'name' => 'Export Test Team',
+            'slug' => 'export-test-team-'.$user->id,
+            'owner_id' => $user->id,
+        ]);
+        TeamMembership::query()->create([
+            'team_id' => $team->id,
+            'user_id' => $user->id,
+            'role' => 'owner',
+            'joined_at' => now(),
+        ]);
+
+        $response = $this->actingAs($user)->get('/api/v1/governance/export');
+        $payload = json_decode($response->streamedContent(), true);
+
+        $this->assertArrayHasKey('team_memberships', $payload);
+        $this->assertSame('Export Test Team', $payload['team_memberships'][0]['team']);
     }
 
     public function test_a_customer_can_delete_their_own_account(): void

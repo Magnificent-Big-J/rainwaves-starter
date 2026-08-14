@@ -8,6 +8,7 @@ use App\Modules\Billing\Models\Payment;
 use App\Modules\Governance\Contracts\GovernanceServiceInterface;
 use App\Modules\Governance\Enums\RoleChangeRequestStatus;
 use App\Modules\Governance\Models\RoleChangeRequest;
+use App\Modules\ModuleRegistry;
 use App\Modules\Teams\Models\TeamMembership;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +18,8 @@ use Spatie\Activitylog\Models\Activity;
 class GovernanceService implements GovernanceServiceInterface
 {
     public function __construct(
-        private readonly UserAdminServiceInterface $userAdmin
+        private readonly UserAdminServiceInterface $userAdmin,
+        private readonly ModuleRegistry $modules,
     ) {}
 
     public function exportDataFor(User $user): array
@@ -37,7 +39,7 @@ class GovernanceService implements GovernanceServiceInterface
         // enabled, not a hard Governance dependency on Teams/Billing (see
         // GovernanceModule::dependencies()): this export degrades gracefully rather
         // than requiring either module to be present.
-        if (config('modules.teams') && class_exists(TeamMembership::class)) {
+        if ($this->modules->isEnabled('teams') && class_exists(TeamMembership::class)) {
             $data['team_memberships'] = TeamMembership::query()
                 ->where('user_id', $user->id)
                 ->with('team:id,name,slug')
@@ -50,7 +52,7 @@ class GovernanceService implements GovernanceServiceInterface
                 ->all();
         }
 
-        if (config('modules.billing') && class_exists(Payment::class)) {
+        if ($this->modules->isEnabled('billing') && class_exists(Payment::class)) {
             $data['payments'] = Payment::query()
                 ->where('user_id', $user->id)
                 ->get(['id', 'status', 'amount_gross', 'created_at'])

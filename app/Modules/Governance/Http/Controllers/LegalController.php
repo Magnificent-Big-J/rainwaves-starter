@@ -26,4 +26,12 @@ class LegalController extends Controller
 
         return Envelope::success(['documents' => $this->legal->statusFor($request->user())], 'Thanks — accepted.');
     }
+
+    /** Admin-only: legal-acceptance status for a set of users, for admin/users.vue's "Legal" column. */
+    public function adminSummary(Request $request): JsonResponse
+    {
+        $ids = collect($request->query('ids', []))->map(fn ($id) => (int) $id)->filter()->values();
+
+        return Envelope::success(['status' => $this->legal->upToDateStatusFor($ids)]);
+    }
 }

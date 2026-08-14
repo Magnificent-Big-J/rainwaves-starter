@@ -41,6 +41,13 @@ const KNOWN_PRE_EXISTING_RULE_IDS = [
 ];
 
 const assertNoViolations = async (page) => {
+    // Authenticated pages fetch their own data after mount (and admin/users.vue now
+    // chains a second Governance enrichment fetch after its main list load) — without
+    // this, axe can catch the page mid-load and flag a transient Vuetify progress-linear
+    // (an internal loading indicator, not a real page element) for having no accessible
+    // name, a false positive that has nothing to do with the page's real markup.
+    await page.waitForLoadState('networkidle');
+
     const results = await new AxeBuilder({ page }).disableRules(KNOWN_PRE_EXISTING_RULE_IDS).analyze();
 
     expect(results.violations, JSON.stringify(results.violations, null, 2)).toEqual([]);

@@ -6,6 +6,7 @@ test.describe('teams', () => {
         browser,
     }) => {
         await page.goto('/account/team');
+        await page.waitForLoadState('networkidle');
 
         // Leftover from an interrupted previous run — clean up before asserting the
         // empty state, so this test is deterministically re-runnable against a real
@@ -52,7 +53,11 @@ test.describe('teams', () => {
 
         await adminTeamRow.click();
         await expect(adminPage.getByText('Members').first()).toBeVisible();
-        await expect(adminPage.getByText('customer@rainwaves.test')).toBeVisible();
+        // The drawer also shows the owner's email in its own stat card and the members
+        // list can too, so this scopes to the members list specifically rather than a
+        // bare getByText — the owner/table-row/members-list combination legitimately
+        // resolves to 3 matches once the drawer is fully rendered.
+        await expect(adminPage.locator('.detail-members__email', { hasText: 'customer@rainwaves.test' })).toBeVisible();
         await adminContext.close();
 
         await inviteRow.getByRole('button', { name: 'Revoke' }).click();
