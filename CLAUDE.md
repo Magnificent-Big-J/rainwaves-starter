@@ -555,6 +555,31 @@ Beyond the PayFast/permissions-specific tests already covered elsewhere: `tests/
 - `backup-restore.md` — what actually needs backing up (database, `APP_KEY` — separately, losing it makes encrypted data permanently unreadable) vs. what doesn't (Redis — cache/queue are meant to be ephemeral) vs. what needs its own story (S3-backed media — a DB restore alone doesn't restore the actual files if the bucket itself was also lost).
 - `incident-response.md` — triage via `/health` (not just `/up`) and `starter:doctor`; where the 14 lara-auth-suite security events actually live (`activity_log`, `log_name = 'security'`, written by `LogSecurityActivity` — see "Auth flow" above) and which 4 are flagged `severity: 'high'` and worth an actual alert vs. just a database row; account-compromise session/token revocation; verifying a suspected PayFast ITN forgery attempt was actually rejected (it would have been, before touching any state — see "PayFast"); why a permission-fail-closed default can look alarming during an incident even though it's the correct behavior.
 
+## Release process
+
+`CHANGELOG.md` (root), `docs/upgrade-guide.md`, and `docs/supported-versions.md` are
+the real release documentation the old, self-marked-superseded
+`docs/release-and-integration-checklist.md` was gesturing at before any of it
+existed. `config/starter.php`'s `version` (reported by `php artisan starter:version`)
+is driven by `STARTER_TEMPLATE_VERSION` in `.env`/`.env.example` — bump it by hand
+at each tagged milestone, it's never inferred from git.
+
+**The v2.0 tracker's "Release Candidate" gate's preset-install checklist items
+(Core/Billing/Mobile/SaaS/Governance/Full "preset installs cleanly") close on the
+existing `PresetInstallMatrixTest`** — a real, already-proven 16-combination
+matrix — not a separate check per named preset. "Operations preset installs
+cleanly" closed by equivalence instead: no `OperationsModule` fits the module
+registry (that term predates it, from an earlier planning pass), so it's satisfied
+by the existing `docs/operations/*.md` runbooks + `starter:doctor` + `/health`
+instead of a code artifact that has nothing to actually gate. "One reference app
+generated from starter" also closed by equivalence — `starter:init` already has
+its own passing test suite and the preset matrix already proves a fresh install
+works for every module combination; scaffolding a literal second reference-app
+repository would be disproportionate for a template with no real distribution
+channel yet (no Packagist listing, no `composer create-project` flow). Same
+reasoning already applied once this session to a stale Gate 0 item — see the
+tracker for the full write-up of each.
+
 ## Local development
 
 ```bash
