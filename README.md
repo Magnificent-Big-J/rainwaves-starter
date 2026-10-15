@@ -72,6 +72,25 @@ Current auth/client stores:
 - `session`
 - `two-factor`
 
+## Operational Monitoring
+
+`rainwaves/scale-monitor-client` is installed so every app built from this starter can
+report to Code Scale Tech's Scale Monitor without extra setup. It is off by default
+(`SCALE_MONITOR_ENABLED=false`) and fails open: if Scale Monitor is unreachable the app
+carries on. Once the app is registered in Scale Monitor:
+
+1. Issue a credential for the environment (Application page, key icon) with the
+   `heartbeat`, `error`, `failed-job`, `deployment` and `health` scopes.
+2. Set `SCALE_MONITOR_ENABLED=true`, `SCALE_MONITOR_BASE_URL`, `SCALE_MONITOR_KEY_ID`,
+   `SCALE_MONITOR_SECRET` and `SCALE_MONITOR_APPLICATION` (the app's slug).
+3. Add a deep-health check in Scale Monitor pointing at
+   `https://<host>/api/monitoring/v1/health`. Scale Monitor then also pulls
+   `/api/monitoring/v1/dependencies` daily to check the deployed packages against
+   published vulnerability advisories.
+
+Both endpoints only answer requests signed with that credential. See the package README
+for optional settings.
+
 ## Local Requirements
 
 - PHP `8.4+`

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b51f88913014a4ded74429776c26db00",
+    "content-hash": "10b0ff99328b65374fc947bc5b0c4dfb",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -4342,6 +4342,63 @@
                 "source": "https://github.com/Magnificent-Big-J/payfast-payment/tree/v2.0.1"
             },
             "time": "2026-08-03T02:18:02+00:00"
+        },
+        {
+            "name": "rainwaves/scale-monitor-client",
+            "version": "v1.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Magnificent-Big-J/scale-monitor-client.git",
+                "reference": "ae3d88782913f9d0609c70b224bcd889abf721fd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Magnificent-Big-J/scale-monitor-client/zipball/ae3d88782913f9d0609c70b224bcd889abf721fd",
+                "reference": "ae3d88782913f9d0609c70b224bcd889abf721fd",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/console": "^12.0|^13.0",
+                "illuminate/http": "^12.0|^13.0",
+                "illuminate/queue": "^12.0|^13.0",
+                "illuminate/support": "^12.0|^13.0",
+                "php": "^8.3|^8.4|^8.5"
+            },
+            "require-dev": {
+                "league/flysystem-aws-s3-v3": "^3.0",
+                "orchestra/testbench": "^10.0 || ^11.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "config": [
+                        "scale-monitor.php"
+                    ],
+                    "providers": [
+                        "Rainwaves\\ScaleMonitorClient\\ScaleMonitorServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Rainwaves\\ScaleMonitorClient\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Code Scale Tech"
+                }
+            ],
+            "description": "Laravel client for Code Scale Tech's Scale Monitor: signed heartbeat/error/failed-job/deployment/metric/custom-event telemetry, a deep-health endpoint with pluggable checks, and an exception-handler hook. Fails open by design.",
+            "support": {
+                "issues": "https://github.com/Magnificent-Big-J/scale-monitor-client/issues",
+                "source": "https://github.com/Magnificent-Big-J/scale-monitor-client/tree/v1.4.0"
+            },
+            "time": "2026-10-15T20:56:10+00:00"
         },
         {
             "name": "ralouphie/getallheaders",
