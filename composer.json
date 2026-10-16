@@ -16,6 +16,7 @@
         "predis/predis": "^3.4",
         "rainwaves/lara-auth-suite": "^2.1.1",
         "rainwaves/payfast-payment": "^2.0.1",
+        "rainwaves/scale-monitor-client": "^1.4",
         "spatie/laravel-activitylog": "^5.0",
         "spatie/laravel-medialibrary": "^11.21",
         "spatie/laravel-permission": "^7.3"
